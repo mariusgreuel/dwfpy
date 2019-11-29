@@ -1,0 +1,8 @@
+[MAIN]
+ignore-patterns=^_
+
+[MESSAGES CONTROL]
+disable=too-many-arguments, too-many-locals, too-many-instance-attributes, too-many-public-methods, too-many-lines, too-few-public-methods, duplicate-code
+
+[FORMAT]
+max-line-length=120
