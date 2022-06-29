@@ -12,7 +12,7 @@ Python bindings for Digilent WaveForms API.
 from ctypes import (
     cdll,
     CFUNCTYPE, POINTER,
-    c_bool, c_char, c_ubyte, c_short, c_ushort, c_int, c_uint, c_ulonglong, c_double,
+    c_char, c_ubyte, c_short, c_ushort, c_int, c_uint, c_ulonglong, c_double,
     c_void_p, c_char_p,
     create_string_buffer)
 import logging
@@ -93,16 +93,21 @@ HDWF_NONE = 0
 
 DwfEnumFilter = c_int
 ENUMFILTER_ALL = 0
-ENUMFILTER_EEXPLORER = 1
-ENUMFILTER_DISCOVERY = 2
-ENUMFILTER_DISCOVERY2 = 3
-ENUMFILTER_DDISCOVERY = 4
+ENUMFILTER_TYPE = 0x8000000
+ENUMFILTER_USB = 0x0000001
+ENUMFILTER_NETWORK = 0x0000002
+ENUMFILTER_AXI = 0x0000004
+ENUMFILTER_REMOTE = 0x1000000
+ENUMFILTER_AUDIO = 0x2000000
+ENUMFILTER_DEMO = 0x4000000
 
 DwfDevId = c_int
 DEVID_EEXPLORER = 1
 DEVID_DISCOVERY = 2
 DEVID_DISCOVERY2 = 3
 DEVID_DDISCOVERY = 4
+DEVID_ADP3X50 = 6
+DEVID_ADP5250 = 8
 
 DwfDevVer = c_int
 DEVVER_EEXPLORER_C = 2
@@ -130,6 +135,7 @@ TRIGSRC_EXTERNAL3 = 13
 TRIGSRC_EXTERNAL4 = 14
 TRIGSRC_HIGH = 15
 TRIGSRC_LOW = 16
+TRIGSRC_CLOCK = 17
 
 DwfState = c_ubyte
 STATE_READY = 0
@@ -161,6 +167,7 @@ ACQMODE_SCAN_SCREEN = 2
 ACQMODE_RECORD = 3
 ACQMODE_OVERS = 4
 ACQMODE_SINGLE1 = 5
+ACQMODE_RECORD2 = 6
 
 DwfFilter = c_int
 FILTER_DECIMATE = 0
@@ -171,6 +178,7 @@ DwfTrigType = c_int
 TRIGTYPE_EDGE = 0
 TRIGTYPE_PULSE = 1
 TRIGTYPE_TRANSITION = 2
+TRIGTYPE_WINDOW = 3
 
 DwfTriggerSlope = c_int
 TRIGGER_SLOPE_RISE = 0
@@ -205,6 +213,8 @@ FUNC_NOISE = 6
 FUNC_PULSE = 7
 FUNC_TRAPEZIUM = 8
 FUNC_SINE_POWER = 9
+FUNC_CUSTOM_PATTERN = 28
+FUNC_PLAY_PATTERN = 29
 FUNC_CUSTOM = 30
 FUNC_PLAY = 31
 
@@ -214,6 +224,24 @@ ANALOGIO_VOLTAGE = 2
 ANALOGIO_CURRENT = 3
 ANALOGIO_POWER = 4
 ANALOGIO_TEMPERATURE = 5
+ANALOGIO_DMM = 6
+ANALOGIO_RANGE = 7
+ANALOGIO_MEASURE = 8
+ANALOGIO_TIME = 9
+ANALOGIO_FREQUENCY = 10
+ANALOGIO_RESISTANCE = 11
+
+DwfDmm = c_int
+DMM_RESISTANCE = 1
+DMM_CONTINUITY = 2
+DMM_DIODE = 3
+DMM_DC_VOLTAGE = 4
+DMM_AC_VOLTAGE = 5
+DMM_DC_CURRENT = 6
+DMM_AC_CURRENT = 7
+DMM_DC_LOW_CURRENT = 8
+DMM_AC_LOW_CURRENT = 9
+DMM_TEMPERATURE = 10
 
 DwfAnalogOutNode = c_int
 ANALOG_OUT_NODE_CARRIER = 0
@@ -232,6 +260,7 @@ ANALOG_OUT_IDLE_INITIAL = 2
 DwfDigitalInClockSource = c_int
 DIGITAL_IN_CLOCK_SOURCE_INTERNAL = 0
 DIGITAL_IN_CLOCK_SOURCE_EXTERNAL = 1
+DIGITAL_IN_CLOCK_SOURCE_EXTERNAL2 = 2
 
 DwfDigitalInSampleMode = c_int
 DIGITAL_IN_SAMPLE_MODE_SIMPLE = 0
@@ -248,7 +277,8 @@ DIGITAL_OUT_TYPE_PULSE = 0
 DIGITAL_OUT_TYPE_CUSTOM = 1
 DIGITAL_OUT_TYPE_RANDOM = 2
 DIGITAL_OUT_TYPE_ROM = 3
-DIGITAL_OUT_TYPE_FSM = 3
+DIGITAL_OUT_TYPE_STATE = 4
+DIGITAL_OUT_TYPE_PLAY = 5
 
 DwfDigitalOutIdle = c_int
 DIGITAL_OUT_IDLE_INIT = 0
@@ -271,6 +301,12 @@ ANALOG_IMPEDANCE_SERIES_INDUCTANCE = 10  # Henry
 ANALOG_IMPEDANCE_PARALLEL_INDUCTANCE = 11  # Henry
 ANALOG_IMPEDANCE_DISSIPATION = 12  # factor
 ANALOG_IMPEDANCE_QUALITY = 13  # factor
+ANALOG_IMPEDANCE_VRMS = 14  # Vrms
+ANALOG_IMPEDANCE_VREAL = 15  # V real
+ANALOG_IMPEDANCE_VIMAG = 16  # V imag
+ANALOG_IMPEDANCE_IRMS = 17  # Irms
+ANALOG_IMPEDANCE_IREAL = 18  # I real
+ANALOG_IMPEDANCE_IIMAG = 19  # I imag
 
 DwfParam = c_int
 PARAM_USB_POWER = 2  # 1 keep the USB power enabled even when AUX is connected, Analog Discovery 2
@@ -278,6 +314,24 @@ PARAM_LED_BRIGHTNESS = 3  # LED brightness 0 ... 100%, Digital Discovery
 PARAM_ON_CLOSE = 4  # 0 continue, 1 stop, 2 shutdown
 PARAM_AUDIO_OUT = 5  # 0 disable / 1 enable audio output, Analog Discovery 1, 2
 PARAM_USB_LIMIT = 6  # 0..1000 mA USB power limit, -1 no limit, Analog Discovery 1, 2
+PARAM_ANALOG_OUT = 7  # 0 disable / 1 enable
+PARAM_FREQUENCY = 8  # Hz
+PARAM_EXT_FREQ = 9  # Hz
+PARAM_CLOCK_MODE = 10  # 0 internal, 1 output, 2 input, 3 IO
+
+DwfWindow = c_int
+WINDOW_RECTANGULAR = 0
+WINDOW_TRIANGULAR = 1
+WINDOW_HAMMING = 2
+WINDOW_HANN = 3
+WINDOW_COSINE = 4
+WINDOW_BLACKMAN_HARRIS = 5
+WINDOW_FLATTOP = 6
+WINDOW_KAISER = 7
+
+DwfAnalogCoupling = c_int
+ANALOG_COUPLING_DC = 0
+ANALOG_COUPLING_AC = 1
 
 # pylint:disable=line-too-long
 
@@ -296,6 +350,10 @@ if _version >= (3, 9, 1):
 # Enumeration
 
 dwf_enum = _dwf_function('FDwfEnum', (_IN, DwfEnumFilter, 'enumfilter'), (_OUT, POINTER(c_int), 'pcDevice'))
+if _version >= (3, 17, 1):
+    dwf_enum_start = _dwf_function('FDwfEnumStart', (_IN, DwfEnumFilter, 'enumfilter'))
+    dwf_enum_stop = _dwf_function('FDwfEnumStop', (_OUT, POINTER(c_int), 'pcDevice'))
+    dwf_enum_info = _dwf_function('FDwfEnumInfo', (_IN, c_int, 'idxDevice'), (_IN, c_char_p, 'szOpt'))
 dwf_enum_device_type = _dwf_function('FDwfEnumDeviceType', (_IN, c_int, 'idxDevice'), (_OUT, POINTER(DwfDevId), 'pDeviceId'), (_OUT, POINTER(DwfDevVer), 'pDeviceRevision'))
 dwf_enum_device_is_opened = _dwf_function('FDwfEnumDeviceIsOpened', (_IN, c_int, 'idxDevice'), (_OUT, POINTER(c_int), 'pfIsUsed'))
 dwf_enum_user_name = _dwf_function('FDwfEnumUserName', (_IN, c_int, 'idxDevice'), (_IN, c_char_p, 'szUserName'))
@@ -308,6 +366,8 @@ dwf_enum_config_info_str = _dwf_function('FDwfEnumConfigInfo', (_IN, c_int, 'idx
 # Open/Close
 
 dwf_device_open = _dwf_function('FDwfDeviceOpen', (_IN, c_int, 'idxDevice'), (_OUT, POINTER(HDWF), 'phdwf'))
+if _version >= (3, 17, 1):
+    dwf_device_open_ex = _dwf_function('FDwfDeviceOpenEx', (_IN, c_char_p, 'szOpt'), (_OUT, POINTER(HDWF), 'phdwf'))
 dwf_device_config_open = _dwf_function('FDwfDeviceConfigOpen', (_IN, c_int, 'idxDev'), (_IN, c_int, 'idxCfg'), (_OUT, POINTER(HDWF), 'phdwf'))
 dwf_device_close = _dwf_function('FDwfDeviceClose', (_IN, HDWF, 'hdwf'))
 dwf_device_close_all = _dwf_function('FDwfDeviceCloseAll')
@@ -342,10 +402,18 @@ dwf_analog_in_status_data16 = _dwf_function('FDwfAnalogInStatusData16', (_IN, HD
 dwf_analog_in_status_noise = _dwf_function('FDwfAnalogInStatusNoise', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, POINTER(c_double), 'rgdMin'), (_IN, POINTER(c_double), 'rgdMax'), (_IN, c_int, 'cdData'))
 dwf_analog_in_status_noise2 = _dwf_function('FDwfAnalogInStatusNoise2', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, POINTER(c_double), 'rgdMin'), (_IN, POINTER(c_double), 'rgdMax'), (_IN, c_int, 'idxData'), (_IN, c_int, 'cdData'))
 dwf_analog_in_status_sample = _dwf_function('FDwfAnalogInStatusSample', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_double), 'pdVoltSample'))
+if _version >= (3, 16, 3):
+    dwf_analog_in_status_time = _dwf_function('FDwfAnalogInStatusTime', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'psecUtc'), (_OUT, POINTER(c_uint), 'ptick'), (_OUT, POINTER(c_uint), 'pticksPerSecond'))
 
 dwf_analog_in_status_record = _dwf_function('FDwfAnalogInStatusRecord', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pcdDataAvailable'), (_OUT, POINTER(c_int), 'pcdDataLost'), (_OUT, POINTER(c_int), 'pcdDataCorrupt'))
-dwf_analog_in_record_length_set = _dwf_function('FDwfAnalogInRecordLengthSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'sLegth'))
-dwf_analog_in_record_length_get = _dwf_function('FDwfAnalogInRecordLengthGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_double), 'psLegth'))
+dwf_analog_in_record_length_set = _dwf_function('FDwfAnalogInRecordLengthSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'sLength'))
+dwf_analog_in_record_length_get = _dwf_function('FDwfAnalogInRecordLengthGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_double), 'psLength'))
+
+if _version >= (3, 18, 30):
+    dwf_analog_in_counter_info = _dwf_function('FDwfAnalogInCounterInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_double), 'pcntMax'), (_OUT, POINTER(c_double), 'psecMax'))
+    dwf_analog_in_counter_set = _dwf_function('FDwfAnalogInCounterSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'sec'))
+    dwf_analog_in_counter_get = _dwf_function('FDwfAnalogInCounterGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_double), 'psec'))
+    dwf_analog_in_counter_status = _dwf_function('FDwfAnalogInCounterStatus', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_double), 'pcnt'), (_OUT, POINTER(c_double), 'pfreq'), (_OUT, POINTER(c_int), 'ptick'))
 
 # Acquisition configuration
 
@@ -384,6 +452,15 @@ dwf_analog_in_channel_offset_set = _dwf_function('FDwfAnalogInChannelOffsetSet',
 dwf_analog_in_channel_offset_get = _dwf_function('FDwfAnalogInChannelOffsetGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_double), 'pvoltOffset'))
 dwf_analog_in_channel_attenuation_set = _dwf_function('FDwfAnalogInChannelAttenuationSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, c_double, 'xAttenuation'))
 dwf_analog_in_channel_attenuation_get = _dwf_function('FDwfAnalogInChannelAttenuationGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_double), 'pxAttenuation'))
+if _version >= (3, 14, 3):
+    dwf_analog_in_channel_bandwidth_set = _dwf_function('FDwfAnalogInChannelBandwidthSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, c_double, 'hz'))
+    dwf_analog_in_channel_bandwidth_get = _dwf_function('FDwfAnalogInChannelBandwidthGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_double), 'phz'))
+    dwf_analog_in_channel_impedance_set = _dwf_function('FDwfAnalogInChannelImpedanceSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, c_double, 'ohms'))
+    dwf_analog_in_channel_impedance_get = _dwf_function('FDwfAnalogInChannelImpedanceGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_double), 'pOhms'))
+if _version >= (3, 18, 30):
+    dwf_analog_in_channel_coupling_info = _dwf_function('FDwfAnalogInChannelCouplingInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pfscoupling'))
+    dwf_analog_in_channel_coupling_set = _dwf_function('FDwfAnalogInChannelCouplingSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfAnalogCoupling, 'coupling'))
+    dwf_analog_in_channel_coupling_get = _dwf_function('FDwfAnalogInChannelCouplingGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(DwfAnalogCoupling), 'pcoupling'))
 
 # Trigger configuration
 
@@ -490,10 +567,10 @@ dwf_analog_out_idle_set = _dwf_function('FDwfAnalogOutIdleSet', (_IN, HDWF, 'hdw
 dwf_analog_out_idle_get = _dwf_function('FDwfAnalogOutIdleGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(DwfAnalogOutIdle), 'pidle'))
 
 dwf_analog_out_node_info = _dwf_function('FDwfAnalogOutNodeInfo', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_int), 'pfsnode'))
-dwf_analog_out_node_enable_set = _dwf_function('FDwfAnalogOutNodeEnableSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfAnalogOutNode, 'node'), (_IN, c_int, 'fEnable'))
-dwf_analog_out_node_enable_get = _dwf_function('FDwfAnalogOutNodeEnableGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfAnalogOutNode, 'node'), (_OUT, POINTER(c_int), 'pfEnable'))
+dwf_analog_out_node_enable_set = _dwf_function('FDwfAnalogOutNodeEnableSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfAnalogOutNode, 'node'), (_IN, c_int, 'fMode'))
+dwf_analog_out_node_enable_get = _dwf_function('FDwfAnalogOutNodeEnableGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfAnalogOutNode, 'node'), (_OUT, POINTER(c_int), 'pfMode'))
 
-dwf_analog_out_node_function_info = _dwf_function('FDwfAnalogOutNodeFunctionInfo', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfAnalogOutNode, 'node'), (_OUT, POINTER(c_int), 'pfsfunc'))
+dwf_analog_out_node_function_info = _dwf_function('FDwfAnalogOutNodeFunctionInfo', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfAnalogOutNode, 'node'), (_OUT, POINTER(c_uint), 'pfsfunc'))
 dwf_analog_out_node_function_set = _dwf_function('FDwfAnalogOutNodeFunctionSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfAnalogOutNode, 'node'), (_IN, DwfFunc, 'func'))
 dwf_analog_out_node_function_get = _dwf_function('FDwfAnalogOutNodeFunctionGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfAnalogOutNode, 'node'), (_OUT, POINTER(DwfFunc), 'pfunc'))
 
@@ -600,6 +677,14 @@ dwf_digital_in_status_data = _dwf_function('FDwfDigitalInStatusData', (_IN, HDWF
 dwf_digital_in_status_data2 = _dwf_function('FDwfDigitalInStatusData2', (_IN, HDWF, 'hdwf'), (_IN, c_void_p, 'rgData'), (_IN, c_int, 'idxSample'), (_IN, c_int, 'countOfDataBytes'))
 dwf_digital_in_status_noise2 = _dwf_function('FDwfDigitalInStatusNoise2', (_IN, HDWF, 'hdwf'), (_IN, c_void_p, 'rgData'), (_IN, c_int, 'idxSample'), (_IN, c_int, 'countOfDataBytes'))
 dwf_digital_in_status_record = _dwf_function('FDwfDigitalInStatusRecord', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pcdDataAvailable'), (_OUT, POINTER(c_int), 'pcdDataLost'), (_OUT, POINTER(c_int), 'pcdDataCorrupt'))
+if _version >= (3, 16, 3):
+    dwf_digital_in_status_time = _dwf_function('FDwfDigitalInStatusTime', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'psecUtc'), (_OUT, POINTER(c_uint), 'ptick'), (_OUT, POINTER(c_uint), 'pticksPerSecond'))
+
+if _version >= (3, 18, 30):
+    dwf_digital_in_counter_info = _dwf_function('FDwfDigitalInCounterInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_double), 'pcntMax'), (_OUT, POINTER(c_double), 'psecMax'))
+    dwf_digital_in_counter_set = _dwf_function('FDwfDigitalInCounterSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'sec'))
+    dwf_digital_in_counter_get = _dwf_function('FDwfDigitalInCounterGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_double), 'psec'))
+    dwf_digital_in_counter_status = _dwf_function('FDwfDigitalInCounterStatus', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_double), 'pcnt'), (_OUT, POINTER(c_double), 'pfreq'), (_OUT, POINTER(c_int), 'ptick'))
 
 # Acquisition configuration
 
@@ -617,7 +702,7 @@ dwf_digital_in_bits_info = _dwf_function('FDwfDigitalInBitsInfo', (_IN, HDWF, 'h
 dwf_digital_in_sample_format_set = _dwf_function('FDwfDigitalInSampleFormatSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'nBits'))
 dwf_digital_in_sample_format_get = _dwf_function('FDwfDigitalInSampleFormatGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pnBits'))
 
-dwf_digital_in_input_order_set = _dwf_function('FDwfDigitalInInputOrderSet', (_IN, HDWF, 'hdwf'), (_IN, c_bool, 'fDioFirst'))
+dwf_digital_in_input_order_set = _dwf_function('FDwfDigitalInInputOrderSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'fDioFirst'))
 
 dwf_digital_in_buffer_size_info = _dwf_function('FDwfDigitalInBufferSizeInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pnSizeMax'))
 dwf_digital_in_buffer_size_set = _dwf_function('FDwfDigitalInBufferSizeSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'nSize'))
@@ -669,6 +754,8 @@ dwf_digital_in_trigger_match_set = _dwf_function('FDwfDigitalInTriggerMatchSet',
 dwf_digital_out_reset = _dwf_function('FDwfDigitalOutReset', (_IN, HDWF, 'hdwf'), )
 dwf_digital_out_configure = _dwf_function('FDwfDigitalOutConfigure', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'fStart'))
 dwf_digital_out_status = _dwf_function('FDwfDigitalOutStatus', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(DwfState), 'psts'))
+if _version >= (3, 18, 30):
+    dwf_digital_out_status_output = _dwf_function('FDwfDigitalOutStatusOutput', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'pfsValue'), (_OUT, POINTER(c_uint), 'pfsEnable'))
 
 # Configuration
 
@@ -725,12 +812,30 @@ dwf_digital_out_counter_init_get = _dwf_function('FDwfDigitalOutCounterInitGet',
 dwf_digital_out_counter_set = _dwf_function('FDwfDigitalOutCounterSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, c_uint, 'vLow'), (_IN, c_uint, 'vHigh'))
 dwf_digital_out_counter_get = _dwf_function('FDwfDigitalOutCounterGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_uint), 'pvLow'), (_OUT, POINTER(c_uint), 'pvHigh'))
 
+# ADP3X50
+
+if _version >= (3, 18, 30):
+    dwf_digital_out_repetition_info = _dwf_function('FDwfDigitalOutRepetitionInfo', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_uint), 'pnMax'))
+    dwf_digital_out_repetition_set = _dwf_function('FDwfDigitalOutRepetitionSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, c_uint, 'cRepeat'))
+    dwf_digital_out_repetition_get = _dwf_function('FDwfDigitalOutRepetitionGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_uint), 'pcRepeat'))
+
+dwf_digital_out_data_info = _dwf_function('FDwfDigitalOutDataInfo', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_uint), 'pcountOfBitsMax'))
+dwf_digital_out_data_set = _dwf_function('FDwfDigitalOutDataSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, c_void_p, 'rgBits'), (_IN, c_uint, 'countOfBits'))
+
+if _version >= (3, 14, 3):
+    dwf_digital_out_play_data_set = _dwf_function('FDwfDigitalOutPlayDataSet', (_IN, HDWF, 'hdwf'), (_IN, POINTER(c_ubyte), 'rgBits'), (_IN, c_uint, 'bitPerSample'), (_IN, c_uint, 'countOfSamples'))
+    dwf_digital_out_play_rate_set = _dwf_function('FDwfDigitalOutPlayRateSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'hzRate'))
+if _version >= (3, 18, 30):
+    dwf_digital_out_play_update_set = _dwf_function('FDwfDigitalOutPlayUpdateSet', (_IN, HDWF, 'hdwf'), (_IN, POINTER(c_ubyte), 'rgBits'), (_IN, c_uint, 'indexOfSample'), (_IN, c_uint, 'countOfSamples'))
+
 # UART
 
 dwf_digital_uart_reset = _dwf_function('FDwfDigitalUartReset', (_IN, HDWF, 'hdwf'), )
 dwf_digital_uart_rate_set = _dwf_function('FDwfDigitalUartRateSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'hz'))
 dwf_digital_uart_bits_set = _dwf_function('FDwfDigitalUartBitsSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBits'))
 dwf_digital_uart_parity_set = _dwf_function('FDwfDigitalUartParitySet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'parity'))
+if _version >= (3, 17, 1):
+    dwf_digital_uart_polarity_set = _dwf_function('FDwfDigitalUartPolaritySet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'polarity'))
 dwf_digital_uart_stop_set = _dwf_function('FDwfDigitalUartStopSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'cBit'))
 dwf_digital_uart_tx_set = _dwf_function('FDwfDigitalUartTxSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'))
 dwf_digital_uart_rx_set = _dwf_function('FDwfDigitalUartRxSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'))
@@ -744,8 +849,10 @@ dwf_digital_spi_reset = _dwf_function('FDwfDigitalSpiReset', (_IN, HDWF, 'hdwf')
 dwf_digital_spi_frequency_set = _dwf_function('FDwfDigitalSpiFrequencySet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'hz'))
 dwf_digital_spi_clock_set = _dwf_function('FDwfDigitalSpiClockSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'))
 dwf_digital_spi_data_set = _dwf_function('FDwfDigitalSpiDataSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxDQ'), (_IN, c_int, 'idxChannel'))
+if _version >= (3, 14, 3):
+    dwf_digital_spi_idle_set = _dwf_function('FDwfDigitalSpiIdleSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxDQ'), (_IN, DwfDigitalOutIdle, 'idle'))
 dwf_digital_spi_mode_set = _dwf_function('FDwfDigitalSpiModeSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'iMode'))
-dwf_digital_spi_order_set = _dwf_function('FDwfDigitalSpiOrderSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'fMSBLSB'))
+dwf_digital_spi_order_set = _dwf_function('FDwfDigitalSpiOrderSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'fMSBFirst'))
 
 dwf_digital_spi_select = _dwf_function('FDwfDigitalSpiSelect', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, c_int, 'level'))
 dwf_digital_spi_write_read = _dwf_function('FDwfDigitalSpiWriteRead', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ubyte), 'rgTX'), (_IN, c_int, 'cTX'), (_IN, POINTER(c_ubyte), 'rgRX'), (_IN, c_int, 'cRX'))
@@ -764,15 +871,23 @@ dwf_digital_spi_write32 = _dwf_function('FDwfDigitalSpiWrite32', (_IN, HDWF, 'hd
 
 dwf_digital_i2c_reset = _dwf_function('FDwfDigitalI2cReset', (_IN, HDWF, 'hdwf'), )
 dwf_digital_i2c_clear = _dwf_function('FDwfDigitalI2cClear', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pfFree'))
+if _version >= (3, 10, 9):
+    dwf_digital_i2c_stretch_set = _dwf_function('FDwfDigitalI2cStretchSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'fEnable'))
 dwf_digital_i2c_rate_set = _dwf_function('FDwfDigitalI2cRateSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'hz'))
 dwf_digital_i2c_read_nak_set = _dwf_function('FDwfDigitalI2cReadNakSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'fNakLastReadByte'))
 dwf_digital_i2c_scl_set = _dwf_function('FDwfDigitalI2cSclSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'))
 dwf_digital_i2c_sda_set = _dwf_function('FDwfDigitalI2cSdaSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'))
+if _version >= (3, 17, 1):
+    dwf_digital_i2c_timeout_set = _dwf_function('FDwfDigitalI2cTimeoutSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'sec'))
 
 dwf_digital_i2c_write_read = _dwf_function('FDwfDigitalI2cWriteRead', (_IN, HDWF, 'hdwf'), (_IN, c_ubyte, 'adr8bits'), (_IN, POINTER(c_ubyte), 'rgbTx'), (_IN, c_int, 'cTx'), (_IN, POINTER(c_ubyte), 'rgRx'), (_IN, c_int, 'cRx'), (_OUT, POINTER(c_int), 'pNak'))
 dwf_digital_i2c_read = _dwf_function('FDwfDigitalI2cRead', (_IN, HDWF, 'hdwf'), (_IN, c_ubyte, 'adr8bits'), (_IN, POINTER(c_ubyte), 'rgbRx'), (_IN, c_int, 'cRx'), (_OUT, POINTER(c_int), 'pNak'))
 dwf_digital_i2c_write = _dwf_function('FDwfDigitalI2cWrite', (_IN, HDWF, 'hdwf'), (_IN, c_ubyte, 'adr8bits'), (_IN, POINTER(c_ubyte), 'rgbTx'), (_IN, c_int, 'cTx'), (_OUT, POINTER(c_int), 'pNak'))
 dwf_digital_i2c_write_one = _dwf_function('FDwfDigitalI2cWriteOne', (_IN, HDWF, 'hdwf'), (_IN, c_ubyte, 'adr8bits'), (_IN, c_ubyte, 'bTx'), (_OUT, POINTER(c_int), 'pNak'))
+
+if _version >= (3, 18, 1):
+    dwf_digital_i2c_spy_start = _dwf_function('FDwfDigitalI2cSpyStart', (_IN, HDWF, 'hdwf'), )
+    dwf_digital_i2c_spy_status = _dwf_function('FDwfDigitalI2cSpyStatus', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'fStart'), (_OUT, POINTER(c_int), 'fStop'), (_IN, POINTER(c_ubyte), 'rgData'), (_OUT, POINTER(c_int), 'cData'), (_OUT, POINTER(c_int), 'iNak'))
 
 # CAN
 
@@ -810,3 +925,10 @@ if _version >= (3, 9, 1):
     dwf_analog_impedance_status = _dwf_function('FDwfAnalogImpedanceStatus', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(DwfState), 'psts'))
     dwf_analog_impedance_status_input = _dwf_function('FDwfAnalogImpedanceStatusInput', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_double), 'pgain'), (_OUT, POINTER(c_double), 'pradian'))
     dwf_analog_impedance_status_measure = _dwf_function('FDwfAnalogImpedanceStatusMeasure', (_IN, HDWF, 'hdwf'), (_IN, DwfAnalogImpedance, 'measure'), (_OUT, POINTER(c_double), 'pvalue'))
+if _version >= (3, 17, 1):
+    dwf_analog_impedance_status_warning = _dwf_function('FDwfAnalogImpedanceStatusWarning', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_int), 'pWarning'))
+
+if _version >= (3, 18, 30):
+    dwf_spectrum_window = _dwf_function('FDwfSpectrumWindow', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cdWin'), (_IN, DwfWindow, 'iWindow'), (_IN, c_double, 'vBeta'), (_OUT, POINTER(c_double), 'vNEBW'))
+    dwf_spectrum_fft = _dwf_function('FDwfSpectrumFFT', (_IN, HDWF, 'hdwf'), (_IN, POINTER(c_double), 'rgdData'), (_IN, c_int, 'cdData'), (_IN, POINTER(c_double), 'rgdBin'), (_IN, POINTER(c_double), 'rgdPhase'), (_IN, c_int, 'cdBin'))
+    dwf_spectrum_transform = _dwf_function('FDwfSpectrumTransform', (_IN, HDWF, 'hdwf'), (_IN, POINTER(c_double), 'rgdData'), (_IN, c_int, 'cdData'), (_IN, POINTER(c_double), 'rgdBin'), (_IN, POINTER(c_double), 'rgdPhase'), (_IN, c_int, 'cdBin'), (_IN, c_double, 'iFirst'), (_IN, c_double, 'iLast'))
