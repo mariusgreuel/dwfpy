@@ -13,7 +13,7 @@ import ctypes
 import time
 from typing import Optional, Tuple
 from . import bindings as api
-from . import device as fwd
+from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
     AcquisitionMode,
     DigitalInputClockSource, DigitalInputSampleMode,

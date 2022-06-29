@@ -12,7 +12,7 @@ Recorder for Analog Input data.
 import ctypes
 from typing import Tuple, List, Optional
 from . import bindings as api
-from . import analog_input as fwd
+from . import analog_input as fwd  # pylint: disable=unused-import
 from .constants import Status
 from .helpers import Helpers
 

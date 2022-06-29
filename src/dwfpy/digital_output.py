@@ -13,7 +13,7 @@ import ctypes
 import math
 from typing import Tuple
 from . import bindings as api
-from . import device as fwd
+from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
     DigitalOutputMode, DigitalOutputIdle, DigitalOutputType,
     Status, TriggerSlope, TriggerSource)

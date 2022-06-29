@@ -12,7 +12,7 @@ Recorder for Digital Input data.
 import ctypes
 from typing import Optional
 from . import bindings as api
-from . import digital_input as fwd
+from . import digital_input as fwd  # pylint: disable=unused-import
 from .constants import DigitalInputSampleMode, Status
 from .helpers import Helpers
 

@@ -11,7 +11,7 @@ Analog Output module for Digilent WaveForms devices.
 
 from typing import Tuple
 from . import bindings as api
-from . import device as fwd
+from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
     AnalogOutputIdle, AnalogOutputMode, AnalogOutputNode,
     Function, Status, TriggerSlope, TriggerSource)

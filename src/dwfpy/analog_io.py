@@ -12,7 +12,7 @@ Analog IO module for Digilent WaveForms devices.
 import ctypes
 from typing import Tuple
 from . import bindings as api
-from . import device as fwd
+from . import device as fwd  # pylint: disable=unused-import
 from .constants import ChannelNodeType
 from .helpers import Helpers
 

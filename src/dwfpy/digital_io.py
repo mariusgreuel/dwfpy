@@ -11,7 +11,7 @@ Digital IO module for Digilent WaveForms devices.
 
 from typing import Tuple
 from . import bindings as api
-from . import device as fwd
+from . import device as fwd  # pylint: disable=unused-import
 
 
 class DigitalIo:
