@@ -284,7 +284,7 @@ class DeviceBase():
 
     def _enum_get_device_index(self) -> Optional[int]:
         if self._enum_device_type:
-            enumfilter = self._enum_device_type
+            enumfilter = api.ENUMFILTER_TYPE | self._enum_device_type
         elif self._enum_device_id:
             enumfilter = self._enum_device_id
         else:

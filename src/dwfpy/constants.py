@@ -18,14 +18,18 @@ class DeviceId(enum.IntEnum):
     ANALOG_DISCOVERY = 2
     ANALOG_DISCOVERY2 = 3
     DIGITAL_DISCOVERY = 4
+    ADP3X50 = 6
+    ADP5250 = 8
 
 
-class DeviceFilter(enum.IntEnum):
-    """Device filter."""
-    ELECTRONICS_EXPLORER = 1
-    ANALOG_DISCOVERY = 2
-    ANALOG_DISCOVERY2 = 3
-    DIGITAL_DISCOVERY = 4
+class DeviceType(enum.IntEnum):
+    """Device filter type."""
+    USB = 0x0000001
+    NETWORK = 0x0000002
+    AXI = 0x0000004
+    REMOTE = 0x1000000
+    SOUND_CARD = 0x2000000
+    DEMO = 0x4000000
 
 
 class GlobalParameter(enum.IntEnum):
@@ -35,6 +39,10 @@ class GlobalParameter(enum.IntEnum):
     ON_CLOSE = 4  # 0 continue, 1 stop, 2 shutdown
     AUDIO_OUT = 5  # 0 disable / 1 enable audio output, Analog Discovery 1, 2
     USB_LIMIT = 6  # 0..1000 mA USB power limit, -1 no limit, Analog Discovery 1, 2
+    ANALOG_OUT = 7  # 0 disable / 1 enable
+    FREQUENCY = 8  # Hz
+    EXT_FREQ = 9  # Hz
+    CLOCK_MODE = 10  # 0 internal, 1 output, 2 input, 3 IO
 
 
 class Error(enum.IntEnum):
@@ -82,6 +90,7 @@ class TriggerSource(enum.IntEnum):
     EXTERNAL4 = 14
     HIGH = 15
     LOW = 16
+    CLOCK = 17
 
 
 class TriggerType(enum.IntEnum):
@@ -89,6 +98,7 @@ class TriggerType(enum.IntEnum):
     EDGE = 0
     PULSE = 1
     TRANSITION = 2
+    WINDOW = 3
 
 
 class TriggerSlope(enum.IntEnum):
@@ -117,6 +127,8 @@ class Function(enum.IntEnum):
     PULSE = 7
     TRAPEZIUM = 8
     SINE_POWER = 9
+    CUSTOM_PATTERN = 28
+    PLAY_PATTERN = 29
     CUSTOM = 30
     PLAY = 31
 
@@ -128,6 +140,32 @@ class ChannelNodeType(enum.IntEnum):
     CURRENT = 3
     POWER = 4
     TEMPERATURE = 5
+    DMM = 6
+    RANGE = 7
+    MEASURE = 8
+    TIME = 9
+    FREQUENCY = 10
+    RESISTANCE = 11
+
+
+class DmmMode(enum.IntEnum):
+    """DMM mode."""
+    RESISTANCE = 1
+    CONTINUITY = 2
+    DIODE = 3
+    DC_VOLTAGE = 4
+    AC_VOLTAGE = 5
+    DC_CURRENT = 6
+    AC_CURRENT = 7
+    DC_LOW_CURRENT = 8
+    AC_LOW_CURRENT = 9
+    TEMPERATURE = 10
+
+
+class AnalogInputCoupling(enum.IntEnum):
+    """Input coupling for analog input instruments."""
+    DC = 0
+    AC = 1
 
 
 class AnalogOutputNode(enum.IntEnum):
@@ -154,6 +192,7 @@ class DigitalInputClockSource(enum.IntEnum):
     """Clock source for digital input instruments."""
     INTERNAL = 0
     EXTERNAL = 1
+    EXTERNAL2 = 2
 
 
 class DigitalInputSampleMode(enum.IntEnum):
@@ -176,7 +215,8 @@ class DigitalOutputType(enum.IntEnum):
     CUSTOM = 1
     RANDOM = 2
     ROM = 3
-    FSM = 3
+    STATE = 4
+    PLAY = 5
 
 
 class DigitalOutputIdle(enum.IntEnum):
@@ -203,6 +243,24 @@ class AnalogImpedance(enum.IntEnum):
     PARALLEL_INDUCTANCE = 11  # Henry
     DISSIPATION = 12  # factor
     QUALITY = 13  # factor
+    VRMS = 14  # Vrms
+    VREAL = 15  # V real
+    VIMAG = 16  # V imag
+    IRMS = 17  # Irms
+    IREAL = 18  # I real
+    IIMAG = 19  # I imag
+
+
+class Window(enum.IntEnum):
+    """FFT window function."""
+    RECTANGULAR = 0
+    TRIANGULAR = 1
+    HAMMING = 2
+    HANN = 3
+    COSINE = 4
+    BLACKMAN_HARRIS = 5
+    FLATTOP = 6
+    KAISER = 7
 
 
 class AcquisitionMode(enum.IntEnum):
@@ -213,6 +271,7 @@ class AcquisitionMode(enum.IntEnum):
     RECORD = 3
     OVERS = 4
     SINGLE1 = 5
+    RECORD2 = 6
 
 
 class FilterMode(enum.IntEnum):

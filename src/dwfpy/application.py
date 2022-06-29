@@ -125,3 +125,39 @@ class Application(_Singleton):
     @usb_limit.setter
     def usb_limit(self, value: int) -> None:
         self.set_parameter(GlobalParameter.USB_LIMIT, value)
+
+    @property
+    def enable_analog_out(self) -> bool:
+        """Enables or disables the analog audio output."""
+        return bool(self.get_parameter(GlobalParameter.ANALOG_OUT))
+
+    @enable_analog_out.setter
+    def enable_analog_out(self, value: bool) -> None:
+        self.set_parameter(GlobalParameter.ANALOG_OUT, value)
+
+    @property
+    def frequency(self) -> int:
+        """Gets or sets the frequency in Hz."""
+        return self.get_parameter(GlobalParameter.FREQUENCY)
+
+    @frequency.setter
+    def frequency(self, value: int) -> None:
+        self.set_parameter(GlobalParameter.FREQUENCY, value)
+
+    @property
+    def external_frequency(self) -> int:
+        """Specifies the external frequency in Hz."""
+        return self.get_parameter(GlobalParameter.EXT_FREQ)
+
+    @external_frequency.setter
+    def external_frequency(self, value: int) -> None:
+        self.set_parameter(GlobalParameter.EXT_FREQ, value)
+
+    @property
+    def clock_mode(self) -> int:
+        """Specifies the clock mode: 0 internal, 1 output, 2 input, 3 IO."""
+        return self.get_parameter(GlobalParameter.CLOCK_MODE)
+
+    @clock_mode.setter
+    def clock_mode(self, value: int) -> None:
+        self.set_parameter(GlobalParameter.CLOCK_MODE, value)

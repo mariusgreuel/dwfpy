@@ -15,7 +15,7 @@ from typing import Tuple
 from . import bindings as api
 from . import device as fwd
 from .constants import (
-    AcquisitionMode, FilterMode, Status,
+    AnalogInputCoupling, AcquisitionMode, FilterMode, Status,
     TriggerLengthCondition, TriggerSlope, TriggerSource, TriggerType)
 from .exceptions import WaveformsError
 from .helpers import Helpers
@@ -423,6 +423,40 @@ class AnalogInput:
         def attenuation(self, value: float) -> None:
             api.dwf_analog_in_channel_attenuation_set(self._device.handle, self._channel, value)
 
+        @property
+        def bandwidth(self) -> float:
+            """Gets or sets the channel bandwidth in Hz."""
+            return api.dwf_analog_in_channel_bandwidth_get(self._device.handle, self._channel)
+
+        @bandwidth.setter
+        def bandwidth(self, value: float) -> None:
+            api.dwf_analog_in_channel_bandwidth_set(self._device.handle, self._channel, value)
+
+        @property
+        def impedance(self) -> float:
+            """Gets or sets the channel impedance in Ohms."""
+            return api.dwf_analog_in_channel_impedance_get(self._device.handle, self._channel)
+
+        @impedance.setter
+        def impedance(self, value: float) -> None:
+            api.dwf_analog_in_channel_impedance_set(self._device.handle, self._channel, value)
+
+        @property
+        def coupling_info(self) -> Tuple[AnalogInputCoupling, ...]:
+            """Gets the supported channel coupling modes."""
+            return Helpers.map_enum_values(
+                AnalogInputCoupling, api.dwf_analog_in_channel_coupling_info(self._device.handle))
+
+        @property
+        def coupling(self) -> AnalogInputCoupling:
+            """Gets or sets the channel coupling."""
+            return AnalogInputCoupling(
+                api.dwf_analog_in_channel_coupling_get(self._device.handle, self._channel))
+
+        @coupling.setter
+        def coupling(self, value: AnalogInputCoupling) -> None:
+            api.dwf_analog_in_channel_coupling_set(self._device.handle, self._channel, value)
+
         def get_sample(self) -> float:
             """Gets the last ADC conversion sample.
             Before calling this function, call the 'read_status()' function
@@ -468,7 +502,10 @@ class AnalogInput:
                 self,
                 range=None,
                 offset=None,
+                coupling=None,
+                bandwidth=None,
                 attenuation=None,
+                impedance=None,
                 filter=None,
                 enabled=True) -> None:
             """Sets up the channel for data acquisition.
@@ -479,8 +516,14 @@ class AnalogInput:
                 The channel range in Volts.
             offset : float, optional
                 The channel offset in Volts.
+            coupling : str or AnalogInputCoupling, optional
+                The channel coupling.  Can be 'dc' or 'ac'.
+            bandwidth : float, optional
+                The channel bandwidth in Hz.
             attenuation : float, optional
                 The channel attenuation.
+            impedance : float, optional
+                The channel impedance in Ohms.
             filter : str or FilterMode, optional
                 The channel acquisition filter. Can be 'decimate', 'average', or 'min-max'.
             enabled : bool, optional
@@ -490,8 +533,14 @@ class AnalogInput:
                 self.range = range
             if offset is not None:
                 self.offset = offset
+            if coupling is not None:
+                self.coupling = Helpers.map_coupling(coupling)
+            if bandwidth is not None:
+                self.bandwidth = bandwidth
             if attenuation is not None:
                 self.attenuation = attenuation
+            if impedance is not None:
+                self.impedance = impedance
             if filter is not None:
                 self.filter = Helpers.map_filter(filter)
             if enabled is not None:
@@ -566,6 +615,13 @@ class AnalogInput:
         return bool(api.dwf_analog_in_status_auto_triggered(self._device.handle))
 
     @property
+    def time(self) -> Tuple[int, int, int]:
+        """Gets instrument trigger time information.
+        Before calling this function, call the 'read_status()' function
+        to read the data from the device."""
+        return api.dwf_analog_in_status_time(self._device.handle)
+
+    @property
     def record_status(self) -> Tuple[int, int, int]:
         """Gets information about the recording process:
         Returns (available_samples, lost_samples, corrupted_samples)
@@ -581,6 +637,30 @@ class AnalogInput:
     @record_length.setter
     def record_length(self, value: float) -> None:
         api.dwf_analog_in_record_length_set(self._device.handle, value)
+
+    @property
+    def counter_max(self) -> float:
+        """Gets the maximum count value."""
+        return api.dwf_analog_in_counter_info(self._device.handle)[0]
+
+    @property
+    def timeout_max(self) -> float:
+        """Gets the maximum timeout value."""
+        return api.dwf_analog_in_counter_info(self._device.handle)[1]
+
+    @property
+    def counter(self) -> float:
+        """Gets or sets the current timeout in seconds."""
+        return api.dwf_analog_in_counter_get(self._device.handle)
+
+    @counter.setter
+    def counter(self, value: float) -> None:
+        api.dwf_analog_in_counter_set(self._device.handle, value)
+
+    @property
+    def counter_status(self) -> Tuple[float, float, int]:
+        """Gets the count, frequency and tick values."""
+        return api.dwf_analog_in_counter_status(self._device.handle)
 
     @property
     def frequency_min(self) -> float:
@@ -676,7 +756,10 @@ class AnalogInput:
             channel,
             range=None,
             offset=None,
+            coupling=None,
+            bandwidth=None,
             attenuation=None,
+            impedance=None,
             filter=None,
             enabled=True) -> None:
         """Sets up a channel for data acquisition.
@@ -687,8 +770,14 @@ class AnalogInput:
             The channel range in Volts.
         offset : float, optional
             The channel offset in Volts.
+        coupling : str or AnalogInputCoupling, optional
+            The channel coupling.  Can be 'dc' or 'ac'.
+        bandwidth : float, optional
+            The channel bandwidth in Hz.
         attenuation : float, optional
             The channel attenuation.
+        impedance : float, optional
+            The channel impedance in Ohms.
         filter : str or FilterMode, optional
             The channel acquisition filter. Can be 'decimate', 'average', or 'min-max'.
         enabled : bool, optional
@@ -697,7 +786,10 @@ class AnalogInput:
         self.channels[channel].setup(
             range=range,
             offset=offset,
+            coupling=coupling,
+            bandwidth=bandwidth,
             attenuation=attenuation,
+            impedance=impedance,
             filter=filter,
             enabled=enabled)
 
@@ -828,6 +920,49 @@ class AnalogInput:
             channel=channel,
             condition=condition,
             length_condition=length_condition,
+            length=length,
+            level=level,
+            hysteresis=hysteresis,
+            position=position,
+            hold_off=hold_off)
+
+    def setup_window_trigger(
+            self,
+            mode=None,
+            channel=None,
+            condition=None,
+            length=None,
+            level=None,
+            hysteresis=None,
+            position=None,
+            hold_off=None) -> None:
+        """Sets up a window trigger.
+
+        Parameters
+        ----------
+        mode : str, optional
+            The trigger mode. Can be 'normal' or 'auto'.
+        channel : int, optional
+            The trigger channel.
+        condition : str, optional
+            The trigger condition. Can be 'exiting' or 'entering'.
+        length : float, optional
+            The window length in seconds.
+        level : float, optional
+            The trigger level in Volts.
+        hysteresis : float, optional
+            The trigger hysteresis in Volts.
+        position : float, optional
+            The horizontal trigger position in seconds.
+        hold_off : float, optional
+            The trigger hold-off time in seconds.
+        """
+        self.trigger.source = TriggerSource.DETECTOR_ANALOG_IN
+        self.trigger.type = TriggerType.WINDOW
+        self._set_trigger_parameter(
+            mode=mode,
+            channel=channel,
+            condition=condition,
             length=length,
             level=level,
             hysteresis=hysteresis,

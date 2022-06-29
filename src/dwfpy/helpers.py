@@ -10,7 +10,7 @@ Internal helper functions.
 #
 
 from .constants import (
-    AcquisitionMode,
+    AcquisitionMode, AnalogInputCoupling,
     DigitalOutputMode, DigitalOutputType, DigitalOutputIdle,
     FilterMode, Function,
     TriggerLengthCondition, TriggerSlope)
@@ -114,8 +114,18 @@ class Helpers:
             'pulse': Function.PULSE,
             'trapezium': Function.TRAPEZIUM,
             'sine_power': Function.SINE_POWER,
+            'custom-pattern': Function.CUSTOM_PATTERN,
+            'play-pattern': Function.PLAY_PATTERN,
             'custom': Function.CUSTOM,
             'play': Function.PLAY,
+        }
+        return Helpers.map_named_value(value, named_values)
+
+    @staticmethod
+    def map_coupling(value):
+        named_values = {
+            'dc': AnalogInputCoupling.DC,
+            'ac': AnalogInputCoupling.AC,
         }
         return Helpers.map_named_value(value, named_values)
 
@@ -139,6 +149,8 @@ class Helpers:
             'custom': DigitalOutputType.CUSTOM,
             'random': DigitalOutputType.RANDOM,
             'rom': DigitalOutputType.ROM,
+            'state': DigitalOutputType.STATE,
+            'play': DigitalOutputType.PLAY,
         }
         return Helpers.map_named_value(value, named_values)
 

@@ -9,6 +9,7 @@ Digital Output module for Digilent WaveForms devices.
 # SPDX-License-Identifier: MIT
 #
 
+import ctypes
 import math
 from typing import Tuple
 from . import bindings as api
@@ -183,6 +184,11 @@ class DigitalOutput:
             return api.dwf_digital_out_counter_info(self._device.handle, self._channel)[1]
 
         @property
+        def max_bits(self) -> int:
+            """Gets the maximum number of bits."""
+            return api.dwf_digital_out_data_info(self._device.handle, self._channel)
+
+        @property
         def initial_state(self) -> bool:
             """Getsthe initial state."""
             return bool(api.dwf_digital_out_counter_init_get(self._device.handle, self._channel)[0])
@@ -202,6 +208,20 @@ class DigitalOutput:
             """Gets the high counter value."""
             return api.dwf_digital_out_counter_get(self._device.handle, self._channel)[1]
 
+        @property
+        def repetition_max(self) -> int:
+            """Gets the maximum repetition value."""
+            return api.dwf_digital_out_repetition_info(self._device.handle, self._channel)
+
+        @property
+        def repetition(self) -> int:
+            """Gets or sets the repetition value."""
+            return api.dwf_digital_out_repetition_get(self._device.handle, self._channel)
+
+        @repetition.setter
+        def repetition(self, value: int) -> None:
+            api.dwf_digital_out_repetition_set(self._device.handle, self._channel, value)
+
         def set_initial_state_and_counter(self, state: bool, counter: int) -> None:
             """Sets the initial state and the initial counter."""
             api.dwf_digital_out_counter_init_set(self._device.handle, self._channel, state, counter)
@@ -209,6 +229,12 @@ class DigitalOutput:
         def set_counter(self, low: int, high: int) -> None:
             """Sets the low and high counter values."""
             api.dwf_digital_out_counter_set(self._device.handle, self._channel, low, high)
+
+        def set_custom_bits(self, data) -> None:
+            """Sets the custom data bits."""
+            buffer, bits = Helpers.pack_bits(data)
+            api.dwf_digital_out_data_set(
+                self._device.handle, self._channel, (ctypes.c_uint8 * len(buffer)).from_buffer_copy(buffer), bits)
 
         def setup(
                 self,
@@ -221,6 +247,7 @@ class DigitalOutput:
                 low_counter=None,
                 high_counter=None,
                 initial_counter=None,
+                repetition=None,
                 enabled=True,
                 configure=False,
                 start=False) -> None:
@@ -249,6 +276,8 @@ class DigitalOutput:
                 The initial state. Can be 'low' or 'high'.
             initial_counter : int, optional
                 The initial counter value.
+            repetition : int, optional
+                The repetition value. Set to 0 for unlimited repetitions.
             enabled : bool, optional
                 If True, then the channel is enabled (default True).
             configure : bool, optional
@@ -270,6 +299,8 @@ class DigitalOutput:
                 self.set_counter(low_counter, high_counter)
             if initial_state is not None and initial_counter is not None:
                 self.set_initial_state_and_counter(Helpers.map_state(initial_state), initial_counter)
+            if repetition is not None:
+                self.repetition = repetition
             if enabled is not None:
                 self.enabled = enabled
             if configure or start:
@@ -320,6 +351,7 @@ class DigitalOutput:
                 duty_cycle=None,
                 phase=None,
                 delay=None,
+                repetition=None,
                 output_mode=None,
                 idle_state=None,
                 enabled=True,
@@ -337,6 +369,8 @@ class DigitalOutput:
                 The phase in degrees (default 0).
             delay : float, optional
                 The delay in seconds (default 0).
+            repetition : int, optional
+                The repetition count. Set to 0 for unlimited repetitions (default).
             output_mode : str, optional
                 The output mode.
                 Can be 'push-pull', 'open-drain', 'open-source', or 'three-state'.
@@ -375,6 +409,7 @@ class DigitalOutput:
                 high_counter=high_counter,
                 initial_counter=initial_counter,
                 initial_state=initial_state,
+                repetition=repetition,
                 output_mode=output_mode,
                 idle_state=idle_state,
                 enabled=enabled,
@@ -386,6 +421,7 @@ class DigitalOutput:
                 low_duration,
                 high_duration,
                 delay=None,
+                repetition=None,
                 output_mode=None,
                 idle_state=None,
                 enabled=True,
@@ -401,6 +437,8 @@ class DigitalOutput:
                 The duration of the high state in seconds.
             delay : float, optional
                 The delay in seconds (default 0).
+            repetition : int, optional
+                The repetition count. Set to 0 for unlimited repetitions (default).
             output_mode : str, optional
                 The output mode.
                 Can be 'push-pull', 'open-drain', 'open-source', or 'three-state'.
@@ -442,6 +480,7 @@ class DigitalOutput:
                 high_counter=high_counter,
                 initial_counter=initial_counter,
                 initial_state=initial_state,
+                repetition=repetition,
                 output_mode=output_mode,
                 idle_state=idle_state,
                 enabled=enabled,
@@ -452,6 +491,7 @@ class DigitalOutput:
                 self,
                 rate,
                 delay=None,
+                repetition=None,
                 output_mode=None,
                 idle_state=None,
                 enabled=True,
@@ -465,6 +505,8 @@ class DigitalOutput:
                 The bit rate in bits/second.
             delay : float, optional
                 The delay in seconds (default 0).
+            repetition : int, optional
+                The repetition count. Set to 0 for unlimited repetitions (default).
             output_mode : str, optional
                 The output mode.
                 Can be 'push-pull', 'open-drain', 'open-source', or 'three-state'.
@@ -488,11 +530,65 @@ class DigitalOutput:
                 low_counter=total_counter,
                 high_counter=total_counter,
                 initial_counter=initial_counter,
+                repetition=repetition,
                 output_mode=output_mode,
                 idle_state=idle_state,
                 enabled=enabled,
                 configure=configure,
                 start=start)
+
+        def setup_custom(
+                self,
+                rate,
+                data,
+                delay=None,
+                repetition=None,
+                output_mode=None,
+                idle_state=None,
+                enabled=True,
+                configure=False,
+                start=False) -> None:
+            """Sets up the channel with a custom output.
+
+            Parameters
+            ----------
+            rate : float
+                The bit rate in bits/second.
+            data : [int]
+                An array containing the pattern of ones and zeros.
+            delay : float, optional
+                The delay in seconds (default 0).
+            repetition : int, optional
+                The repetition count. Set to 0 for unlimited repetitions (default).
+            output_mode : str, optional
+                The output mode.
+                Can be 'push-pull', 'open-drain', 'open-source', or 'three-state'.
+            idle_state : str, optional
+                The output idle state.
+                Can be 'init', 'low', 'high', or 'z'.
+            enabled : bool, optional
+                If True, then the channel is enabled (default True).
+            configure : bool, optional
+                If True, then the instrument is configured (default False).
+            start : bool, optional
+                If True, then the instrument is started (default False).
+            """
+            divider = math.ceil(self._module.clock_frequency / rate)
+            clock_frequency = self._module.clock_frequency / divider
+            initial_counter = round(delay / clock_frequency)
+            self.setup(
+                output_type=DigitalOutputType.CUSTOM,
+                divider=divider,
+                low_counter=1,
+                high_counter=1,
+                initial_counter=initial_counter,
+                repetition=repetition,
+                output_mode=output_mode,
+                idle_state=idle_state,
+                enabled=enabled,
+                configure=configure,
+                start=start)
+            self.set_custom_bits(data)
 
     def __init__(self, device):
         self._device = device

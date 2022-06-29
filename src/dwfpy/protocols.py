@@ -12,6 +12,7 @@ Protocols module for Digilent WaveForms devices.
 import ctypes
 from typing import Optional, Tuple
 from . import bindings as api
+from .constants import DigitalOutputIdle
 from .helpers import Helpers
 
 
@@ -29,6 +30,7 @@ class Protocols:
             self._data_bits = None
             self._stop_bits = None
             self._parity = None
+            self._inverted = None
 
         @property
         def pin_rx(self) -> Optional[int]:
@@ -90,6 +92,16 @@ class Protocols:
             self._parity = value
             api.dwf_digital_uart_parity_set(self._device.handle, self._map_parity(value))
 
+        @property
+        def inverted(self) -> bool:
+            """Gets or sets the polarity."""
+            return self._inverted
+
+        @inverted.setter
+        def inverted(self, value: bool) -> None:
+            self._inverted = value
+            api.dwf_digital_uart_polarity_set(self._device.handle, value)
+
         def reset(self) -> None:
             """Resets the UART configuration to default value."""
             api.dwf_digital_uart_reset(self._device.handle)
@@ -99,6 +111,7 @@ class Protocols:
             self._data_bits = None
             self._stop_bits = None
             self._parity = None
+            self._inverted = None
 
         def setup(
                 self,
@@ -107,7 +120,8 @@ class Protocols:
                 rate=9600,
                 data_bits=8,
                 stop_bits=1,
-                parity='n') -> None:
+                parity='n',
+                inverted=False) -> None:
             """Sets up the UART configuration."""
             if pin_rx is not None:
                 self.pin_rx = pin_rx
@@ -121,6 +135,8 @@ class Protocols:
                 self.stop_bits = stop_bits
             if parity is not None:
                 self.parity = parity
+            if inverted is not None:
+                self.inverted = inverted
             if pin_rx is not None:
                 api.dwf_digital_uart_rx(self._device.handle, None, 0)
             if pin_tx is not None:
@@ -358,6 +374,12 @@ class Protocols:
             if msb_first is not None:
                 self.msb_first = msb_first
 
+        def set_idle(self, pin: int, idle: DigitalOutputIdle) -> None:
+            """Specifies the DQ signal idle output state.
+            DQ2 and DQ3 may be used for alternative purpose like for write protect
+            (should be driven low) or for hold (should be in high impendance)."""
+            api.dwf_digital_spi_idle_set(self._device.handle, pin, idle)
+
         def select(self, level, pin_select=None) -> None:
             """Control the SPI chip select."""
             if pin_select is None:
@@ -494,7 +516,9 @@ class Protocols:
             self._pin_scl = None
             self._pin_sda = None
             self._rate = None
+            self._timeout = None
             self._read_nak = True
+            self._stretch = True
 
         @property
         def pin_scl(self) -> int:
@@ -527,6 +551,16 @@ class Protocols:
             api.dwf_digital_i2c_rate_set(self._device.handle, value)
 
         @property
+        def timeout(self) -> float:
+            """Gets or sets the time-out."""
+            return self._timeout
+
+        @timeout.setter
+        def timeout(self, value: float) -> None:
+            self._timeout = value
+            api.dwf_digital_i2c_timeout_set(self._device.handle, value)
+
+        @property
         def read_nak(self) -> bool:
             """Gets or sets a value indicating if the last read byte
             should be acknowledged or not."""
@@ -537,20 +571,32 @@ class Protocols:
             self._read_nak = value
             api.dwf_digital_i2c_read_nak_set(self._device.handle, value)
 
+        @property
+        def stretch(self) -> bool:
+            """Enables or disables clock stretching."""
+            return self._stretch
+
+        @stretch.setter
+        def stretch(self, value: bool) -> None:
+            self._stretch = value
+            api.dwf_digital_i2c_stretch_set(self._device.handle, value)
+
         def reset(self) -> None:
             """Resets the I2C configuration to default value."""
             api.dwf_digital_i2c_reset(self._device.handle)
             self._pin_scl = None
             self._pin_sda = None
             self._rate = 100000.0
+            self._timeout = 1.0
             self._read_nak = True
+            self._stretch = True
 
         def clear(self) -> bool:
             """ Verifies and tries to solve eventual bus lockup.
             Returns true, if the bus is free."""
             return bool(api.dwf_digital_i2c_clear(self._device.handle))
 
-        def setup(self, pin_scl, pin_sda, rate=None, read_nak=None) -> None:
+        def setup(self, pin_scl, pin_sda, rate=None, timeout=None, read_nak=None, stretch=None) -> None:
             """Sets up the I2C configuration."""
             if pin_scl is not None:
                 self.pin_scl = pin_scl
@@ -558,8 +604,12 @@ class Protocols:
                 self.pin_sda = pin_sda
             if rate is not None:
                 self.rate = rate
+            if timeout is not None:
+                self.timeout = timeout
             if read_nak is not None:
                 self.read_nak = read_nak
+            if stretch is not None:
+                self.stretch = stretch
 
         def write_one(self, address: int, data: int) -> None:
             """Performs an I2C write of a single byte."""

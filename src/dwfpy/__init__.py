@@ -26,12 +26,12 @@ bindings
 #
 
 from dwfpy.constants import (
-    DeviceId, DeviceFilter, GlobalParameter, Error, Status,
+    DeviceId, DeviceType, GlobalParameter, Error, Status,
     TriggerSource, TriggerType, TriggerSlope, TriggerLengthCondition,
-    Function, ChannelNodeType,
-    AnalogOutputNode, AnalogOutputMode, AnalogOutputIdle,
+    Function, ChannelNodeType, DmmMode,
+    AnalogInputCoupling, AnalogOutputNode, AnalogOutputMode, AnalogOutputIdle,
     DigitalInputClockSource, DigitalInputSampleMode, DigitalOutputMode, DigitalOutputType, DigitalOutputIdle,
-    AnalogImpedance, AcquisitionMode, FilterMode)
+    AnalogImpedance, Window, AcquisitionMode, FilterMode)
 from dwfpy.exceptions import WaveformsError, DeviceNotFound, DeviceNotOpenError
 from dwfpy.device import Device, ElectronicsExplorer, AnalogDiscovery, AnalogDiscovery2, DigitalDiscovery
 from dwfpy.application import Application

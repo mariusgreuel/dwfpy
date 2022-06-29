@@ -446,6 +446,11 @@ class DigitalInput:
         return api.dwf_digital_in_status_record(self._device.handle)
 
     @property
+    def time(self) -> None:
+        """Returns instrument trigger time information."""
+        return api.dwf_digital_in_status_time(self._device.handle)
+
+    @property
     def sample_rate(self) -> float:
         """Gets or sets the sample rate."""
         return self.clock.frequency / self.clock.divider
