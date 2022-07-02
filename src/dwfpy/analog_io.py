@@ -177,8 +177,8 @@ class AnalogIo:
     def __enter__(self):
         return self
 
-    def __exit__(self, _type, _value, _traceback) -> None:
-        del _type, _value, _traceback
+    def __exit__(self, exception_type, exception_value, traceback) -> None:
+        del exception_type, exception_value, traceback
         self.reset()
 
     @property

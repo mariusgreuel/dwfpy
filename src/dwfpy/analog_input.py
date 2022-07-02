@@ -11,7 +11,7 @@ Analog Input module for Digilent WaveForms devices.
 
 import ctypes
 import time
-from typing import Tuple
+from typing import Optional, Tuple, Union
 from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
@@ -500,14 +500,14 @@ class AnalogInput:
         # pylint: disable-next=redefined-builtin
         def setup(
                 self,
-                range=None,
-                offset=None,
-                coupling=None,
-                bandwidth=None,
-                attenuation=None,
-                impedance=None,
-                filter=None,
-                enabled=True) -> None:
+                range: Optional[float] = None,
+                offset: Optional[float] = None,
+                coupling: Optional[Union[str, AnalogInputCoupling]] = None,
+                bandwidth: Optional[float] = None,
+                attenuation: Optional[float] = None,
+                impedance: Optional[float] = None,
+                filter: Optional[Union[str, FilterMode]] = None,
+                enabled: bool = True) -> None:
             """Sets up the channel for data acquisition.
 
             Parameters
@@ -555,8 +555,8 @@ class AnalogInput:
     def __enter__(self):
         return self
 
-    def __exit__(self, _type, _value, _traceback) -> None:
-        del _type, _value, _traceback
+    def __exit__(self, exception_type, exception_value, traceback) -> None:
+        del exception_type, exception_value, traceback
         self.reset()
 
     @property
@@ -733,7 +733,7 @@ class AnalogInput:
         """Resets and configures all instrument parameters to default values."""
         api.dwf_analog_in_reset(self._device.handle)
 
-    def configure(self, reconfigure=False, start=False) -> None:
+    def configure(self, reconfigure: bool = False, start: bool = False) -> None:
         """Configures the instrument and optionally starts the acquisition."""
         api.dwf_analog_in_configure(self._device.handle, reconfigure, start)
 
@@ -741,11 +741,11 @@ class AnalogInput:
         """Force trigger of instrument."""
         api.dwf_analog_in_trigger_force(self._device.handle)
 
-    def read_status(self, read_data=False) -> Status:
+    def read_status(self, read_data: bool = False) -> Status:
         """Gets the acquisition state and optionally reads the data."""
         return Status(api.dwf_analog_in_status(self._device.handle, read_data))
 
-    def wait_for_status(self, status, read_data=False) -> None:
+    def wait_for_status(self, status, read_data: bool = False) -> None:
         """Waits for the specified acquisition state."""
         while self.read_status(read_data=read_data) != status:
             time.sleep(0.001)
@@ -753,19 +753,21 @@ class AnalogInput:
     # pylint: disable-next=redefined-builtin
     def setup_channel(
             self,
-            channel,
-            range=None,
-            offset=None,
-            coupling=None,
-            bandwidth=None,
-            attenuation=None,
-            impedance=None,
-            filter=None,
-            enabled=True) -> None:
+            channel: int,
+            range: Optional[float] = None,
+            offset: Optional[float] = None,
+            coupling: Optional[Union[str, AnalogInputCoupling]] = None,
+            bandwidth: Optional[float] = None,
+            attenuation: Optional[float] = None,
+            impedance: Optional[float] = None,
+            filter: Optional[Union[str, FilterMode]] = None,
+            enabled: bool = True) -> None:
         """Sets up a channel for data acquisition.
 
         Parameters
         ----------
+        channel : int
+            The channel to setup.
         range : float, optional
             The channel range in Volts.
         offset : float, optional
@@ -795,20 +797,18 @@ class AnalogInput:
 
     def setup_edge_trigger(
             self,
-            mode=None,
-            channel=None,
-            slope=None,
-            level=None,
-            hysteresis=None,
-            position=None,
-            hold_off=None) -> None:
+            channel: int,
+            slope: Optional[Union[str, TriggerSlope]] = None,
+            level: Optional[float] = None,
+            hysteresis: Optional[float] = None,
+            position: Optional[float] = None,
+            hold_off: Optional[float] = None,
+            mode: Optional[str] = None) -> None:
         """Sets up an edge trigger.
 
         Parameters
         ----------
-        mode : str, optional
-            The trigger mode. Can be 'normal' or 'auto'.
-        channel : int, optional
+        channel : int
             The trigger channel.
         slope : str or TriggerSlope, optional
             The trigger slope. Can be 'rising', 'falling', or 'either'.
@@ -820,36 +820,36 @@ class AnalogInput:
             The horizontal trigger position in seconds.
         hold_off : float, optional
             The trigger hold-off time in seconds.
+        mode : str, optional
+            The trigger mode. Can be 'normal' or 'auto'.
         """
         self.trigger.source = TriggerSource.DETECTOR_ANALOG_IN
         self.trigger.type = TriggerType.EDGE
         self._set_trigger_parameter(
-            mode=mode,
             channel=channel,
             condition=slope,
             level=level,
             hysteresis=hysteresis,
             position=position,
-            hold_off=hold_off)
+            hold_off=hold_off,
+            mode=mode)
 
     def setup_pulse_trigger(
             self,
-            mode=None,
-            channel=None,
-            condition=None,
-            length_condition=None,
-            length=None,
-            level=None,
-            hysteresis=None,
-            position=None,
-            hold_off=None) -> None:
+            channel: int,
+            condition: Optional[Union[str, TriggerSlope]] = None,
+            length_condition: Optional[Union[str, TriggerLengthCondition]] = None,
+            length: Optional[float] = None,
+            level: Optional[float] = None,
+            hysteresis: Optional[float] = None,
+            position: Optional[float] = None,
+            hold_off: Optional[float] = None,
+            mode: Optional[str] = None) -> None:
         """Sets up a pulse trigger.
 
         Parameters
         ----------
-        mode : str, optional
-            The trigger mode. Can be 'normal' or 'auto'.
-        channel : int, optional
+        channel : int
             The trigger channel.
         condition : str, optional
             The trigger condition. Can be 'positive' or 'negative'.
@@ -865,11 +865,12 @@ class AnalogInput:
             The horizontal trigger position in seconds.
         hold_off : float, optional
             The trigger hold-off time in seconds.
+        mode : str, optional
+            The trigger mode. Can be 'normal' or 'auto'.
         """
         self.trigger.source = TriggerSource.DETECTOR_ANALOG_IN
         self.trigger.type = TriggerType.PULSE
         self._set_trigger_parameter(
-            mode=mode,
             channel=channel,
             condition=condition,
             length_condition=length_condition,
@@ -877,26 +878,25 @@ class AnalogInput:
             level=level,
             hysteresis=hysteresis,
             position=position,
-            hold_off=hold_off)
+            hold_off=hold_off,
+            mode=mode)
 
     def setup_transition_trigger(
             self,
-            mode=None,
-            channel=None,
-            condition=None,
-            length_condition=None,
-            length=None,
-            level=None,
-            hysteresis=None,
-            position=None,
-            hold_off=None) -> None:
+            channel: int,
+            condition: Optional[Union[str, TriggerSlope]] = None,
+            length_condition: Optional[Union[str, TriggerLengthCondition]] = None,
+            length: Optional[float] = None,
+            level: Optional[float] = None,
+            hysteresis: Optional[float] = None,
+            position: Optional[float] = None,
+            hold_off: Optional[float] = None,
+            mode: Optional[str] = None) -> None:
         """Sets up a transition trigger.
 
         Parameters
         ----------
-        mode : str, optional
-            The trigger mode. Can be 'normal' or 'auto'.
-        channel : int, optional
+        channel : int
             The trigger channel.
         condition : str, optional
             The trigger condition. Can be 'rising', 'falling', or 'either'.
@@ -912,11 +912,12 @@ class AnalogInput:
             The horizontal trigger position in seconds.
         hold_off : float, optional
             The trigger hold-off time in seconds.
+        mode : str, optional
+            The trigger mode. Can be 'normal' or 'auto'.
         """
         self.trigger.source = TriggerSource.DETECTOR_ANALOG_IN
         self.trigger.type = TriggerType.TRANSITION
         self._set_trigger_parameter(
-            mode=mode,
             channel=channel,
             condition=condition,
             length_condition=length_condition,
@@ -924,25 +925,24 @@ class AnalogInput:
             level=level,
             hysteresis=hysteresis,
             position=position,
-            hold_off=hold_off)
+            hold_off=hold_off,
+            mode=mode)
 
     def setup_window_trigger(
             self,
-            mode=None,
-            channel=None,
-            condition=None,
-            length=None,
-            level=None,
-            hysteresis=None,
-            position=None,
-            hold_off=None) -> None:
+            channel: int,
+            condition: Optional[Union[str, TriggerSlope]] = None,
+            length: Optional[float] = None,
+            level: Optional[float] = None,
+            hysteresis: Optional[float] = None,
+            position: Optional[float] = None,
+            hold_off: Optional[float] = None,
+            mode: Optional[str] = None) -> None:
         """Sets up a window trigger.
 
         Parameters
         ----------
-        mode : str, optional
-            The trigger mode. Can be 'normal' or 'auto'.
-        channel : int, optional
+        channel : int
             The trigger channel.
         condition : str, optional
             The trigger condition. Can be 'exiting' or 'entering'.
@@ -956,37 +956,32 @@ class AnalogInput:
             The horizontal trigger position in seconds.
         hold_off : float, optional
             The trigger hold-off time in seconds.
+        mode : str, optional
+            The trigger mode. Can be 'normal' or 'auto'.
         """
         self.trigger.source = TriggerSource.DETECTOR_ANALOG_IN
         self.trigger.type = TriggerType.WINDOW
         self._set_trigger_parameter(
-            mode=mode,
             channel=channel,
             condition=condition,
             length=length,
             level=level,
             hysteresis=hysteresis,
             position=position,
-            hold_off=hold_off)
+            hold_off=hold_off,
+            mode=mode)
 
     def _set_trigger_parameter(
             self,
-            mode=None,
-            channel=None,
-            condition=None,
-            length_condition=None,
-            length=None,
-            level=None,
-            hysteresis=None,
-            position=None,
-            hold_off=None) -> None:
-        if mode is not None:
-            if mode == 'normal':
-                self.trigger.auto_timeout = 0
-            elif mode == 'auto':
-                self.trigger.auto_timeout = 1
-            else:
-                raise WaveformsError('Invalid mode.')
+            channel: Optional[int] = None,
+            condition: Optional[Union[str, TriggerSlope]] = None,
+            length_condition: Optional[Union[str, TriggerLengthCondition]] = None,
+            length: Optional[float] = None,
+            level: Optional[float] = None,
+            hysteresis: Optional[float] = None,
+            position: Optional[float] = None,
+            hold_off: Optional[float] = None,
+            mode: Optional[str] = None) -> None:
         if channel is not None:
             self.trigger.channel = self[channel].index
         if condition is not None:
@@ -1003,20 +998,27 @@ class AnalogInput:
             self.trigger.position = position
         if hold_off is not None:
             self.trigger.hold_off = hold_off
+        if mode is not None:
+            if mode == 'normal':
+                self.trigger.auto_timeout = 0
+            elif mode == 'auto':
+                self.trigger.auto_timeout = 1
+            else:
+                raise WaveformsError('Invalid mode.')
 
     def setup_acquisition(
             self,
-            mode=None,
-            sample_rate=None,
-            buffer_size=None,
-            record_length=None,
-            configure=False,
-            start=False) -> None:
+            mode: Optional[Union[str, AcquisitionMode]] = None,
+            sample_rate: Optional[float] = None,
+            buffer_size: Optional[int] = None,
+            record_length: Optional[float] = None,
+            configure: bool = False,
+            start: bool = False) -> None:
         """Sets up a new data acquisition.
 
         Parameters
         ----------
-        mode : str, optional
+        mode : str or AcquisitionMode, optional
             The sampling mode.
             Can be 'single', 'scan-shift', 'scan-screen', or 'record'.
         sample_rate : float, optional
@@ -1043,10 +1045,10 @@ class AnalogInput:
 
     def single(
             self,
-            sample_rate=None,
-            buffer_size=None,
-            configure=False,
-            start=False) -> None:
+            sample_rate: Optional[float] = None,
+            buffer_size: Optional[int] = None,
+            configure: bool = False,
+            start: bool = False) -> None:
         """Starts a single data acquisition.
 
         Parameters
@@ -1072,10 +1074,10 @@ class AnalogInput:
 
     def scan_shift(
             self,
-            sample_rate=None,
-            buffer_size=None,
-            configure=False,
-            start=False) -> None:
+            sample_rate: Optional[float] = None,
+            buffer_size: Optional[int] = None,
+            configure: bool = False,
+            start: bool = False) -> None:
         """Starts a scan-shift data acquisition.
 
         Parameters
@@ -1098,10 +1100,10 @@ class AnalogInput:
 
     def scan_screen(
             self,
-            sample_rate=None,
-            buffer_size=None,
-            configure=False,
-            start=False) -> None:
+            sample_rate: Optional[float] = None,
+            buffer_size: Optional[int] = None,
+            configure: bool = False,
+            start: bool = False) -> None:
         """Starts a scan-screen data acquisition.
 
         Parameters
@@ -1124,11 +1126,11 @@ class AnalogInput:
 
     def record(
             self,
-            sample_rate=None,
-            length=None,
-            buffer_size=None,
-            configure=False,
-            start=False) -> AnalogRecorder:
+            sample_rate: Optional[float] = None,
+            length: Optional[float] = None,
+            buffer_size: Optional[int] = None,
+            configure: bool = False,
+            start: bool = False) -> AnalogRecorder:
         """Starts a data recording.
 
         Parameters
@@ -1142,7 +1144,12 @@ class AnalogInput:
         configure : bool, optional
             If True, then the instrument is configured (default False).
         start : bool, optional
-            If True, then the acquisition is started (default False).
+            If True, then the recording is started (default False).
+
+        Returns
+        -------
+        AnalogRecorder
+            The recorder instance.
         """
         self.setup_acquisition(
             AcquisitionMode.RECORD,

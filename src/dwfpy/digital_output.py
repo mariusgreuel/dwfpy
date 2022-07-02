@@ -11,7 +11,7 @@ Digital Output module for Digilent WaveForms devices.
 
 import ctypes
 import math
-from typing import Tuple
+from typing import Optional, Tuple, Union
 from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
@@ -190,7 +190,7 @@ class DigitalOutput:
 
         @property
         def initial_state(self) -> bool:
-            """Getsthe initial state."""
+            """Gets the initial state."""
             return bool(api.dwf_digital_out_counter_init_get(self._device.handle, self._channel)[0])
 
         @property
@@ -238,19 +238,19 @@ class DigitalOutput:
 
         def setup(
                 self,
-                output_type=None,
-                output_mode=None,
-                idle_state=None,
-                initial_state=None,
-                divider=None,
-                initial_divider=None,
-                low_counter=None,
-                high_counter=None,
-                initial_counter=None,
-                repetition=None,
-                enabled=True,
-                configure=False,
-                start=False) -> None:
+                output_type: Optional[Union[str, DigitalOutputType]] = None,
+                output_mode: Optional[Union[str, DigitalOutputMode]] = None,
+                divider: Optional[int] = None,
+                low_counter: Optional[int] = None,
+                high_counter: Optional[int] = None,
+                initial_divider: Optional[int] = None,
+                initial_counter: Optional[int] = None,
+                initial_state: Optional[Union[str, bool]] = None,
+                idle_state: Optional[Union[str, DigitalOutputIdle]] = None,
+                repetition: Optional[int] = None,
+                enabled: bool = True,
+                configure: bool = False,
+                start: bool = False) -> None:
             """Sets up the channel.
 
             Parameters
@@ -261,21 +261,21 @@ class DigitalOutput:
             output_mode : str, optional
                 The output mode.
                 Can be 'push-pull', 'open-drain', 'open-source', or 'three-state'.
-            idle_state : str or DigitalOutputIdle, optional
-                The output idle state.
-                Can be 'init', 'low', 'high', or 'z'.
             divider : int, optional
                 The divider value.
-            initial_divider : int, optional
-                The initial divider value.
             low_counter : int, optional
                 The low counter value.
             high_counter : int, optional
                 The high counter value.
-            initial_state : str or bool, optional
-                The initial state. Can be 'low' or 'high'.
+            initial_divider : int, optional
+                The initial divider value.
             initial_counter : int, optional
                 The initial counter value.
+            initial_state : str or bool, optional
+                The initial output state. Can be 'low' or 'high'.
+            idle_state : str or DigitalOutputIdle, optional
+                The output idle state.
+                Can be 'initial', 'low', 'high', or 'z'.
             repetition : int, optional
                 The repetition value. Set to 0 for unlimited repetitions.
             enabled : bool, optional
@@ -293,12 +293,14 @@ class DigitalOutput:
                 self.idle_state = Helpers.map_digital_output_idle(idle_state)
             if divider is not None:
                 self.divider = divider
-            if initial_divider is not None:
-                self.initial_divider = initial_divider
             if low_counter is not None and high_counter is not None:
                 self.set_counter(low_counter, high_counter)
-            if initial_state is not None and initial_counter is not None:
-                self.set_initial_state_and_counter(Helpers.map_state(initial_state), initial_counter)
+            if initial_divider is not None:
+                self.initial_divider = initial_divider
+            if initial_state is not None or initial_counter is not None:
+                self.set_initial_state_and_counter(
+                    Helpers.map_state(initial_state, False),
+                    Helpers.make_default(initial_counter, 0))
             if repetition is not None:
                 self.repetition = repetition
             if enabled is not None:
@@ -308,12 +310,12 @@ class DigitalOutput:
 
         def setup_constant(
                 self,
-                value,
-                output_mode=None,
-                idle_state=None,
-                enabled=True,
-                configure=False,
-                start=False) -> None:
+                value: Union[str, bool],
+                output_mode: Optional[Union[str, DigitalOutputMode]] = None,
+                idle_state: Optional[Union[str, DigitalOutputIdle]] = None,
+                enabled: bool = True,
+                configure: bool = False,
+                start: bool = False) -> None:
             """Sets up the channel as a constant output.
 
             Parameters
@@ -323,9 +325,9 @@ class DigitalOutput:
             output_mode : str, optional
                 The output mode.
                 Can be 'push-pull', 'open-drain', 'open-source', or 'three-state'.
-            idle_state : str, optional
+            idle_state : str or DigitalOutputIdle, optional
                 The output idle state.
-                Can be 'init', 'low', 'high', or 'z'.
+                Can be 'initial', 'low', 'high', or 'z'.
             enabled : bool, optional
                 If True, then the channel is enabled (default True).
             configure : bool, optional
@@ -335,11 +337,11 @@ class DigitalOutput:
             """
             self.setup(
                 output_type=DigitalOutputType.PULSE,
+                output_mode=output_mode,
                 low_counter=0,
                 high_counter=0,
-                initial_state=value,
                 initial_counter=0,
-                output_mode=output_mode,
+                initial_state=value,
                 idle_state=idle_state,
                 enabled=enabled,
                 configure=configure,
@@ -347,16 +349,16 @@ class DigitalOutput:
 
         def setup_clock(
                 self,
-                frequency,
-                duty_cycle=None,
-                phase=None,
-                delay=None,
-                repetition=None,
-                output_mode=None,
-                idle_state=None,
-                enabled=True,
-                configure=False,
-                start=False) -> None:
+                frequency: float,
+                duty_cycle: float = 50,
+                phase: float = 0,
+                delay: float = 0,
+                repetition: int = 0,
+                output_mode: Optional[Union[str, DigitalOutputMode]] = None,
+                idle_state: Optional[Union[str, DigitalOutputIdle]] = None,
+                enabled: bool = True,
+                configure: bool = False,
+                start: bool = False) -> None:
             """Sets up the channel as a clock output.
 
             Parameters
@@ -374,9 +376,9 @@ class DigitalOutput:
             output_mode : str, optional
                 The output mode.
                 Can be 'push-pull', 'open-drain', 'open-source', or 'three-state'.
-            idle_state : str, optional
+            idle_state : str or DigitalOutputIdle, optional
                 The output idle state.
-                Can be 'init', 'low', 'high', or 'z'.
+                Can be 'initial', 'low', 'high', or 'z'.
             enabled : bool, optional
                 If True, then the channel is enabled (default True).
             configure : bool, optional
@@ -404,9 +406,9 @@ class DigitalOutput:
             self.setup(
                 output_type=DigitalOutputType.PULSE,
                 divider=divider,
-                initial_divider=initial_divider,
                 low_counter=low_counter,
                 high_counter=high_counter,
+                initial_divider=initial_divider,
                 initial_counter=initial_counter,
                 initial_state=initial_state,
                 repetition=repetition,
@@ -418,33 +420,36 @@ class DigitalOutput:
 
         def setup_pulse(
                 self,
-                low_duration,
-                high_duration,
-                delay=None,
-                repetition=None,
-                output_mode=None,
-                idle_state=None,
-                enabled=True,
-                configure=False,
-                start=False) -> None:
+                low: float,
+                high: float,
+                delay: float = 0,
+                repetition: int = 0,
+                output_mode: Optional[Union[str, DigitalOutputMode]] = None,
+                initial_state: Optional[Union[str, bool]] = None,
+                idle_state: Optional[Union[str, DigitalOutputIdle]] = None,
+                enabled: bool = True,
+                configure: bool = False,
+                start: bool = False) -> None:
             """Sets up the channel as a pulse output.
 
             Parameters
             ----------
-            low_duration : int, optional
+            low : float
                 The duration of the low state in seconds.
-            high_duration : int, optional
+            high : float
                 The duration of the high state in seconds.
             delay : float, optional
-                The delay in seconds (default 0).
+                The initial delay in seconds (default 0).
             repetition : int, optional
                 The repetition count. Set to 0 for unlimited repetitions (default).
             output_mode : str, optional
                 The output mode.
                 Can be 'push-pull', 'open-drain', 'open-source', or 'three-state'.
-            idle_state : str, optional
+            initial_state : str or bool, optional
+                The initial output state. Can be 'low' or 'high'.
+            idle_state : str or DigitalOutputIdle, optional
                 The output idle state.
-                Can be 'init', 'low', 'high', or 'z'.
+                Can be 'initial', 'low', 'high', or 'z'.
             enabled : bool, optional
                 If True, then the channel is enabled (default True).
             configure : bool, optional
@@ -452,14 +457,14 @@ class DigitalOutput:
             start : bool, optional
                 If True, then the instrument is started (default False).
             """
-            total_duration = low_duration + high_duration
-            frequency = 1 / total_duration
+            total = low + high
+            frequency = 1 / total
 
             divider = math.ceil(self._module.clock_frequency / frequency / self.counter_max)
             clock_frequency = self._module.clock_frequency / divider
 
             total_counter = round(clock_frequency / frequency)
-            high_counter = round(total_counter * high_duration / total_duration)
+            high_counter = round(total_counter * high / total)
             low_counter = total_counter - high_counter
 
             phase_count = round(total_counter * 0 / 360) % total_counter
@@ -475,9 +480,9 @@ class DigitalOutput:
             self.setup(
                 output_type=DigitalOutputType.PULSE,
                 divider=divider,
-                initial_divider=0,
                 low_counter=low_counter,
                 high_counter=high_counter,
+                initial_divider=0,
                 initial_counter=initial_counter,
                 initial_state=initial_state,
                 repetition=repetition,
@@ -489,14 +494,14 @@ class DigitalOutput:
 
         def setup_random(
                 self,
-                rate,
-                delay=None,
-                repetition=None,
-                output_mode=None,
-                idle_state=None,
-                enabled=True,
-                configure=False,
-                start=False) -> None:
+                rate: float,
+                delay: Optional[float] = None,
+                repetition: int = 0,
+                output_mode: Optional[Union[str, DigitalOutputMode]] = None,
+                idle_state: Optional[Union[str, DigitalOutputIdle]] = None,
+                enabled: bool = True,
+                configure: bool = False,
+                start: bool = False) -> None:
             """Sets up the channel as a random output.
 
             Parameters
@@ -510,9 +515,9 @@ class DigitalOutput:
             output_mode : str, optional
                 The output mode.
                 Can be 'push-pull', 'open-drain', 'open-source', or 'three-state'.
-            idle_state : str, optional
+            idle_state : str or DigitalOutputIdle, optional
                 The output idle state.
-                Can be 'init', 'low', 'high', or 'z'.
+                Can be 'initial', 'low', 'high', or 'z'.
             enabled : bool, optional
                 If True, then the channel is enabled (default True).
             configure : bool, optional
@@ -539,15 +544,15 @@ class DigitalOutput:
 
         def setup_custom(
                 self,
-                rate,
+                rate: float,
                 data,
-                delay=None,
-                repetition=None,
-                output_mode=None,
-                idle_state=None,
-                enabled=True,
-                configure=False,
-                start=False) -> None:
+                delay: float = 0,
+                repetition: int = 0,
+                output_mode: Optional[Union[str, DigitalOutputMode]] = None,
+                idle_state: Optional[Union[str, DigitalOutputIdle]] = None,
+                enabled: bool = True,
+                configure: bool = False,
+                start: bool = False) -> None:
             """Sets up the channel with a custom output.
 
             Parameters
@@ -563,9 +568,9 @@ class DigitalOutput:
             output_mode : str, optional
                 The output mode.
                 Can be 'push-pull', 'open-drain', 'open-source', or 'three-state'.
-            idle_state : str, optional
+            idle_state : str or DigitalOutputIdle, optional
                 The output idle state.
-                Can be 'init', 'low', 'high', or 'z'.
+                Can be 'initial', 'low', 'high', or 'z'.
             enabled : bool, optional
                 If True, then the channel is enabled (default True).
             configure : bool, optional
@@ -599,8 +604,8 @@ class DigitalOutput:
     def __enter__(self):
         return self
 
-    def __exit__(self, _type, _value, _traceback) -> None:
-        del _type, _value, _traceback
+    def __exit__(self, exception_type, exception_value, traceback) -> None:
+        del exception_type, exception_value, traceback
         self.reset()
 
     @property
@@ -705,7 +710,7 @@ class DigitalOutput:
         """Resets and configures all instrument parameters to default values."""
         api.dwf_digital_out_reset(self._device.handle)
 
-    def configure(self, start=False) -> None:
+    def configure(self, start: bool = False) -> None:
         """Configures and starts the instrument."""
         api.dwf_digital_out_configure(self._device.handle, start)
 
@@ -715,11 +720,11 @@ class DigitalOutput:
 
     def setup(
             self,
-            run_length=None,
-            wait_length=None,
-            repeat_count=None,
-            configure=False,
-            start=False) -> None:
+            run_length: Optional[float] = None,
+            wait_length: Optional[float] = None,
+            repeat_count: Optional[int] = None,
+            configure: bool = False,
+            start: bool = False) -> None:
         """Sets up the pattern generator.
 
         Parameters

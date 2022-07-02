@@ -69,8 +69,8 @@ class DeviceBase():
         self.open()
         return self
 
-    def __exit__(self, _type, _value, _traceback) -> None:
-        del _type, _value, _traceback
+    def __exit__(self, exception_type, exception_value, traceback) -> None:
+        del exception_type, exception_value, traceback
         self.close()
 
     @property
@@ -380,7 +380,7 @@ class ElectronicsExplorer(DeviceBase):
                 """Gets the current of the fixed power supply."""
                 return self._device.analog_io[0][2].status
 
-            def setup(self, voltage, enabled=True) -> None:
+            def setup(self, voltage: float, enabled: bool = True) -> None:
                 """Sets up the power supply.
 
                 Parameters
@@ -433,14 +433,14 @@ class ElectronicsExplorer(DeviceBase):
             def current_limit(self, value: bool) -> None:
                 self._device.analog_io[1][2].value = value
 
-            def setup(self, voltage, current_limit=None, enabled=True) -> None:
+            def setup(self, voltage: float, current_limit: float = None, enabled: bool = True) -> None:
                 """Sets up the positive power supply.
 
                 Parameters
                 ----------
                 voltage : float
                     The output voltage.
-                current_limit : float
+                current_limit : float, optional
                     The power supply current limit in A.
                 enabled : bool, optional
                     If True, then the power supply is enabled (default True).
@@ -490,14 +490,14 @@ class ElectronicsExplorer(DeviceBase):
             def current_limit(self, value: bool) -> None:
                 self._device.analog_io[2][2].value = value
 
-            def setup(self, voltage, current_limit=None, enabled=True) -> None:
+            def setup(self, voltage: float, current_limit: float = None, enabled: bool = True) -> None:
                 """Sets up the negative power supply.
 
                 Parameters
                 ----------
                 voltage : float
                     The output voltage (must be a negative value).
-                current_limit : float
+                current_limit : float, optional
                     The power supply current limit in A.
                 enabled : bool, optional
                     If True, then the power supply is enabled (default True).
@@ -533,7 +533,7 @@ class ElectronicsExplorer(DeviceBase):
             def voltage(self, value: float) -> None:
                 self._device.analog_io[3][1].value = value
 
-            def setup(self, voltage, enabled=True) -> None:
+            def setup(self, voltage: float, enabled: bool = True) -> None:
                 """Sets up the voltage reference.
 
                 Parameters
@@ -572,7 +572,7 @@ class ElectronicsExplorer(DeviceBase):
             def voltage(self, value: float) -> None:
                 self._device.analog_io[4][1].value = value
 
-            def setup(self, voltage, enabled=True) -> None:
+            def setup(self, voltage: float, enabled: bool = True) -> None:
                 """Sets up the voltage reference.
 
                 Parameters
@@ -705,7 +705,7 @@ class AnalogDiscovery(DeviceBase):
             def enabled(self, value: bool) -> None:
                 self._device.analog_io[0][0].value = value
 
-            def setup(self, enabled=True) -> None:
+            def setup(self, enabled: bool = True) -> None:
                 """Sets up the positive power supply.
 
                 Parameters
@@ -731,7 +731,7 @@ class AnalogDiscovery(DeviceBase):
             def enabled(self, value: bool) -> None:
                 self._device.analog_io[1][0].value = value
 
-            def setup(self, enabled=True) -> None:
+            def setup(self, enabled: bool = True) -> None:
                 """Sets up the negative power supply.
 
                 Parameters
@@ -844,7 +844,7 @@ class AnalogDiscovery2(DeviceBase):
             def voltage(self, value: float) -> None:
                 self._device.analog_io[0][1].value = value
 
-            def setup(self, voltage, enabled=True) -> None:
+            def setup(self, voltage: float, enabled: bool = True) -> None:
                 """Sets up the positive power supply.
 
                 Parameters
@@ -883,7 +883,7 @@ class AnalogDiscovery2(DeviceBase):
             def voltage(self, value: float) -> None:
                 self._device.analog_io[1][1].value = value
 
-            def setup(self, voltage, enabled=True) -> None:
+            def setup(self, voltage: float, enabled: bool = True) -> None:
                 """Sets up the negative power supply.
 
                 Parameters
@@ -991,7 +991,7 @@ class DigitalDiscovery(DeviceBase):
             def voltage(self, value: float) -> None:
                 self._device.analog_io[0][0].value = value
 
-            def setup(self, voltage) -> None:
+            def setup(self, voltage: float) -> None:
                 """Sets up the power supply.
 
                 Parameters

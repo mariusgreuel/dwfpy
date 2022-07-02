@@ -9,7 +9,7 @@ Digital IO module for Digilent WaveForms devices.
 # SPDX-License-Identifier: MIT
 #
 
-from typing import Tuple
+from typing import Optional, Tuple
 from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
 
@@ -94,7 +94,11 @@ class DigitalIo:
             state = api.dwf_digital_io_input_status64(self._device.handle)
             return bool(state & self._mask)
 
-        def setup(self, enabled=None, state=None, configure=None) -> None:
+        def setup(
+                self,
+                enabled: Optional[bool] = None,
+                state: Optional[bool] = None,
+                configure: Optional[bool] = None) -> None:
             """Sets up the channel.
 
             Parameters
@@ -125,8 +129,8 @@ class DigitalIo:
     def __enter__(self):
         return self
 
-    def __exit__(self, _type, _value, _traceback) -> None:
-        del _type, _value, _traceback
+    def __exit__(self, exception_type, exception_value, traceback) -> None:
+        del exception_type, exception_value, traceback
         self.reset()
 
     @property

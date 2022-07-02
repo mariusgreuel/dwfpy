@@ -9,7 +9,7 @@ Analog Output module for Digilent WaveForms devices.
 # SPDX-License-Identifier: MIT
 #
 
-from typing import Tuple
+from typing import Optional, Tuple
 from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
@@ -394,7 +394,7 @@ class AnalogOutput:
             """Resets and configures all instrument parameters to default values."""
             api.dwf_analog_out_reset(self._device.handle, self._channel)
 
-        def configure(self, start=False) -> None:
+        def configure(self, start: bool = False) -> None:
             """Configures and optionally starts the instrument."""
             api.dwf_analog_out_configure(self._device.handle, self._channel, start)
 
@@ -408,15 +408,15 @@ class AnalogOutput:
 
         def setup(
                 self,
-                function=None,
-                frequency=None,
-                amplitude=None,
-                offset=None,
-                symmetry=None,
-                phase=None,
-                enabled=True,
-                configure=False,
-                start=False) -> None:
+                function: Optional[str] = None,
+                frequency: Optional[float] = None,
+                amplitude: Optional[float] = None,
+                offset: Optional[float] = None,
+                symmetry: Optional[float] = None,
+                phase: Optional[float] = None,
+                enabled: bool = True,
+                configure: bool = False,
+                start: bool = False) -> None:
             """Sets up a new carrier waveform.
 
             Parameters
@@ -456,15 +456,15 @@ class AnalogOutput:
 
         def setup_am(
                 self,
-                function=None,
-                frequency=None,
-                amplitude=None,
-                offset=None,
-                symmetry=None,
-                phase=None,
-                enabled=True,
-                configure=False,
-                start=False) -> None:
+                function: Optional[str] = None,
+                frequency: Optional[float] = None,
+                amplitude: Optional[float] = None,
+                offset: Optional[float] = None,
+                symmetry: Optional[float] = None,
+                phase: Optional[float] = None,
+                enabled: bool = True,
+                configure: bool = False,
+                start: bool = False) -> None:
             """Applies an AM modulation to a waveform.
 
             Parameters
@@ -504,15 +504,15 @@ class AnalogOutput:
 
         def setup_fm(
                 self,
-                function=None,
-                frequency=None,
-                amplitude=None,
-                offset=None,
-                symmetry=None,
-                phase=None,
-                enabled=True,
-                configure=False,
-                start=False) -> None:
+                function: Optional[str] = None,
+                frequency: Optional[float] = None,
+                amplitude: Optional[float] = None,
+                offset: Optional[float] = None,
+                symmetry: Optional[float] = None,
+                phase: Optional[float] = None,
+                enabled: bool = True,
+                configure: bool = False,
+                start: bool = False) -> None:
             """Applies an FM modulation to a waveform.
 
             Parameters
@@ -587,8 +587,8 @@ class AnalogOutput:
     def __enter__(self):
         return self
 
-    def __exit__(self, _type, _value, _traceback) -> None:
-        del _type, _value, _traceback
+    def __exit__(self, exception_type, exception_value, traceback) -> None:
+        del exception_type, exception_value, traceback
         for channel in self._channels:
             channel.reset()
 

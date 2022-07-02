@@ -13,7 +13,7 @@ from .constants import (
     AcquisitionMode, AnalogInputCoupling,
     DigitalOutputMode, DigitalOutputType, DigitalOutputIdle,
     FilterMode, Function,
-    TriggerLengthCondition, TriggerSlope)
+    TriggerLengthCondition, TriggerSlope, TriggerSource)
 
 
 class Helpers:
@@ -26,11 +26,18 @@ class Helpers:
         return buffer.value.decode('ascii')
 
     @staticmethod
+    def make_default(value, default_value=None):
+        return default_value if value is None else value
+
+    @staticmethod
     def map_enum_values(enum_type, values) -> tuple:
         return tuple(v for v in enum_type if (values & (1 << v.value)) != 0)
 
     @staticmethod
-    def map_named_value(value, named_values):
+    def map_named_value(value, named_values, default_value=None):
+        if value is None:
+            return default_value
+
         if isinstance(value, str):
             return named_values[value.lower()]
 
@@ -58,51 +65,25 @@ class Helpers:
         return tuple(buffer[buffer_index:] + buffer[:buffer_index])
 
     @staticmethod
-    def map_state(value):
+    def map_state(value, default_value=None):
         named_values = {
             'low': False,
             'high': True,
         }
-        return Helpers.map_named_value(value, named_values)
+        return Helpers.map_named_value(value, named_values, default_value)
 
     @staticmethod
-    def map_trigger_slope(value):
-        named_values = {
-            'rise': TriggerSlope.RISE,
-            'rising': TriggerSlope.RISE,
-            'pos': TriggerSlope.RISE,
-            'positive': TriggerSlope.RISE,
-            'entering': TriggerSlope.RISE,
-            'fall': TriggerSlope.FALL,
-            'falling': TriggerSlope.FALL,
-            'neg': TriggerSlope.FALL,
-            'negative': TriggerSlope.FALL,
-            'exiting': TriggerSlope.FALL,
-            'either': TriggerSlope.EITHER,
-        }
-        return Helpers.map_named_value(value, named_values)
-
-    @staticmethod
-    def map_trigger_length_condition(value):
-        named_values = {
-            'less': TriggerLengthCondition.LESS,
-            'timeout': TriggerLengthCondition.TIMEOUT,
-            'more': TriggerLengthCondition.MORE,
-        }
-        return Helpers.map_named_value(value, named_values)
-
-    @staticmethod
-    def map_acquisition_mode(value):
+    def map_acquisition_mode(value, default_value=None):
         named_values = {
             'single': AcquisitionMode.SINGLE,
             'scan-shift': AcquisitionMode.SCAN_SHIFT,
             'scan-screen': AcquisitionMode.SCAN_SCREEN,
             'record': AcquisitionMode.RECORD,
         }
-        return Helpers.map_named_value(value, named_values)
+        return Helpers.map_named_value(value, named_values, default_value)
 
     @staticmethod
-    def map_function(value):
+    def map_function(value, default_value=None):
         named_values = {
             'dc': Function.DC,
             'sine': Function.SINE,
@@ -119,18 +100,18 @@ class Helpers:
             'custom': Function.CUSTOM,
             'play': Function.PLAY,
         }
-        return Helpers.map_named_value(value, named_values)
+        return Helpers.map_named_value(value, named_values, default_value)
 
     @staticmethod
-    def map_coupling(value):
+    def map_coupling(value, default_value=None):
         named_values = {
             'dc': AnalogInputCoupling.DC,
             'ac': AnalogInputCoupling.AC,
         }
-        return Helpers.map_named_value(value, named_values)
+        return Helpers.map_named_value(value, named_values, default_value)
 
     @staticmethod
-    def map_digital_output_mode(value):
+    def map_digital_output_mode(value, default_value=None):
         named_values = {
             'pp': DigitalOutputMode.PUSH_PULL,
             'push-pull': DigitalOutputMode.PUSH_PULL,
@@ -140,10 +121,10 @@ class Helpers:
             'open-source': DigitalOutputMode.OPEN_SOURCE,
             'three-state': DigitalOutputMode.THREE_STATE,
         }
-        return Helpers.map_named_value(value, named_values)
+        return Helpers.map_named_value(value, named_values, default_value)
 
     @staticmethod
-    def map_digital_output_type(value):
+    def map_digital_output_type(value, default_value=None):
         named_values = {
             'pulse': DigitalOutputType.PULSE,
             'custom': DigitalOutputType.CUSTOM,
@@ -152,10 +133,10 @@ class Helpers:
             'state': DigitalOutputType.STATE,
             'play': DigitalOutputType.PLAY,
         }
-        return Helpers.map_named_value(value, named_values)
+        return Helpers.map_named_value(value, named_values, default_value)
 
     @staticmethod
-    def map_digital_output_idle(value):
+    def map_digital_output_idle(value, default_value=None):
         named_values = {
             'init': DigitalOutputIdle.INIT,
             'initial': DigitalOutputIdle.INIT,
@@ -164,13 +145,63 @@ class Helpers:
             'z': DigitalOutputIdle.ZET,
             'zet': DigitalOutputIdle.ZET,
         }
-        return Helpers.map_named_value(value, named_values)
+        return Helpers.map_named_value(value, named_values, default_value)
 
     @staticmethod
-    def map_filter(value):
+    def map_filter(value, default_value=None):
         named_values = {
             'decimate': FilterMode.DECIMATE,
             'average': FilterMode.AVERAGE,
             'min-max': FilterMode.MIN_MAX,
         }
-        return Helpers.map_named_value(value, named_values)
+        return Helpers.map_named_value(value, named_values, default_value)
+
+    @staticmethod
+    def map_trigger_length_condition(value, default_value=None):
+        named_values = {
+            'less': TriggerLengthCondition.LESS,
+            'timeout': TriggerLengthCondition.TIMEOUT,
+            'more': TriggerLengthCondition.MORE,
+        }
+        return Helpers.map_named_value(value, named_values, default_value)
+
+    @staticmethod
+    def map_trigger_slope(value, default_value=None):
+        named_values = {
+            'rise': TriggerSlope.RISE,
+            'rising': TriggerSlope.RISE,
+            'pos': TriggerSlope.RISE,
+            'positive': TriggerSlope.RISE,
+            'entering': TriggerSlope.RISE,
+            'fall': TriggerSlope.FALL,
+            'falling': TriggerSlope.FALL,
+            'neg': TriggerSlope.FALL,
+            'negative': TriggerSlope.FALL,
+            'exiting': TriggerSlope.FALL,
+            'either': TriggerSlope.EITHER,
+        }
+        return Helpers.map_named_value(value, named_values, default_value)
+
+    @staticmethod
+    def map_trigger_source(value, default_value=None):
+        named_values = {
+            'none': TriggerSource.NONE,
+            'pc': TriggerSource.PC,
+            'detector-analog-in': TriggerSource.DETECTOR_ANALOG_IN,
+            'detector-digital-in': TriggerSource.DETECTOR_DIGITAL_IN,
+            'analog-in': TriggerSource.ANALOG_IN,
+            'digital-in': TriggerSource.DIGITAL_IN,
+            'digital-out': TriggerSource.DIGITAL_OUT,
+            'analog-out1': TriggerSource.ANALOG_OUT1,
+            'analog-out2': TriggerSource.ANALOG_OUT2,
+            'analog-out3': TriggerSource.ANALOG_OUT3,
+            'analog-out4': TriggerSource.ANALOG_OUT4,
+            'external1': TriggerSource.EXTERNAL1,
+            'external2': TriggerSource.EXTERNAL2,
+            'external3': TriggerSource.EXTERNAL3,
+            'external4': TriggerSource.EXTERNAL4,
+            'high': TriggerSource.HIGH,
+            'low': TriggerSource.LOW,
+            'clock': TriggerSource.CLOCK,
+        }
+        return Helpers.map_named_value(value, named_values, default_value)

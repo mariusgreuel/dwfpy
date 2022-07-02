@@ -11,7 +11,7 @@ Digital Input module for Digilent WaveForms devices.
 
 import ctypes
 import time
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
@@ -37,7 +37,7 @@ class DigitalInput:
             return api.dwf_digital_in_internal_clock_info(self._device.handle)
 
         @property
-        def source_info(self):
+        def source_info(self) -> Tuple[DigitalInputClockSource, ...]:
             """Gets the supported clock sources."""
             return Helpers.map_enum_values(
                 DigitalInputClockSource, api.dwf_digital_in_clock_source_info(self._device.handle))
@@ -165,7 +165,7 @@ class DigitalInput:
             """Configures the trigger reset condition as a bit-mask."""
             api.dwf_digital_in_trigger_reset_set(self._device.handle, low_level, high_level, rising_edge, falling_edge)
 
-        def set_counter(self, count: int, restart=False) -> None:
+        def set_counter(self, count: int, restart: bool = False) -> None:
             """Configures the trigger counter."""
             api.dwf_digital_in_trigger_count_set(self._device.handle, count, restart)
 
@@ -373,8 +373,8 @@ class DigitalInput:
     def __enter__(self):
         return self
 
-    def __exit__(self, _type, _value, _traceback) -> None:
-        del _type, _value, _traceback
+    def __exit__(self, exception_type, exception_value, traceback) -> None:
+        del exception_type, exception_value, traceback
         self.reset()
 
     @property
@@ -525,15 +525,15 @@ class DigitalInput:
         """Resets and configures all instrument parameters to default values."""
         api.dwf_digital_in_reset(self._device.handle)
 
-    def configure(self, reconfigure=False, start=False) -> None:
+    def configure(self, reconfigure: bool = False, start: bool = False) -> None:
         """Configures the instrument and starts the acquisition.."""
         api.dwf_digital_in_configure(self._device.handle, reconfigure, start)
 
-    def read_status(self, read_data=False) -> Status:
+    def read_status(self, read_data: bool = False) -> Status:
         """Gets the acquisition state and optionally reads the data."""
         return Status(api.dwf_digital_in_status(self._device.handle, read_data))
 
-    def wait_for_status(self, status, read_data=False) -> None:
+    def wait_for_status(self, status, read_data: bool = False) -> None:
         """Waits for the specified acquisition state."""
         while self.read_status(read_data=read_data) != status:
             time.sleep(0.001)
@@ -572,7 +572,10 @@ class DigitalInput:
 
         raise ValueError('sample_format must be 8, 16, or 32.')
 
-    def setup_trigger(self, position=None, prefill=None) -> None:
+    def setup_trigger(
+            self,
+            position: Optional[int] = None,
+            prefill: Optional[int] = None) -> None:
         """Sets up trigger parameters.
 
         Parameters
@@ -590,18 +593,18 @@ class DigitalInput:
 
     def setup_glitch_trigger(
             self,
-            channel=None,
-            polarity=None,
-            less_than=None) -> None:
+            channel: int,
+            polarity: str,
+            less_than: float) -> None:
         """Sets up a glitch trigger.
 
         Parameters
         ----------
-        channel : int, optional
+        channel : int
             The trigger channel.
-        polarity : int, optional
+        polarity : str
             The trigger polarity. Can be 'positive' or 'negative'.
-        less_than : float, optional
+        less_than : float
             The maximum pulse width in seconds.
         """
         self._setup_pulse_trigger(
@@ -612,18 +615,18 @@ class DigitalInput:
 
     def setup_timeout_trigger(
             self,
-            channel=None,
-            polarity=None,
-            more_than=None) -> None:
+            channel: int,
+            polarity: str,
+            more_than: float) -> None:
         """Sets up a timeout trigger.
 
         Parameters
         ----------
-        channel : int, optional
+        channel : int
             The trigger channel.
-        polarity : int, optional
+        polarity : str
             The trigger polarity. Can be 'positive' or 'negative'.
-        more_than : float, optional
+        more_than : float
             The minimum pulse width in seconds.
         """
         self._setup_pulse_trigger(
@@ -634,19 +637,19 @@ class DigitalInput:
 
     def setup_more_trigger(
             self,
-            channel,
-            polarity,
-            more_than) -> None:
+            channel: int,
+            polarity: str,
+            more_than: float) -> None:
         """Sets up a more trigger.
 
         Parameters
         ----------
-        channel : int, optional
+        channel : int
             The trigger channel.
-        polarity : int, optional
+        polarity : str
             The trigger polarity. Can be 'positive' or 'negative'.
-        less_than : float, optional
-            The maximum pulse width in seconds.
+        more_than : float
+            The minimum pulse width in seconds.
         """
         self._setup_pulse_trigger(
             channel=channel,
@@ -656,19 +659,19 @@ class DigitalInput:
 
     def setup_length_trigger(
             self,
-            channel,
-            polarity,
-            length,
-            hysteresis=None) -> None:
+            channel: int,
+            polarity: str,
+            length: float,
+            hysteresis: float = 0.0) -> None:
         """Sets up a length trigger.
 
         Parameters
         ----------
-        channel : int, optional
+        channel : int
             The trigger channel.
-        polarity : int, optional
+        polarity : str
             The trigger polarity. Can be 'positive' or 'negative'.
-        length : float, optional
+        length : float
             The minimum pulse width in seconds.
         hysteresis : float, optional
             The pulse width hysteresis in seconds.
@@ -696,47 +699,43 @@ class DigitalInput:
 
     def setup_counter_trigger(
             self,
-            trigger_channel=None,
-            trigger_condition=None,
-            reset_channel=None,
-            reset_condition=None,
-            max_counter=None) -> None:
+            channel: int,
+            condition: str,
+            reset_channel: int,
+            reset_condition: str,
+            max_counter: int) -> None:
         """Sets up a counter trigger.
 
         Parameters
         ----------
-        trigger_channel : int, optional
+        channel : int
             The trigger channel.
-        trigger_condition : int, optional
-            The trigger condition. Can be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.
-        reset_channel : int, optional
+        condition : str
+            The trigger condition.
+            Can be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.
+        reset_channel : int
             The counter reset channel.
-        reset_condition : int, optional
-            The reset condition. Can be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.
-        max_counter : int, optional
+        reset_condition : str
+            The reset condition.
+            Can be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.
+        max_counter : int
             The maximum counter value.
         """
         self._trigger.source = TriggerSource.DETECTOR_DIGITAL_IN
-
-        if trigger_channel is not None and trigger_condition is not None:
-            self._channels[trigger_channel].setup_trigger(trigger_condition)
-
-        if reset_channel is not None and reset_condition is not None:
-            self._channels[reset_channel].setup_reset_trigger(reset_condition)
-
-        if max_counter is not None:
-            self._trigger.set_counter(max_counter)
+        self._channels[channel].setup_trigger(condition)
+        self._channels[reset_channel].setup_reset_trigger(reset_condition)
+        self._trigger.set_counter(max_counter)
 
     def setup_acquisition(
             self,
-            mode=None,
-            sample_rate=None,
-            sample_format=None,
-            buffer_size=None,
-            position=None,
-            prefill=None,
-            configure=False,
-            start=False) -> None:
+            mode: Optional[Union[str, AcquisitionMode]] = None,
+            sample_rate: Optional[float] = None,
+            sample_format: Optional[int] = None,
+            buffer_size: Optional[int] = None,
+            position: Optional[int] = None,
+            prefill: Optional[int] = None,
+            configure: bool = False,
+            start: bool = False) -> None:
         """Sets up a new data acquisition.
 
         Parameters
@@ -753,7 +752,7 @@ class DigitalInput:
         position : int, optional
             The number of samples to be acquired after the trigger.
         prefill : int, optional
-            The number of samples to be acquired before the trigger.
+            The number of samples to be acquired before the trigger (record mode only).
         configure : bool, optional
             If True, then the instrument is configured (default False).
         start : bool, optional
@@ -776,12 +775,12 @@ class DigitalInput:
 
     def single(
             self,
-            sample_rate=None,
-            sample_format=None,
-            buffer_size=None,
-            position=None,
-            configure=False,
-            start=False) -> Optional[Tuple]:
+            sample_rate: Optional[float] = None,
+            sample_format: Optional[int] = None,
+            buffer_size: Optional[int] = None,
+            position: Optional[int] = None,
+            configure: bool = False,
+            start: bool = False) -> Optional[Tuple]:
         """Starts a single data acquisition.
 
         Parameters
@@ -798,6 +797,12 @@ class DigitalInput:
             If True, then the instrument is configured (default False).
         start : bool, optional
             If True, then the acquisition is started (default False).
+
+        Returns
+        -------
+        tuple
+            If ``start`` is True, a tuple of integers containing the data samples.
+            None otherwise.
         """
         self.setup_acquisition(
             AcquisitionMode.SINGLE,
@@ -816,13 +821,13 @@ class DigitalInput:
 
     def record(
             self,
-            sample_rate=None,
-            sample_format=None,
-            sample_sensible=None,
-            position=None,
-            prefill=None,
-            configure=False,
-            start=False) -> DigitalRecorder:
+            sample_rate: Optional[float] = None,
+            sample_format: Optional[int] = None,
+            sample_sensible: Optional[int] = None,
+            sample_count: Optional[int] = None,
+            prefill: Optional[int] = None,
+            configure: bool = False,
+            start: bool = False) -> DigitalRecorder:
         """Starts a data recording.
 
         Parameters
@@ -832,8 +837,8 @@ class DigitalInput:
         sample_format : int, optional
             The number of bits to be sampled. Can be 8, 16, or 32.
         sample_sensible : int, optional
-            The signals to be used for data compression.
-        position : int, optional
+            The signals to be used for data compression, as a bit-mask.
+        sample_count : int, optional
             The number of samples to be acquired after the trigger.
         prefill : int, optional
             The number of samples to be acquired before the trigger.
@@ -841,6 +846,11 @@ class DigitalInput:
             If True, then the instrument is configured (default False).
         start : bool, optional
             If True, then the recording is started (default False).
+
+        Returns
+        -------
+        DigitalRecorder
+            The recorder instance.
         """
         if sample_sensible is not None:
             self.sample_sensible = sample_sensible
@@ -849,7 +859,7 @@ class DigitalInput:
             AcquisitionMode.RECORD,
             sample_rate=sample_rate,
             sample_format=sample_format,
-            position=position,
+            position=sample_count,
             prefill=prefill,
             configure=configure,
             start=start)

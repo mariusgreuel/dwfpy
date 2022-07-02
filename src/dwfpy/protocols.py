@@ -115,13 +115,13 @@ class Protocols:
 
         def setup(
                 self,
-                pin_rx=None,
-                pin_tx=None,
-                rate=9600,
-                data_bits=8,
-                stop_bits=1,
-                parity='n',
-                inverted=False) -> None:
+                pin_rx: Optional[int] = None,
+                pin_tx: Optional[int] = None,
+                rate: int = 9600,
+                data_bits: int = 8,
+                stop_bits: int = 1,
+                parity: str = 'n',
+                inverted: bool = False) -> None:
             """Sets up the UART configuration."""
             if pin_rx is not None:
                 self.pin_rx = pin_rx
@@ -286,13 +286,13 @@ class Protocols:
 
         def setup(
                 self,
-                pin_clock,
-                mosi_pin,
-                miso_pin=None,
-                pin_select=None,
-                frequency=None,
-                mode=0,
-                msb_first=True) -> None:
+                pin_clock: int,
+                mosi_pin: int,
+                miso_pin: Optional[int] = None,
+                pin_select: Optional[int] = None,
+                frequency: Optional[float] = None,
+                mode: int = 0,
+                msb_first: bool = True) -> None:
             """Sets up the SPI pin configuration in standard mode."""
             self._dq_mode = 1  # MOSI/MISO
             self.pin_clock = pin_clock
@@ -306,12 +306,12 @@ class Protocols:
 
         def setup_three_wire(
                 self,
-                pin_clock,
-                pin_siso,
-                pin_select=None,
-                frequency=None,
-                mode=0,
-                msb_first=True) -> None:
+                pin_clock: int,
+                pin_siso: int,
+                pin_select: int = None,
+                frequency: float = None,
+                mode: int = 0,
+                msb_first: bool = True) -> None:
             """Sets up the SPI pin configuration in Three-wire mode."""
             self._dq_mode = 0  # SISO
             self.pin_clock = pin_clock
@@ -322,13 +322,13 @@ class Protocols:
 
         def setup_dual(
                 self,
-                pin_clock,
-                pin_dq0,
-                pin_dq1,
-                pin_select=None,
-                frequency=None,
-                mode=0,
-                msb_first=True) -> None:
+                pin_clock: int,
+                pin_dq0: int,
+                pin_dq1: int,
+                pin_select: int = None,
+                frequency: float = None,
+                mode: int = 0,
+                msb_first: bool = True) -> None:
             """Sets up the SPI pin configuration in Dual mode."""
             self._dq_mode = 2  # DUAL
             self.pin_clock = pin_clock
@@ -342,15 +342,15 @@ class Protocols:
 
         def setup_quad(
                 self,
-                pin_clock,
-                pin_dq0,
-                pin_dq1,
-                pin_dq2,
-                pin_dq3,
-                pin_select=None,
-                frequency=None,
-                mode=0,
-                msb_first=True) -> None:
+                pin_clock: int,
+                pin_dq0: int,
+                pin_dq1: int,
+                pin_dq2: int,
+                pin_dq3: int,
+                pin_select: int = None,
+                frequency: float = None,
+                mode: int = 0,
+                msb_first: bool = True) -> None:
             """Sets up the SPI pin configuration in Quad mode."""
             self._dq_mode = 3  # QUAD
             self.pin_clock = pin_clock
@@ -596,7 +596,14 @@ class Protocols:
             Returns true, if the bus is free."""
             return bool(api.dwf_digital_i2c_clear(self._device.handle))
 
-        def setup(self, pin_scl, pin_sda, rate=None, timeout=None, read_nak=None, stretch=None) -> None:
+        def setup(
+                self,
+                pin_scl: int,
+                pin_sda: int,
+                rate: Optional[float] = None,
+                timeout: Optional[float] = None,
+                read_nak: Optional[bool] = None,
+                stretch: Optional[bool] = None) -> None:
             """Sets up the I2C configuration."""
             if pin_scl is not None:
                 self.pin_scl = pin_scl
@@ -703,7 +710,12 @@ class Protocols:
             self._rate = None
             self._inverted = None
 
-        def setup(self, pin_rx=None, pin_tx=None, rate=None, inverted=False) -> None:
+        def setup(
+                self,
+                pin_rx: Optional[int] = None,
+                pin_tx: Optional[int] = None,
+                rate: Optional[float] = None,
+                inverted: bool = False) -> None:
             """Sets up the CAN configuration."""
             if pin_rx is not None:
                 self.pin_rx = pin_rx
