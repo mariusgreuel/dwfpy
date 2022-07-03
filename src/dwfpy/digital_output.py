@@ -306,7 +306,7 @@ class DigitalOutput:
             if enabled is not None:
                 self.enabled = enabled
             if configure or start:
-                self._device.configure(start=start)
+                self._module.configure(start=start)
 
         def setup_constant(
                 self,
@@ -386,22 +386,38 @@ class DigitalOutput:
             start : bool, optional
                 If True, then the instrument is started (default False).
             """
-            divider = math.ceil(self._module.clock_frequency / frequency / self.counter_max)
-            clock_frequency = self._module.clock_frequency / divider
+            if frequency <= 0:
+                raise ValueError('frequency must be a positive value.')
+            if duty_cycle < 0 or duty_cycle > 100:
+                raise ValueError('duty_cycle must be between 0 and 100.')
+
+            system_clock_frequency = self._module.clock_frequency
+            divider = math.ceil(system_clock_frequency / frequency / self.counter_max)
+            clock_frequency = system_clock_frequency / divider
 
             total_counter = round(clock_frequency / frequency)
             high_counter = round(total_counter * duty_cycle / 100)
             low_counter = total_counter - high_counter
 
-            phase_count = round(total_counter * phase / 360) % total_counter
-            if phase_count < low_counter:
+            low_time = low_counter / clock_frequency
+            total_time = total_counter / clock_frequency
+
+            phase_delay = (total_time * phase / 360) % total_time
+            if phase_delay < low_time:
                 initial_state = False
-                initial_counter = low_counter - phase_count
+                delay += low_time - phase_delay
             else:
                 initial_state = True
-                initial_counter = total_counter - phase_count
+                delay += total_time - phase_delay
 
-            initial_divider = round(delay * frequency / divider)
+            max_delay = (self.divider_max - 1) / system_clock_frequency
+            if delay > max_delay:
+                initial_counter = min(1 + round((delay - max_delay) * clock_frequency), self.counter_max)
+                delay -= initial_counter / clock_frequency
+            else:
+                initial_counter = 1
+
+            initial_divider = min(round(delay * system_clock_frequency), self.divider_max)
 
             self.setup(
                 output_type=DigitalOutputType.PULSE,
@@ -458,31 +474,41 @@ class DigitalOutput:
                 If True, then the instrument is started (default False).
             """
             total = low + high
-            frequency = 1 / total
 
-            divider = math.ceil(self._module.clock_frequency / frequency / self.counter_max)
-            clock_frequency = self._module.clock_frequency / divider
+            if low < 0:
+                raise ValueError('low must be a non-negative value.')
+            if high < 0:
+                raise ValueError('high must be a non-negative value.')
+            if total <= 0:
+                raise ValueError('low + high must be a positive value.')
 
-            total_counter = round(clock_frequency / frequency)
-            high_counter = round(total_counter * high / total)
-            low_counter = total_counter - high_counter
+            system_clock_frequency = self._module.clock_frequency
+            divider = math.ceil(system_clock_frequency * max(low, high) / self.counter_max)
+            clock_frequency = system_clock_frequency / divider
 
-            phase_count = round(total_counter * 0 / 360) % total_counter
-            if phase_count < low_counter:
-                initial_state = False
-                initial_counter = low_counter - phase_count
+            low_counter = round(low * clock_frequency)
+            high_counter = round(high * clock_frequency)
+
+            if Helpers.map_state(initial_state, False):
+                delay += high
             else:
-                initial_state = True
-                initial_counter = total_counter - phase_count
+                delay += low
 
-            initial_counter = round(delay / clock_frequency)
+            max_delay = (self.divider_max - 1) / system_clock_frequency
+            if delay > max_delay:
+                initial_counter = min(1 + round((delay - max_delay) * clock_frequency), self.counter_max)
+                delay -= initial_counter / clock_frequency
+            else:
+                initial_counter = 1
+
+            initial_divider = min(round(delay * system_clock_frequency), self.divider_max)
 
             self.setup(
                 output_type=DigitalOutputType.PULSE,
                 divider=divider,
                 low_counter=low_counter,
                 high_counter=high_counter,
-                initial_divider=0,
+                initial_divider=initial_divider,
                 initial_counter=initial_counter,
                 initial_state=initial_state,
                 repetition=repetition,
@@ -525,6 +551,9 @@ class DigitalOutput:
             start : bool, optional
                 If True, then the instrument is started (default False).
             """
+            if rate <= 0:
+                raise ValueError('rate must be a positive value.')
+
             divider = math.ceil(self._module.clock_frequency / rate / self.counter_max)
             clock_frequency = self._module.clock_frequency / divider
             total_counter = round(clock_frequency / rate)
@@ -717,6 +746,30 @@ class DigitalOutput:
     def read_status(self) -> Status:
         """Gets the instrument status."""
         return Status(api.dwf_digital_out_status(self._device.handle))
+
+    def setup_trigger(
+            self,
+            source: Optional[str] = None,
+            slope: Optional[str] = None) -> None:
+        """Sets up the trigger condition.
+
+        Parameters
+        ----------
+        source : str, optional
+            The trigger source.
+            Can be 'none', 'pc', 'detector-analog-in', 'detector-digital-in',
+                'analog-out1', 'analog-out2',
+                'external1', 'external2',
+                'low', 'high', or 'clock'.
+        slope : str, optional
+            The trigger slope.
+            Can be 'rising', 'falling', or 'either'.
+        """
+
+        if source is not None:
+            self._trigger.source = Helpers.map_trigger_source(source)
+        if slope is not None:
+            self.trigger.slope = Helpers.map_trigger_slope(slope)
 
     def setup(
             self,
