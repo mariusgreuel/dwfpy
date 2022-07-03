@@ -574,22 +574,96 @@ class DigitalInput:
 
     def setup_trigger(
             self,
+            source: Optional[Union[str, TriggerSource]] = None,
+            slope: Optional[Union[str, TriggerSlope]] = None,
             position: Optional[int] = None,
-            prefill: Optional[int] = None) -> None:
-        """Sets up trigger parameters.
+            prefill: Optional[int] = None,
+            auto_timeout: Optional[float] = None) -> None:
+        """Sets up the trigger condition.
 
         Parameters
         ----------
+        source : str, optional
+            The trigger source.
+            Can be 'none', 'pc',
+                'detector-analog-in', 'detector-digital-in',
+                'analog-in', 'digital-in', 'digital-out',
+                'analog-out1', 'analog-out2', 'analog-out3', 'analog-out3',
+                'external1', 'external2', 'external3', 'external4',
+                'low', 'high', or 'clock'.
+        slope : str, optional
+            The trigger slope.
+            Can be 'rising', 'falling', or 'either'.
         position : int, optional
             The number of samples to be acquired after the trigger.
         prefill : int, optional
             The number of samples to be acquired before the trigger.
+        prefill : int, optional
+            The number of samples to be acquired before the trigger.
+        auto_timeout : float, optional
+            The auto trigger timeout in seconds.
         """
-        self._trigger.source = TriggerSource.DETECTOR_DIGITAL_IN
+
+        if source is not None:
+            self._trigger.source = Helpers.map_trigger_source(source)
+        if slope is not None:
+            self.trigger.slope = Helpers.map_trigger_slope(slope)
         if position is not None:
             self._trigger.position = round(position)
         if prefill is not None:
             self._trigger.prefill = round(prefill)
+        if auto_timeout is not None:
+            self._trigger.auto_timeout = auto_timeout
+
+    def setup_edge_trigger(
+            self,
+            channel: int,
+            edge: str) -> None:
+        """Sets up an edge trigger.
+
+        Parameters
+        ----------
+        channel : int
+            The trigger channel.
+        edge : str
+            The trigger edge. Can be 'rising' or 'falling'.
+        """
+        self._setup_condition_trigger(channel, edge)
+
+    def setup_level_trigger(
+            self,
+            channel: int,
+            level: str) -> None:
+        """Sets up a level trigger.
+
+        Parameters
+        ----------
+        channel : int
+            The trigger channel.
+        level : str
+            The trigger level. Can be 'low' or 'high'.
+        """
+        self._setup_condition_trigger(channel, level)
+
+    def _setup_condition_trigger(
+            self,
+            channel: int,
+            condition: str) -> None:
+        self._trigger.source = TriggerSource.DETECTOR_DIGITAL_IN
+        if condition == 'ignore':
+            self.trigger.set_trigger_mask(low_level=0, high_level=0, rising_edge=0, falling_edge=0)
+        elif condition == 'low':
+            self.trigger.set_trigger_mask(low_level=1 << channel)
+        elif condition == 'high':
+            self.trigger.set_trigger_mask(high_level=1 << channel)
+        elif condition in ('rise', 'rising'):
+            self.trigger.set_trigger_mask(rising_edge=1 << channel)
+        elif condition in ('fall', 'falling'):
+            self.trigger.set_trigger_mask(falling_edge=1 << channel)
+        elif condition == 'edge':
+            self.trigger.set_trigger_mask(rising_edge=1 << channel, falling_edge=1 << channel)
+        else:
+            raise ValueError("Trigger condition must be 'ignore', 'low', 'high', 'rising', 'falling', or 'edge'.")
 
     def setup_glitch_trigger(
             self,
