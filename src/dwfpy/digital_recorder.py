@@ -216,3 +216,59 @@ class DigitalRecorder:
     def _normalize_ring_buffer(buffer: ctypes.Array, index: int):
         array = np.array(buffer)
         return array if index == 0 else np.concatenate([array[index:], array[:index]])
+
+    def stream(
+            self,
+            callback: Callable[['DigitalRecorder'], bool]) -> None:
+        """Starts the streaming.
+
+        Parameters
+        ----------
+        callback : function
+            A user-defined function that is called every time a data chunk is processed.
+            Return True to continue streaming, False to stop the streaming.
+        """
+        if not self._is_setup:
+            self._setup_streaming()
+
+            if self._is_setup:
+                self._module.configure(start=True)
+
+        if self._is_setup:
+            while True:
+                again_status = self._update_streaming()
+                again_user = callback(self)
+                if not again_status or not again_user:
+                    break
+
+            self._finalize_streaming()
+
+    def _setup_streaming(self) -> None:
+        self._acquire_noise = self._module.sample_mode == DigitalInputSampleMode.NOISE
+
+        self._requested_samples = 0
+        self._buffer_size = 0
+        self._data_samples = ()
+        self._noise_samples = ()
+
+        self._is_setup = True
+
+    def _update_streaming(self) -> bool:
+        self._status = self._module.read_status(read_data=True)
+        available_samples, lost_samples, corrupted_samples = self._module.record_status
+
+        self._total_samples += lost_samples
+        self._total_samples += available_samples
+        self._lost_samples += lost_samples
+        self._corrupted_samples += corrupted_samples
+
+        self._data_samples = self._module.get_data(sample_count=available_samples)
+
+        if self._acquire_noise:
+            self._noise_samples = self._module.get_noise(sample_count=available_samples)
+
+        return self._status != Status.DONE
+
+    def _finalize_streaming(self) -> None:
+        self._status = Status.DONE
+        self._is_setup = False

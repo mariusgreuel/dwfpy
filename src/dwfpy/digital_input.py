@@ -958,3 +958,52 @@ class DigitalInput:
             recorder.record(callback)
 
         return recorder
+
+    def stream(
+            self,
+            callback: Callable[[DigitalRecorder], bool],
+            sample_rate: Optional[float] = None,
+            sample_format: Optional[int] = None,
+            sample_sensible: Optional[int] = None,
+            configure: bool = False,
+            start: bool = False) -> DigitalRecorder:
+        """Streams data to a callback function.
+
+        Parameters
+        ----------
+        callback : function
+            A user-defined function to receive the streaming data.
+        sample_rate : float, optional
+            The sampling frequency in Hz.
+        sample_format : int, optional
+            The number of bits to be sampled. Can be 8, 16, or 32.
+        sample_sensible : int, optional
+            The signals to be used for data compression.
+        configure : bool, optional
+            If True, then the instrument is configured (default False).
+        start : bool, optional
+            If True, then the streaming is started (default False).
+
+        Returns
+        -------
+        DigitalRecorder
+            The recorder instance.
+        """
+        self.trigger.prefill = 0
+        self.trigger.position = 0
+
+        if sample_sensible is not None:
+            self.sample_sensible = sample_sensible
+
+        self.setup_acquisition(
+            AcquisitionMode.RECORD,
+            sample_rate=sample_rate,
+            sample_format=sample_format,
+            configure=configure)
+
+        recorder = DigitalRecorder(self)
+
+        if start:
+            recorder.stream(callback)
+
+        return recorder
