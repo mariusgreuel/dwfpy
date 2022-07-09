@@ -12,6 +12,7 @@ Digital Input module for Digilent WaveForms devices.
 import ctypes
 import time
 from typing import Optional, Tuple, Union
+import numpy as np
 from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
@@ -538,37 +539,45 @@ class DigitalInput:
         while self.read_status(read_data=read_data) != status:
             time.sleep(0.001)
 
-    def get_data(self, first_sample: int = 0, sample_count: int = 0) -> tuple:
+    def get_data(self, first_sample: int = 0, sample_count: int = -1):
         """Gets the acquired data samples.
         Before calling this function, call the 'read_status()' function to read the data from the device.
         """
-        if sample_count <= 0:
+        if sample_count < 0:
             sample_count = self.valid_samples
 
         samples = self._create_sample_buffer(sample_count)
-        api.dwf_digital_in_status_data2(self._device.handle, samples, first_sample, ctypes.sizeof(samples))
-        return tuple(samples)
+        api.dwf_digital_in_status_data2(
+            self._device.handle,
+            samples.ctypes.data_as(ctypes.c_void_p),
+            first_sample,
+            samples.size * samples.itemsize)
+        return np.array(samples)
 
-    def get_noise(self, first_sample: int = 0, sample_count: int = 0) -> tuple:
+    def get_noise(self, first_sample: int = 0, sample_count: int = -1):
         """Gets the acquired noise samples.
         Before calling this function, call the 'read_status()' function to read the data from the device.
         """
-        if sample_count <= 0:
+        if sample_count < 0:
             sample_count = self.valid_samples
 
         samples = self._create_sample_buffer(sample_count)
-        api.dwf_digital_in_status_noise2(self._device.handle, samples, first_sample, ctypes.sizeof(samples))
-        return tuple(samples)
+        api.dwf_digital_in_status_noise2(
+            self._device.handle,
+            samples.ctypes.data_as(ctypes.c_void_p),
+            first_sample,
+            samples.size * samples.itemsize)
+        return np.array(samples)
 
-    def _create_sample_buffer(self, buffer_size: int):
+    def _create_sample_buffer(self, size: int):
         if self.sample_format <= 8:
-            return (ctypes.c_uint8 * buffer_size)()
+            return np.empty(size, dtype=np.uint8)
 
         if self.sample_format <= 16:
-            return (ctypes.c_uint16 * buffer_size)()
+            return np.empty(size, dtype=np.uint16)
 
         if self.sample_format <= 32:
-            return (ctypes.c_uint32 * buffer_size)()
+            return np.empty(size, dtype=np.uint32)
 
         raise ValueError('sample_format must be 8, 16, or 32.')
 

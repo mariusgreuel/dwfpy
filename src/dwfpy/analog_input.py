@@ -12,6 +12,7 @@ Analog Input module for Digilent WaveForms devices.
 import ctypes
 import time
 from typing import Optional, Tuple, Union
+import numpy as np
 from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
@@ -463,7 +464,7 @@ class AnalogInput:
             to read the data from the device."""
             return api.dwf_analog_in_status_sample(self._device.handle, self._channel)
 
-        def get_data(self, first_sample: int = 0, sample_count: int = -1, raw: bool = False) -> tuple:
+        def get_data(self, first_sample: int = 0, sample_count: int = -1, raw: bool = False):
             """Gets the acquired data samples.
             Before calling this function, call the 'read_status()' function to read the data from the device.
             """
@@ -471,17 +472,25 @@ class AnalogInput:
                 sample_count = self._device.analog_input.valid_samples
 
             if raw:
-                samples: ctypes.Array = (ctypes.c_short * sample_count)()
+                samples16 = np.empty(sample_count, dtype=np.short)
                 api.dwf_analog_in_status_data16(
-                    self._device.handle, self._channel, samples, first_sample, sample_count)
+                    self._device.handle,
+                    self._channel,
+                    samples16.ctypes.data_as(ctypes.POINTER(ctypes.c_short)),
+                    first_sample,
+                    sample_count)
+                return samples16
             else:
-                samples = (ctypes.c_double * sample_count)()
+                samples = np.empty(sample_count, dtype=np.double)
                 api.dwf_analog_in_status_data2(
-                    self._device.handle, self._channel, samples, first_sample, sample_count)
+                    self._device.handle,
+                    self._channel,
+                    samples.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+                    first_sample,
+                    sample_count)
+                return samples
 
-            return tuple(samples)
-
-        def get_noise(self, first_sample: int = 0, sample_count: int = -1) -> tuple:
+        def get_noise(self, first_sample: int = 0, sample_count: int = -1):
             """Gets the acquired noise samples.
             Before calling this function, call the 'read_status()' function to read the data from the device.
             """
@@ -495,7 +504,7 @@ class AnalogInput:
                 self._channel,
                 min_samples, max_samples,
                 first_sample, sample_count)
-            return tuple(zip(tuple(min_samples), tuple(max_samples)))
+            return np.array((min_samples, max_samples)).T
 
         # pylint: disable-next=redefined-builtin
         def setup(

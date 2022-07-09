@@ -2,7 +2,18 @@
 ignore-patterns=^_
 
 [MESSAGES CONTROL]
-disable=too-many-arguments, too-many-locals, too-many-instance-attributes, too-many-public-methods, too-many-lines, too-many-branches, too-few-public-methods, duplicate-code, cyclic-import
+disable=
+	too-many-arguments,
+	too-many-locals,
+	too-many-instance-attributes,
+	too-many-public-methods,
+	too-many-lines,
+	too-many-branches,
+	too-many-return-statements,
+	too-few-public-methods,
+	no-else-return,
+	duplicate-code,
+	cyclic-import
 
 [FORMAT]
 max-line-length=120
