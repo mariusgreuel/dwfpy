@@ -862,6 +862,7 @@ class DigitalInput:
             sample_format: Optional[int] = None,
             buffer_size: Optional[Union[int, float]] = None,
             position: Optional[Union[int, float]] = None,
+            continuous: bool = True,
             configure: bool = False,
             start: bool = False) -> Optional[Tuple]:
         """Starts a single data acquisition.
@@ -876,6 +877,8 @@ class DigitalInput:
             The buffer size.
         position : int or float, optional
             The number of samples to be acquired after the trigger.
+        continuous : bool, optional
+            If True, then the instrument is rearmed after the data is retrieved. (default True).
         configure : bool, optional
             If True, then the instrument is configured (default False).
         start : bool, optional
@@ -888,7 +891,7 @@ class DigitalInput:
             None otherwise.
         """
         self.setup_acquisition(
-            AcquisitionMode.SINGLE,
+            AcquisitionMode.SINGLE if continuous else AcquisitionMode.SINGLE1,
             sample_rate=sample_rate,
             sample_format=sample_format,
             buffer_size=buffer_size,

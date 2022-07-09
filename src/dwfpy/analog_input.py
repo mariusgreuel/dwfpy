@@ -1056,6 +1056,7 @@ class AnalogInput:
             self,
             sample_rate: Optional[float] = None,
             buffer_size: Optional[Union[int, float]] = None,
+            continuous: bool = True,
             configure: bool = False,
             start: bool = False) -> None:
         """Starts a single data acquisition.
@@ -1066,13 +1067,15 @@ class AnalogInput:
             The sampling rate in Hz.
         buffer_size : int or float, optional
             The buffer size.
+        continuous : bool, optional
+            If True, then the instrument is rearmed after the data is retrieved. (default True).
         configure : bool, optional
             If True, then the instrument is configured (default False).
         start : bool, optional
             If True, then the acquisition is started (default False).
         """
         self.setup_acquisition(
-            AcquisitionMode.SINGLE,
+            AcquisitionMode.SINGLE if continuous else AcquisitionMode.SINGLE1,
             sample_rate=sample_rate,
             buffer_size=buffer_size,
             configure=configure,
