@@ -11,7 +11,7 @@ Analog Input module for Digilent WaveForms devices.
 
 import ctypes
 import time
-from typing import Optional, Tuple, Union
+from typing import Callable, Optional, Tuple, Union
 import numpy as np
 from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
@@ -1138,6 +1138,7 @@ class AnalogInput:
             sample_rate: Optional[float] = None,
             length: Optional[float] = None,
             buffer_size: Optional[int] = None,
+            callback: Optional[Callable[['AnalogRecorder'], bool]] = None,
             configure: bool = False,
             start: bool = False) -> AnalogRecorder:
         """Starts a data recording.
@@ -1165,12 +1166,11 @@ class AnalogInput:
             sample_rate=sample_rate,
             record_length=length,
             buffer_size=buffer_size,
-            configure=configure,
-            start=start)
+            configure=configure)
 
         recorder = AnalogRecorder(self)
 
         if start:
-            recorder.start(round(length * sample_rate))
+            recorder.record(callback)
 
         return recorder

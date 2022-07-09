@@ -58,13 +58,6 @@ class Helpers:
         return byte_buffer, bit_count
 
     @staticmethod
-    def normalize_ring_buffer(buffer, buffer_index):
-        if buffer_index == 0:
-            return tuple(buffer)
-
-        return tuple(buffer[buffer_index:] + buffer[:buffer_index])
-
-    @staticmethod
     def map_state(value, default_value=None):
         named_values = {
             'low': False,

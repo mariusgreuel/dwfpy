@@ -11,7 +11,7 @@ Digital Input module for Digilent WaveForms devices.
 
 import ctypes
 import time
-from typing import Optional, Tuple, Union
+from typing import Callable, Optional, Tuple, Union
 import numpy as np
 from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
@@ -909,6 +909,7 @@ class DigitalInput:
             sample_sensible: Optional[int] = None,
             sample_count: Optional[int] = None,
             prefill: Optional[int] = None,
+            callback: Optional[Callable[['DigitalRecorder'], bool]] = None,
             configure: bool = False,
             start: bool = False) -> DigitalRecorder:
         """Starts a data recording.
@@ -925,6 +926,8 @@ class DigitalInput:
             The number of samples to be acquired after the trigger.
         prefill : int, optional
             The number of samples to be acquired before the trigger.
+        callback : function, optional
+            A custom function to monitor the recording process.
         configure : bool, optional
             If True, then the instrument is configured (default False).
         start : bool, optional
@@ -944,13 +947,11 @@ class DigitalInput:
             sample_format=sample_format,
             position=sample_count,
             prefill=prefill,
-            configure=configure,
-            start=start)
+            configure=configure)
 
         recorder = DigitalRecorder(self)
 
         if start:
-            sample_count = self.trigger.position + self.trigger.prefill
-            recorder.record(sample_count)
+            recorder.record(callback)
 
         return recorder
