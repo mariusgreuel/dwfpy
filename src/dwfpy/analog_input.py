@@ -460,8 +460,8 @@ class AnalogInput:
 
         def get_sample(self) -> float:
             """Gets the last ADC conversion sample.
-            Before calling this function, call the 'read_status()' function
-            to read the data from the device."""
+            Before calling this function, call the 'read_status()' function to read the data from the device.
+            """
             return api.dwf_analog_in_status_sample(self._device.handle, self._channel)
 
         def get_data(self, first_sample: int = 0, sample_count: int = -1, raw: bool = False):
@@ -597,45 +597,45 @@ class AnalogInput:
     @property
     def remaining_samples(self) -> int:
         """Gets the number of samples left in the acquisition.
-        Before calling this function, call the 'read_status()' function
-        to read the data from the device."""
+        Before calling this function, call the 'read_status()' function to read the data from the device.
+        """
         return api.dwf_analog_in_status_samples_left(self._device.handle)
 
     @property
     def valid_samples(self) -> int:
         """Gets the number of valid/acquired data samples.
-        Before calling this function, call the 'read_status()' function
-        to read the data from the device."""
+        Before calling this function, call the 'read_status()' function to read the data from the device.
+        """
         return api.dwf_analog_in_status_samples_valid(self._device.handle)
 
     @property
     def write_index(self) -> int:
         """Gets the buffer write pointer,
         which is needed in scan_screen acquisition mode to display the scan bar.
-        Before calling this function, call the 'read_status()' function
-        to read the data from the device."""
+        Before calling this function, call the 'read_status()' function to read the data from the device.
+        """
         return api.dwf_analog_in_status_index_write(self._device.handle)
 
     @property
     def auto_triggered(self) -> bool:
         """Returns True if the acquisition is auto triggered.
-        Before calling this function, call the 'read_status()' function
-        to read the data from the device."""
+        Before calling this function, call the 'read_status()' function to read the data from the device.
+        """
         return bool(api.dwf_analog_in_status_auto_triggered(self._device.handle))
 
     @property
     def time(self) -> Tuple[int, int, int]:
         """Gets instrument trigger time information.
-        Before calling this function, call the 'read_status()' function
-        to read the data from the device."""
+        Before calling this function, call the 'read_status()' function to read the data from the device.
+        """
         return api.dwf_analog_in_status_time(self._device.handle)
 
     @property
     def record_status(self) -> Tuple[int, int, int]:
         """Gets information about the recording process:
         Returns (available_samples, lost_samples, corrupted_samples)
-        Before calling this function, call the 'read_status()' function
-        to read the data from the device."""
+        Before calling this function, call the 'read_status()' function to read the data from the device.
+        """
         return api.dwf_analog_in_status_record(self._device.handle)
 
     @property
@@ -813,12 +813,12 @@ class AnalogInput:
             position: Optional[float] = None,
             hold_off: Optional[float] = None,
             mode: Optional[str] = None) -> None:
-        """Sets up an edge trigger.
+        """Trigger upon a certain voltage level in the positive or negative slope of the waveform.
 
         Parameters
         ----------
         channel : int
-            The trigger channel.
+            The source channel used for triggering.
         slope : str or TriggerSlope, optional
             The trigger slope. Can be 'rising', 'falling', or 'either'.
         level : float, optional
@@ -854,12 +854,12 @@ class AnalogInput:
             position: Optional[float] = None,
             hold_off: Optional[float] = None,
             mode: Optional[str] = None) -> None:
-        """Sets up a pulse trigger.
+        """Trigger upon a positive or negative pulse width when measured at a certain voltage level.
 
         Parameters
         ----------
         channel : int
-            The trigger channel.
+            The source channel used for triggering.
         condition : str, optional
             The trigger condition. Can be 'positive' or 'negative'.
         length_condition : str, optional
@@ -906,7 +906,7 @@ class AnalogInput:
         Parameters
         ----------
         channel : int
-            The trigger channel.
+            The source channel used for triggering.
         condition : str, optional
             The trigger condition. Can be 'rising', 'falling', or 'either'.
         length_condition : str, optional
@@ -947,14 +947,14 @@ class AnalogInput:
             position: Optional[float] = None,
             hold_off: Optional[float] = None,
             mode: Optional[str] = None) -> None:
-        """Sets up a window trigger.
+        """Trigger upon a signal entering or exiting a window at certain voltage thresholds.
 
         Parameters
         ----------
         channel : int
-            The trigger channel.
+            The source channel used for triggering.
         condition : str, optional
-            The trigger condition. Can be 'exiting' or 'entering'.
+            The trigger condition. Can be 'entering' or 'exiting'.
         length : float, optional
             The window length in seconds.
         level : float, optional

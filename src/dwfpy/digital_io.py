@@ -90,7 +90,8 @@ class DigitalIo:
         def input_state(self) -> bool:
             """Gets the input state of the pin.
             Before calling this function, call the 'read_status()' function
-            to read the Digital I/O states from the device."""
+            to read the Digital I/O states from the device.
+            """
             state = api.dwf_digital_io_input_status64(self._device.handle)
             return bool(state & self._mask)
 
@@ -203,5 +204,6 @@ class DigitalIo:
     def input_state(self) -> int:
         """Gets the input state of all pins as a bit-mask.
         Before calling this function, call the 'read_status()' function
-        to read the Digital I/O states from the device."""
+        to read the Digital I/O states from the device.
+        """
         return api.dwf_digital_io_input_status64(self._device.handle)
