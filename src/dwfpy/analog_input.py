@@ -1019,7 +1019,7 @@ class AnalogInput:
             self,
             mode: Optional[Union[str, AcquisitionMode]] = None,
             sample_rate: Optional[float] = None,
-            buffer_size: Optional[int] = None,
+            buffer_size: Optional[Union[int, float]] = None,
             record_length: Optional[float] = None,
             configure: bool = False,
             start: bool = False) -> None:
@@ -1032,7 +1032,7 @@ class AnalogInput:
             Can be 'single', 'scan-shift', 'scan-screen', or 'record'.
         sample_rate : float, optional
             The sampling rate in Hz.
-        buffer_size : int, optional
+        buffer_size : int or float, optional
             The buffer size.
         record_length : float, optional
             The record length in seconds.
@@ -1046,7 +1046,7 @@ class AnalogInput:
         if sample_rate is not None:
             self.frequency = sample_rate
         if buffer_size is not None:
-            self.buffer_size = buffer_size
+            self.buffer_size = int(buffer_size)
         if record_length is not None:
             self.record_length = record_length
         if configure or start:
@@ -1055,7 +1055,7 @@ class AnalogInput:
     def single(
             self,
             sample_rate: Optional[float] = None,
-            buffer_size: Optional[int] = None,
+            buffer_size: Optional[Union[int, float]] = None,
             configure: bool = False,
             start: bool = False) -> None:
         """Starts a single data acquisition.
@@ -1064,7 +1064,7 @@ class AnalogInput:
         ----------
         sample_rate : float, optional
             The sampling rate in Hz.
-        buffer_size : int, optional
+        buffer_size : int or float, optional
             The buffer size.
         configure : bool, optional
             If True, then the instrument is configured (default False).
@@ -1084,7 +1084,7 @@ class AnalogInput:
     def scan_shift(
             self,
             sample_rate: Optional[float] = None,
-            buffer_size: Optional[int] = None,
+            buffer_size: Optional[Union[int, float]] = None,
             configure: bool = False,
             start: bool = False) -> None:
         """Starts a scan-shift data acquisition.
@@ -1093,7 +1093,7 @@ class AnalogInput:
         ----------
         sample_rate : float, optional
             The sampling rate in Hz.
-        buffer_size : int, optional
+        buffer_size : int or float, optional
             The buffer size.
         configure : bool, optional
             If True, then the instrument is configured (default False).
@@ -1110,7 +1110,7 @@ class AnalogInput:
     def scan_screen(
             self,
             sample_rate: Optional[float] = None,
-            buffer_size: Optional[int] = None,
+            buffer_size: Optional[Union[int, float]] = None,
             configure: bool = False,
             start: bool = False) -> None:
         """Starts a scan-screen data acquisition.
@@ -1119,7 +1119,7 @@ class AnalogInput:
         ----------
         sample_rate : float, optional
             The sampling rate in Hz.
-        buffer_size : int, optional
+        buffer_size : int or float, optional
             The buffer size.
         configure : bool, optional
             If True, then the instrument is configured (default False).
@@ -1137,7 +1137,7 @@ class AnalogInput:
             self,
             sample_rate: Optional[float] = None,
             length: Optional[float] = None,
-            buffer_size: Optional[int] = None,
+            buffer_size: Optional[Union[int, float]] = None,
             callback: Optional[Callable[['AnalogRecorder'], bool]] = None,
             configure: bool = False,
             start: bool = False) -> AnalogRecorder:
@@ -1149,7 +1149,7 @@ class AnalogInput:
             The sampling rate in Hz.
         length : float, optional
             The recording length in seconds.
-        buffer_size : int, optional
+        buffer_size : int or float, optional
             The buffer size.
         configure : bool, optional
             If True, then the instrument is configured (default False).

@@ -618,9 +618,9 @@ class DigitalInput:
         if slope is not None:
             self.trigger.slope = Helpers.map_trigger_slope(slope)
         if position is not None:
-            self._trigger.position = round(position)
+            self._trigger.position = int(position)
         if prefill is not None:
-            self._trigger.prefill = round(prefill)
+            self._trigger.prefill = int(prefill)
         if auto_timeout is not None:
             self._trigger.auto_timeout = auto_timeout
 
@@ -814,9 +814,9 @@ class DigitalInput:
             mode: Optional[Union[str, AcquisitionMode]] = None,
             sample_rate: Optional[float] = None,
             sample_format: Optional[int] = None,
-            buffer_size: Optional[int] = None,
-            position: Optional[int] = None,
-            prefill: Optional[int] = None,
+            buffer_size: Optional[Union[int, float]] = None,
+            position: Optional[Union[int, float]] = None,
+            prefill: Optional[Union[int, float]] = None,
             configure: bool = False,
             start: bool = False) -> None:
         """Sets up a new data acquisition.
@@ -830,11 +830,11 @@ class DigitalInput:
             The sampling frequency in Hz.
         sample_format : int, optional
             The number of bits to be sampled. Can be 8, 16, or 32.
-        buffer_size : int, optional
+        buffer_size : int or float, optional
             The buffer size.
-        position : int, optional
+        position : int or float, optional
             The number of samples to be acquired after the trigger.
-        prefill : int, optional
+        prefill : int or float, optional
             The number of samples to be acquired before the trigger (record mode only).
         configure : bool, optional
             If True, then the instrument is configured (default False).
@@ -848,11 +848,11 @@ class DigitalInput:
         if sample_format is not None:
             self.sample_format = sample_format
         if buffer_size is not None:
-            self.buffer_size = buffer_size
+            self.buffer_size = int(buffer_size)
         if position is not None:
-            self.trigger.position = position
+            self.trigger.position = int(position)
         if prefill is not None:
-            self.trigger.prefill = prefill
+            self.trigger.prefill = int(prefill)
         if configure or start:
             self.configure(reconfigure=configure, start=start)
 
@@ -860,8 +860,8 @@ class DigitalInput:
             self,
             sample_rate: Optional[float] = None,
             sample_format: Optional[int] = None,
-            buffer_size: Optional[int] = None,
-            position: Optional[int] = None,
+            buffer_size: Optional[Union[int, float]] = None,
+            position: Optional[Union[int, float]] = None,
             configure: bool = False,
             start: bool = False) -> Optional[Tuple]:
         """Starts a single data acquisition.
@@ -872,9 +872,9 @@ class DigitalInput:
             The sampling frequency in Hz.
         sample_format : int, optional
             The number of bits to be sampled. Can be 8, 16, or 32.
-        buffer_size : int, optional
+        buffer_size : int or float, optional
             The buffer size.
-        position : int, optional
+        position : int or float, optional
             The number of samples to be acquired after the trigger.
         configure : bool, optional
             If True, then the instrument is configured (default False).
@@ -907,8 +907,8 @@ class DigitalInput:
             sample_rate: Optional[float] = None,
             sample_format: Optional[int] = None,
             sample_sensible: Optional[int] = None,
-            sample_count: Optional[int] = None,
-            prefill: Optional[int] = None,
+            sample_count: Optional[Union[int, float]] = None,
+            prefill: Optional[Union[int, float]] = None,
             callback: Optional[Callable[['DigitalRecorder'], bool]] = None,
             configure: bool = False,
             start: bool = False) -> DigitalRecorder:
@@ -922,9 +922,9 @@ class DigitalInput:
             The number of bits to be sampled. Can be 8, 16, or 32.
         sample_sensible : int, optional
             The signals to be used for data compression, as a bit-mask.
-        sample_count : int, optional
+        sample_count : int or float, optional
             The number of samples to be acquired after the trigger.
-        prefill : int, optional
+        prefill : int or float, optional
             The number of samples to be acquired before the trigger.
         callback : function, optional
             A custom function to monitor the recording process.
