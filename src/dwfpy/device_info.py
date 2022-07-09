@@ -107,4 +107,4 @@ class DeviceInfo():
     @staticmethod
     def normalize_serial_number(serial_number: str) -> str:
         """Normalizes the serial number, i.e. strip the leading 'SN:' and convert to uppercase."""
-        return serial_number.upper().lstrip('SN:') if isinstance(serial_number, str) else serial_number
+        return serial_number.upper().lstrip('SN:')

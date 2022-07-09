@@ -10,7 +10,7 @@ Support for Digilent WaveForms devices.
 #
 
 import logging
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 from . import bindings as api
 from .constants import DeviceId, GlobalParameter, TriggerSlope, TriggerSource
 from .exceptions import WaveformsError, DeviceNotFound, DeviceNotOpenError
@@ -35,11 +35,18 @@ class DeviceBase():
             self.index = index
 
     def __init__(self,
-                 configuration=None,
-                 serial_number=None,
-                 device_id=None,
-                 device_type=None,
-                 device_index=None):
+                 configuration: Optional[Union[int, str]] = None,
+                 serial_number: Optional[str] = None,
+                 device_id: Optional[int] = None,
+                 device_type: Optional[int] = None,
+                 device_index: Optional[Union[int, _EnumeratedIndex]] = None):
+        """
+        :param configuration: Select the active configuration.
+        :param serial_number: Filter devices by serial number.
+        :param device_id: Filter devices by device ID.
+        :param device_type: Filter devices by device type.
+        :param device_index: Filter devices by device index.
+        """
         super().__init__()
 
         self._application = Application()
@@ -57,7 +64,7 @@ class DeviceBase():
         self._auto_reset = True
 
         self._configuration = configuration
-        self._enum_serial_number = DeviceInfo.normalize_serial_number(serial_number)
+        self._enum_serial_number = DeviceInfo.normalize_serial_number(serial_number) if serial_number else None
         self._enum_device_id = device_id
         self._enum_device_type = device_type
         self._enum_device_index = device_index
@@ -161,7 +168,7 @@ class DeviceBase():
         return self._device_info.configurations
 
     @property
-    def configuration(self) -> int:
+    def configuration(self) -> Optional[Union[int, str]]:
         """Gets the selected configuration index."""
         return self._configuration
 
@@ -215,7 +222,9 @@ class DeviceBase():
         if self._configuration is None:
             self._hdwf = api.dwf_device_open(device_index)
         else:
-            self._hdwf = api.dwf_device_config_open(device_index, self._configuration)
+            configuration = self._get_configuration()
+            self._logger.info('Using configuration %s', configuration)
+            self._hdwf = api.dwf_device_config_open(device_index, configuration)
 
         if self._hdwf is None:
             raise WaveformsError('Failed to open device.')
@@ -343,6 +352,36 @@ class DeviceBase():
             raise AttributeError(f'The device does not support {description}.')
 
         return module
+
+    def _get_configuration(self):
+        if isinstance(self._configuration, str):
+            if self._configuration == 'scope':
+                if self.id in (DeviceId.ANALOG_DISCOVERY, DeviceId.ANALOG_DISCOVERY2):
+                    return 1
+            if self._configuration == 'pattern':
+                if self.id in (DeviceId.ANALOG_DISCOVERY, DeviceId.ANALOG_DISCOVERY2):
+                    return 2
+            elif self._configuration == 'logic':
+                if self.id in (DeviceId.ANALOG_DISCOVERY, DeviceId.ANALOG_DISCOVERY2):
+                    return 3
+                elif self.id == DeviceId.DIGITAL_DISCOVERY:
+                    return 0
+            elif self._configuration == '1v8':
+                if self.id in (DeviceId.ANALOG_DISCOVERY, DeviceId.ANALOG_DISCOVERY2):
+                    return 4
+            elif self._configuration == 'logic-1v8':
+                if self.id == DeviceId.ANALOG_DISCOVERY2:
+                    return 6
+                elif self.id == DeviceId.DIGITAL_DISCOVERY:
+                    return 0
+            else:
+                raise WaveformsError(
+                    "Invalid configuration: Must be 'scope', 'pattern', 'logic', '1v8', or 'logic-1v8'.")
+
+            raise WaveformsError(
+                f"The device '{self._device_info.name}' does not support the configuration '{self._configuration}'.")
+
+        return self._configuration
 
 
 class ElectronicsExplorer(DeviceBase):
