@@ -520,8 +520,8 @@ class DigitalOutput:
 
         def setup_random(
                 self,
-                rate: float,
-                delay: Optional[float] = None,
+                frequency: float,
+                delay: float = 0,
                 repetition: int = 0,
                 output_mode: Optional[Union[str, DigitalOutputMode]] = None,
                 idle_state: Optional[Union[str, DigitalOutputIdle]] = None,
@@ -532,7 +532,7 @@ class DigitalOutput:
 
             Parameters
             ----------
-            rate : float
+            frequency : float
                 The bit rate in bits/second.
             delay : float, optional
                 The delay in seconds (default 0).
@@ -551,12 +551,12 @@ class DigitalOutput:
             start : bool, optional
                 If True, then the instrument is started (default False).
             """
-            if rate <= 0:
-                raise ValueError('rate must be a positive value.')
+            if frequency <= 0:
+                raise ValueError('frequency must be a positive value.')
 
-            divider = math.ceil(self._module.clock_frequency / rate / self.counter_max)
+            divider = math.ceil(self._module.clock_frequency / frequency / self.counter_max)
             clock_frequency = self._module.clock_frequency / divider
-            total_counter = round(clock_frequency / rate)
+            total_counter = round(clock_frequency / frequency)
             initial_counter = round(delay / clock_frequency)
             self.setup(
                 output_type=DigitalOutputType.RANDOM,
@@ -573,7 +573,7 @@ class DigitalOutput:
 
         def setup_custom(
                 self,
-                rate: float,
+                frequency: float,
                 data,
                 delay: float = 0,
                 repetition: int = 0,
@@ -586,7 +586,7 @@ class DigitalOutput:
 
             Parameters
             ----------
-            rate : float
+            frequency : float
                 The bit rate in bits/second.
             data : [int]
                 An array containing the pattern of ones and zeros.
@@ -607,7 +607,10 @@ class DigitalOutput:
             start : bool, optional
                 If True, then the instrument is started (default False).
             """
-            divider = math.ceil(self._module.clock_frequency / rate)
+            if frequency <= 0:
+                raise ValueError('frequency must be a positive value.')
+
+            divider = math.ceil(self._module.clock_frequency / frequency)
             clock_frequency = self._module.clock_frequency / divider
             initial_counter = round(delay / clock_frequency)
             self.setup(
@@ -762,7 +765,7 @@ class DigitalOutput:
             'analog-in', 'digital-in', 'digital-out',
             'analog-out1', 'analog-out2', 'analog-out3', 'analog-out3',
             'external1', 'external2', 'external3', 'external4',
-                'low', 'high', or 'clock'.
+            'low', 'high', or 'clock'.
         slope : str, optional
             The trigger slope.
             Can be 'rising', 'falling', or 'either'.
