@@ -1,8 +1,10 @@
 # Digilent WaveForms for Python
 
-The `dwfpy` Python package can be used to access **Digilent WaveForms** devices, such as the **Analog Discovery 2** or the **Digital Discovery**.
+The **dwfpy** package allows you to access **Digilent WaveForms** devices via Python.
 
-The goal of this package is to provide users with a simple, yet powerful way of controlling Digilent WaveForms devices.
+Supported devices include all [WaveForms][WaveForms] devices, such as the **Analog Discovery 2** or the **Digital Discovery**.
+
+The source code for the **dwfpy** package can be found at GitHub at <https://github.com/mariusgreuel/dwfpy>.
 
 ## Features
 
@@ -10,9 +12,10 @@ The goal of this package is to provide users with a simple, yet powerful way of 
 - Low-level API with complete access to the DWF API.
 - High-level API that supports one-line configuration statements.
 
-## Example
+One of the design goals is to provide users with a simple high-level API that allows one to perform common tasks quickly,
+while hiding some of the complexity of the WaveForms API.
 
-For instance, to configure the Arbitrary Waveform Generator of an Analog Discovery 2, you can write:
+For instance, to output a sine-wave on a **Analog Discovery 2**, you can simply write:
 
 ```python
 import dwfpy as dwf
@@ -25,20 +28,30 @@ with dwf.AnalogDiscovery2() as device:
 
 ## Installing dwfpy
 
-You can install the [dwfpy](https://pypi.org/project/dwfpy/) package from [PyPI](https://pypi.org/) via pip:
+You can install the [dwfpy package](https://pypi.org/project/dwfpy/) from PyPI using pip:
 
 ```console
 pip install dwfpy
 ```
 
-In order to use the `dwfpy` package, you need **Python 3.6** or higher.
+In order to use the **dwfpy** package, you need **Python 3.6** or higher.
 
-The source code for the `dwfpy` package can be found at GitHub at <https://github.com/mariusgreuel/dwfpy>.
+As **dwfpy** builds on top of the WaveForms API, you need to install the [Digilent WaveForms software][WaveForms-Software],
+which includes the required runtime components to access the WaveForms devices.
+
+## Examples
+
+You can find Python examples using **dwfpy** in the dwfpy GitHub repository at <https://github.com/mariusgreuel/dwfpy/tree/main/examples>.
 
 ## Getting help
 
-As of now, there is no users manual for `dwfpy`. You are encouraged to study the source code, and use your editors code completion features to browse the dwfpy functions and properties.
+You can find the **dwfpy** user's guide at <https://dwfpy.readthedocs.io/>.
 
-Detailed information about the Digilent Waveforms devices is available from the [Digilent WaveForms SDK Reference Manual][WaveForms-SDK-Reference-Manual].
+For issues with **dwfpy**, refer to the [dwfpy issue tracker](https://github.com/mariusgreuel/dwfpy/issues).
 
+Detailed information about the Digilent Waveforms devices is available
+from the [Digilent WaveForms SDK Reference Manual][WaveForms-SDK-Reference-Manual].
+
+[WaveForms]: https://digilent.com/shop/software/digilent-waveforms/
+[WaveForms-Software]: https://digilent.com/reference/software/waveforms/waveforms-3/start
 [WaveForms-SDK-Reference-Manual]: https://digilent.com/reference/_media/waveforms_sdk_reference_manual.pdf
