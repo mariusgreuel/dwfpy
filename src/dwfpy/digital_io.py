@@ -165,7 +165,7 @@ class DigitalIo:
 
     def read_status(self) -> None:
         """Reads the status and input values of the device."""
-        api.dwf_analog_io_status(self._device.handle)
+        api.dwf_digital_io_status(self._device.handle)
 
     @property
     def output_enable_mask(self) -> int:
