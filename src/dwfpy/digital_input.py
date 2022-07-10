@@ -595,18 +595,16 @@ class DigitalInput:
         source : str, optional
             The trigger source.
             Can be 'none', 'pc',
-                'detector-analog-in', 'detector-digital-in',
-                'analog-in', 'digital-in', 'digital-out',
-                'analog-out1', 'analog-out2', 'analog-out3', 'analog-out3',
-                'external1', 'external2', 'external3', 'external4',
-                'low', 'high', or 'clock'.
+            'detector-analog-in', 'detector-digital-in',
+            'analog-in', 'digital-in', 'digital-out',
+            'analog-out1', 'analog-out2', 'analog-out3', 'analog-out3',
+            'external1', 'external2', 'external3', 'external4',
+            'low', 'high', or 'clock'.
         slope : str, optional
             The trigger slope.
             Can be 'rising', 'falling', or 'either'.
         position : int, optional
             The number of samples to be acquired after the trigger.
-        prefill : int, optional
-            The number of samples to be acquired before the trigger.
         prefill : int, optional
             The number of samples to be acquired before the trigger.
         auto_timeout : float, optional
