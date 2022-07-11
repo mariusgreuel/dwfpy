@@ -32,14 +32,18 @@ def _load_dwf_library():
         _logger.info('Loading library: %s', path)
         return cdll.LoadLibrary(path)
     except OSError as ex:
-        _logger.error('Failed to load library: %s', ex)
-        raise FileNotFoundError(f'Failed to load Digilent WaveForms library: {ex}') from None
+        _logger.error('Failed to load Digilent WaveForms runtime components.'
+                      ' You may need to reinstall the WaveForms software: %s', ex)
+        return FileNotFoundError(f'Failed to load Digilent WaveForms runtime components: {ex}')
 
 
 _dwf_library = _load_dwf_library()
 
 
 def _get_dwf_version():
+    if isinstance(_dwf_library, Exception):
+        return '0.0.0'
+
     try:
         buffer = create_string_buffer(32)
         _dwf_library.FDwfGetVersion(buffer)
@@ -50,7 +54,7 @@ def _get_dwf_version():
 
 _version_string = _get_dwf_version()
 _logger.info('DWF version: %s', _version_string)
-_version = tuple(map(int, _version_string.split(".")))
+_version = tuple(map(int, _version_string.split('.')))
 
 
 def _default_error_handler(result, _, args):
@@ -71,10 +75,17 @@ def set_error_handler(handler):
     _error_handler = handler
 
 
+def _dwf_library_error_handler(*_):
+    raise _dwf_library
+
+
 def _dwf_function(name, *args):
     def errcheck(result, func, args):
         _logger.debug('%s%s=%s', function.name, args, result)
         return args if _error_handler is None else _error_handler(result, func, args)
+
+    if isinstance(_dwf_library, Exception):
+        return _dwf_library_error_handler
 
     argtypes = (arg[1] for arg in args)
     paramflags = tuple((arg[0], arg[2]) for arg in args)
