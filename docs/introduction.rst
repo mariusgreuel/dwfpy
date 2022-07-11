@@ -42,16 +42,22 @@ In order to use the **dwfpy** package, you need **Python 3.6** or higher.
 As **dwfpy** builds on top of the WaveForms API, you need to install the |WaveForms-Software| software,
 which includes the required runtime components to access the WaveForms devices.
 
+Documentation
+=============
+
+You can find the **dwfpy** user's guide at `<https://dwfpy.readthedocs.io/>`_.
+
+Detailed information about the Digilent Waveforms API is available
+from the |WaveForms-SDK-Reference-Manual|.
+
 Examples
 ========
 
-You can find Python examples using **dwfpy** in the `dwfpy GitHub repository at <https://github.com/mariusgreuel/dwfpy/tree/main/examples>`_.
+You can find examples using **dwfpy** in the dwfpy GitHub repository at
+`<https://github.com/mariusgreuel/dwfpy/tree/main/examples>`_.
 
 Getting help
 ============
 
-You can find the **dwfpy** user's guide at `<https://dwfpy.readthedocs.io/>`_.
-
-For issues with **dwfpy**, refer to the `dwfpy GitHub issue tracker <https://github.com/mariusgreuel/dwfpy/issues>`_.
-
-Detailed information about the Digilent Waveforms devices is available from the |WaveForms-SDK-Reference-Manual|.
+For issues with **dwfpy**, please visit the
+`dwfpy GitHub issue tracker <https://github.com/mariusgreuel/dwfpy/issues>`_.
