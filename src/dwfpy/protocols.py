@@ -412,22 +412,22 @@ class Protocols:
                     dq_mode, bits_per_word,
                     c_rx_buffer, len(c_rx_buffer))
                 return bytes(c_rx_buffer)
-            if bits_per_word <= 16:
+            elif bits_per_word <= 16:
                 c_rx_buffer = (ctypes.c_ushort * words_to_receive)()
                 api.dwf_digital_spi_read16(
                     self._device.handle,
                     dq_mode, bits_per_word,
                     c_rx_buffer, len(c_rx_buffer))
                 return tuple(c_rx_buffer)
-            if bits_per_word <= 32:
+            elif bits_per_word <= 32:
                 c_rx_buffer = (ctypes.c_uint * words_to_receive)()
                 api.dwf_digital_spi_read32(
                     self._device.handle,
                     dq_mode, bits_per_word,
                     c_rx_buffer, len(c_rx_buffer))
                 return tuple(c_rx_buffer)
-
-            raise ValueError('bits_per_word cannot be higher than 32.')
+            else:
+                raise ValueError('bits_per_word cannot be higher than 32.')
 
         def write(self, buffer: bytes, dq_mode=None, bits_per_word=8) -> None:
             """Performs a SPI write."""
@@ -440,20 +440,20 @@ class Protocols:
                     self._device.handle,
                     dq_mode, bits_per_word,
                     c_tx_buffer, len(c_tx_buffer))
-            if bits_per_word <= 16:
-                c_tx_buffer = (ctypes.c_ubyte * len(buffer)).from_buffer_copy(buffer)
+            elif bits_per_word <= 16:
+                c_tx_buffer = (ctypes.c_ushort * len(buffer)).from_buffer_copy(buffer)
                 api.dwf_digital_spi_write16(
                     self._device.handle,
                     dq_mode, bits_per_word,
                     c_tx_buffer, len(c_tx_buffer))
-            if bits_per_word <= 32:
-                c_tx_buffer = (ctypes.c_ubyte * len(buffer)).from_buffer_copy(buffer)
+            elif bits_per_word <= 32:
+                c_tx_buffer = (ctypes.c_uint * len(buffer)).from_buffer_copy(buffer)
                 api.dwf_digital_spi_write32(
                     self._device.handle,
                     dq_mode, bits_per_word,
                     c_tx_buffer, len(c_tx_buffer))
-
-            raise ValueError('bits_per_word cannot be higher than 32.')
+            else:
+                raise ValueError('bits_per_word cannot be higher than 32.')
 
         def write_read(
                 self,
@@ -476,7 +476,7 @@ class Protocols:
                     c_tx_buffer, len(c_tx_buffer),
                     c_rx_buffer, len(c_rx_buffer))
                 return bytes(c_rx_buffer)
-            if bits_per_word <= 16:
+            elif bits_per_word <= 16:
                 c_tx_buffer = (ctypes.c_ushort * len(buffer)).from_buffer_copy(buffer)
                 c_rx_buffer = (ctypes.c_ushort * words_to_receive)()
                 api.dwf_digital_spi_write_read16(
@@ -485,7 +485,7 @@ class Protocols:
                     c_tx_buffer, len(c_tx_buffer),
                     c_rx_buffer, len(c_rx_buffer))
                 return tuple(c_rx_buffer)
-            if bits_per_word <= 32:
+            elif bits_per_word <= 32:
                 c_tx_buffer = (ctypes.c_uint * len(buffer)).from_buffer_copy(buffer)
                 c_rx_buffer = (ctypes.c_uint * words_to_receive)()
                 api.dwf_digital_spi_write_read32(
@@ -494,7 +494,8 @@ class Protocols:
                     c_tx_buffer, len(c_tx_buffer),
                     c_rx_buffer, len(c_rx_buffer))
                 return tuple(c_rx_buffer)
-            raise ValueError('bits_per_word cannot be higher than 32.')
+            else:
+                raise ValueError('bits_per_word cannot be higher than 32.')
 
         @staticmethod
         def _map_select_level(value) -> int:
