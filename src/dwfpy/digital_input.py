@@ -552,7 +552,7 @@ class DigitalInput:
             samples.ctypes.data_as(ctypes.c_void_p),
             first_sample,
             samples.size * samples.itemsize)
-        return np.array(samples)
+        return samples
 
     def get_noise(self, first_sample: int = 0, sample_count: int = -1):
         """Gets the acquired noise samples.
@@ -567,7 +567,7 @@ class DigitalInput:
             samples.ctypes.data_as(ctypes.c_void_p),
             first_sample,
             samples.size * samples.itemsize)
-        return np.array(samples)
+        return samples
 
     def _create_sample_buffer(self, size: int):
         if self.sample_format <= 8:
