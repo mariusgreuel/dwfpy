@@ -288,8 +288,8 @@ class Protocols:
         def setup(
                 self,
                 pin_clock: int,
-                mosi_pin: int,
-                miso_pin: Optional[int] = None,
+                pin_mosi: int,
+                pin_miso: Optional[int] = None,
                 pin_select: Optional[int] = None,
                 frequency: Optional[float] = None,
                 mode: int = 0,
@@ -297,10 +297,10 @@ class Protocols:
             """Sets up the SPI pin configuration in standard mode."""
             self._dq_mode = 1  # MOSI/MISO
             self.pin_clock = pin_clock
-            if mosi_pin is not None:
-                self.pin_dq0 = mosi_pin
-            if miso_pin is not None:
-                self.pin_dq1 = miso_pin
+            if pin_mosi is not None:
+                self.pin_dq0 = pin_mosi
+            if pin_miso is not None:
+                self.pin_dq1 = pin_miso
             if pin_select is not None:
                 self.pin_select = pin_select
             self._setup_config(frequency, mode, msb_first)

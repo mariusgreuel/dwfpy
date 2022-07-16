@@ -12,7 +12,7 @@ with dwf.Device() as device:
 
     print('Configuring SPI...')
     spi = device.protocols.spi
-    spi.setup(pin_select=0, pin_clock=1, mosi_pin=2, miso_pin=3, frequency=1e3)
+    spi.setup(pin_select=0, pin_clock=1, pin_mosi=2, pin_miso=3, frequency=1e3)
     spi.set_idle(0, dwf.DigitalOutputIdle.ZET)  # 0 DQ0_MOSI_SISO = DwfDigitalOutIdleZet
     spi.set_idle(0, dwf.DigitalOutputIdle.ZET)  # 1 DQ1_MISO = DwfDigitalOutIdleZet
 
