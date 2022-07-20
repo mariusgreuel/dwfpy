@@ -1,5 +1,5 @@
-Welcome to dwfpy's documentation!
-=================================
+Welcome to DwfPy!
+=================
 
 .. include:: common.rst
 
