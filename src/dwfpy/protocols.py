@@ -115,14 +115,15 @@ class Protocols:
             self._inverted = None
 
         def setup(
-                self,
-                pin_rx: Optional[int] = None,
-                pin_tx: Optional[int] = None,
-                rate: int = 9600,
-                data_bits: int = 8,
-                stop_bits: int = 1,
-                parity: str = 'n',
-                inverted: bool = False) -> None:
+            self,
+            pin_rx: Optional[int] = None,
+            pin_tx: Optional[int] = None,
+            rate: int = 9600,
+            data_bits: int = 8,
+            stop_bits: int = 1,
+            parity: str = 'n',
+            inverted: bool = False,
+        ) -> None:
             """Sets up the UART configuration."""
             if pin_rx is not None:
                 self.pin_rx = pin_rx
@@ -147,7 +148,9 @@ class Protocols:
             """Returns the received characters since the last call.
             Returns (rx_buffer, parity)."""
             rx_buffer8 = (ctypes.c_char * buffer_size)()
-            count, parity = api.dwf_digital_uart_rx(self._device.handle, rx_buffer8, len(rx_buffer8))
+            count, parity = api.dwf_digital_uart_rx(
+                self._device.handle, rx_buffer8, len(rx_buffer8)
+            )
             return bytes(rx_buffer8)[:count], parity
 
         def write(self, buffer: bytes) -> None:
@@ -286,14 +289,15 @@ class Protocols:
             self._msb_first = None
 
         def setup(
-                self,
-                pin_clock: int,
-                pin_mosi: int,
-                pin_miso: Optional[int] = None,
-                pin_select: Optional[int] = None,
-                frequency: Optional[float] = None,
-                mode: int = 0,
-                msb_first: bool = True) -> None:
+            self,
+            pin_clock: int,
+            pin_mosi: int,
+            pin_miso: Optional[int] = None,
+            pin_select: Optional[int] = None,
+            frequency: Optional[float] = None,
+            mode: int = 0,
+            msb_first: bool = True,
+        ) -> None:
             """Sets up the SPI pin configuration in standard mode."""
             self._dq_mode = 1  # MOSI/MISO
             self.pin_clock = pin_clock
@@ -306,13 +310,14 @@ class Protocols:
             self._setup_config(frequency, mode, msb_first)
 
         def setup_three_wire(
-                self,
-                pin_clock: int,
-                pin_siso: int,
-                pin_select: int = None,
-                frequency: float = None,
-                mode: int = 0,
-                msb_first: bool = True) -> None:
+            self,
+            pin_clock: int,
+            pin_siso: int,
+            pin_select: int = None,
+            frequency: float = None,
+            mode: int = 0,
+            msb_first: bool = True,
+        ) -> None:
             """Sets up the SPI pin configuration in Three-wire mode."""
             self._dq_mode = 0  # SISO
             self.pin_clock = pin_clock
@@ -322,14 +327,15 @@ class Protocols:
             self._setup_config(frequency, mode, msb_first)
 
         def setup_dual(
-                self,
-                pin_clock: int,
-                pin_dq0: int,
-                pin_dq1: int,
-                pin_select: int = None,
-                frequency: float = None,
-                mode: int = 0,
-                msb_first: bool = True) -> None:
+            self,
+            pin_clock: int,
+            pin_dq0: int,
+            pin_dq1: int,
+            pin_select: int = None,
+            frequency: float = None,
+            mode: int = 0,
+            msb_first: bool = True,
+        ) -> None:
             """Sets up the SPI pin configuration in Dual mode."""
             self._dq_mode = 2  # DUAL
             self.pin_clock = pin_clock
@@ -342,16 +348,17 @@ class Protocols:
             self._setup_config(frequency, mode, msb_first)
 
         def setup_quad(
-                self,
-                pin_clock: int,
-                pin_dq0: int,
-                pin_dq1: int,
-                pin_dq2: int,
-                pin_dq3: int,
-                pin_select: int = None,
-                frequency: float = None,
-                mode: int = 0,
-                msb_first: bool = True) -> None:
+            self,
+            pin_clock: int,
+            pin_dq0: int,
+            pin_dq1: int,
+            pin_dq2: int,
+            pin_dq3: int,
+            pin_select: int = None,
+            frequency: float = None,
+            mode: int = 0,
+            msb_first: bool = True,
+        ) -> None:
             """Sets up the SPI pin configuration in Quad mode."""
             self._dq_mode = 3  # QUAD
             self.pin_clock = pin_clock
@@ -385,7 +392,9 @@ class Protocols:
             """Control the SPI chip select."""
             if pin_select is None:
                 pin_select = self.pin_select
-            api.dwf_digital_spi_select(self._device.handle, pin_select, self._map_select_level(level))
+            api.dwf_digital_spi_select(
+                self._device.handle, pin_select, self._map_select_level(level)
+            )
 
         def read_one(self, dq_mode: Optional[int] = None, bits_per_word: int = 8) -> None:
             """Performs a SPI reception of up to 32 bits."""
@@ -393,7 +402,9 @@ class Protocols:
                 dq_mode = self._dq_mode
             return api.dwf_digital_spi_read_one(self._device.handle, dq_mode, bits_per_word)
 
-        def write_one(self, data: int, dq_mode: Optional[int] = None, bits_per_word: int = 8) -> None:
+        def write_one(
+            self, data: int, dq_mode: Optional[int] = None, bits_per_word: int = 8
+        ) -> None:
             """Performs a SPI transmit of up to 32 bits."""
             if dq_mode is None:
                 dq_mode = self._dq_mode
@@ -401,10 +412,8 @@ class Protocols:
             return api.dwf_digital_spi_write_one(self._device.handle, dq_mode, bits_per_word, data)
 
         def read(
-                self,
-                words_to_receive: int,
-                dq_mode: Optional[int] = None,
-                bits_per_word: int = 8) -> Union[bytes, array.array]:
+            self, words_to_receive: int, dq_mode: Optional[int] = None, bits_per_word: int = 8
+        ) -> Union[bytes, array.array]:
             """Performs a SPI read."""
             if dq_mode is None:
                 dq_mode = self._dq_mode
@@ -412,35 +421,27 @@ class Protocols:
             if bits_per_word <= 8:
                 rx_buffer8 = (ctypes.c_ubyte * words_to_receive)()
                 api.dwf_digital_spi_read(
-                    self._device.handle,
-                    dq_mode,
-                    bits_per_word,
-                    rx_buffer8, len(rx_buffer8))
+                    self._device.handle, dq_mode, bits_per_word, rx_buffer8, len(rx_buffer8)
+                )
                 return bytes(rx_buffer8)
             elif bits_per_word <= 16:
                 rx_buffer16 = (ctypes.c_ushort * words_to_receive)()
                 api.dwf_digital_spi_read16(
-                    self._device.handle,
-                    dq_mode,
-                    bits_per_word,
-                    rx_buffer16, len(rx_buffer16))
+                    self._device.handle, dq_mode, bits_per_word, rx_buffer16, len(rx_buffer16)
+                )
                 return array.array('H', rx_buffer16)
             elif bits_per_word <= 32:
                 rx_buffer32 = (ctypes.c_uint * words_to_receive)()
                 api.dwf_digital_spi_read32(
-                    self._device.handle,
-                    dq_mode,
-                    bits_per_word,
-                    rx_buffer32, len(rx_buffer32))
+                    self._device.handle, dq_mode, bits_per_word, rx_buffer32, len(rx_buffer32)
+                )
                 return array.array('I', rx_buffer32)
             else:
                 raise ValueError('bits_per_word cannot be higher than 32.')
 
         def write(
-                self,
-                buffer: bytes,
-                dq_mode: Optional[int] = None,
-                bits_per_word: int = 8) -> None:
+            self, buffer: bytes, dq_mode: Optional[int] = None, bits_per_word: int = 8
+        ) -> None:
             """Performs a SPI write."""
             if dq_mode is None:
                 dq_mode = self._dq_mode
@@ -448,33 +449,28 @@ class Protocols:
             if bits_per_word <= 8:
                 tx_buffer8 = (ctypes.c_ubyte * len(buffer)).from_buffer_copy(buffer)
                 api.dwf_digital_spi_write(
-                    self._device.handle,
-                    dq_mode,
-                    bits_per_word,
-                    tx_buffer8, len(tx_buffer8))
+                    self._device.handle, dq_mode, bits_per_word, tx_buffer8, len(tx_buffer8)
+                )
             elif bits_per_word <= 16:
                 tx_buffer16 = (ctypes.c_ushort * len(buffer)).from_buffer_copy(buffer)
                 api.dwf_digital_spi_write16(
-                    self._device.handle,
-                    dq_mode,
-                    bits_per_word,
-                    tx_buffer16, len(tx_buffer16))
+                    self._device.handle, dq_mode, bits_per_word, tx_buffer16, len(tx_buffer16)
+                )
             elif bits_per_word <= 32:
                 tx_buffer32 = (ctypes.c_uint * len(buffer)).from_buffer_copy(buffer)
                 api.dwf_digital_spi_write32(
-                    self._device.handle,
-                    dq_mode,
-                    bits_per_word,
-                    tx_buffer32, len(tx_buffer32))
+                    self._device.handle, dq_mode, bits_per_word, tx_buffer32, len(tx_buffer32)
+                )
             else:
                 raise ValueError('bits_per_word cannot be higher than 32.')
 
         def write_read(
-                self,
-                buffer,
-                words_to_receive: int,
-                dq_mode: Optional[int] = None,
-                bits_per_word: int = 8) -> Union[bytes, array.array]:
+            self,
+            buffer,
+            words_to_receive: int,
+            dq_mode: Optional[int] = None,
+            bits_per_word: int = 8,
+        ) -> Union[bytes, array.array]:
             """Performs a SPI write/read."""
             if dq_mode is None:
                 dq_mode = self._dq_mode
@@ -486,8 +482,11 @@ class Protocols:
                     self._device.handle,
                     dq_mode,
                     bits_per_word,
-                    tx_buffer8, len(tx_buffer8),
-                    rx_buffer8, len(rx_buffer8))
+                    tx_buffer8,
+                    len(tx_buffer8),
+                    rx_buffer8,
+                    len(rx_buffer8),
+                )
                 return bytes(rx_buffer8)
             elif bits_per_word <= 16:
                 tx_buffer16 = (ctypes.c_ushort * len(buffer)).from_buffer_copy(buffer)
@@ -496,8 +495,11 @@ class Protocols:
                     self._device.handle,
                     dq_mode,
                     bits_per_word,
-                    tx_buffer16, len(tx_buffer16),
-                    rx_buffer16, len(rx_buffer16))
+                    tx_buffer16,
+                    len(tx_buffer16),
+                    rx_buffer16,
+                    len(rx_buffer16),
+                )
                 return array.array('H', rx_buffer16)
             elif bits_per_word <= 32:
                 tx_buffer32 = (ctypes.c_uint * len(buffer)).from_buffer_copy(buffer)
@@ -506,8 +508,11 @@ class Protocols:
                     self._device.handle,
                     dq_mode,
                     bits_per_word,
-                    tx_buffer32, len(tx_buffer32),
-                    rx_buffer32, len(rx_buffer32))
+                    tx_buffer32,
+                    len(tx_buffer32),
+                    rx_buffer32,
+                    len(rx_buffer32),
+                )
                 return array.array('I', rx_buffer32)
             else:
                 raise ValueError('bits_per_word cannot be higher than 32.')
@@ -608,18 +613,19 @@ class Protocols:
             self._stretch = True
 
         def clear(self) -> bool:
-            """ Verifies and tries to solve eventual bus lockup.
+            """Verifies and tries to solve eventual bus lockup.
             Returns true, if the bus is free."""
             return bool(api.dwf_digital_i2c_clear(self._device.handle))
 
         def setup(
-                self,
-                pin_scl: int,
-                pin_sda: int,
-                rate: Optional[float] = None,
-                timeout: Optional[float] = None,
-                read_nak: Optional[bool] = None,
-                stretch: Optional[bool] = None) -> None:
+            self,
+            pin_scl: int,
+            pin_sda: int,
+            rate: Optional[float] = None,
+            timeout: Optional[float] = None,
+            read_nak: Optional[bool] = None,
+            stretch: Optional[bool] = None,
+        ) -> None:
             """Sets up the I2C configuration."""
             if pin_scl is not None:
                 self.pin_scl = pin_scl
@@ -643,18 +649,16 @@ class Protocols:
             Returns (rx_buffer, nak_index)."""
             rx_buffer8 = (ctypes.c_ubyte * bytes_to_read)()
             nak_index = api.dwf_digital_i2c_read(
-                self._device.handle,
-                address,
-                rx_buffer8, len(rx_buffer8))
+                self._device.handle, address, rx_buffer8, len(rx_buffer8)
+            )
             return bytes(rx_buffer8), nak_index
 
         def write(self, address: int, buffer: bytes) -> None:
             """Performs an I2C write."""
             tx_buffer8 = (ctypes.c_ubyte * len(buffer)).from_buffer_copy(buffer)
             return api.dwf_digital_i2c_write(
-                self._device.handle,
-                address,
-                tx_buffer8, len(tx_buffer8))
+                self._device.handle, address, tx_buffer8, len(tx_buffer8)
+            )
 
         def write_read(self, address: int, buffer: bytes, bytes_to_read: int) -> Tuple[bytes, int]:
             """Performs an I2C write/read.
@@ -664,8 +668,11 @@ class Protocols:
             nak_index = api.dwf_digital_i2c_write_read(
                 self._device.handle,
                 address,
-                tx_buffer8, len(tx_buffer8),
-                rx_buffer8, len(rx_buffer8))
+                tx_buffer8,
+                len(tx_buffer8),
+                rx_buffer8,
+                len(rx_buffer8),
+            )
             return bytes(rx_buffer8), nak_index
 
     class CAN:
@@ -727,11 +734,12 @@ class Protocols:
             self._inverted = None
 
         def setup(
-                self,
-                pin_rx: Optional[int] = None,
-                pin_tx: Optional[int] = None,
-                rate: Optional[float] = None,
-                inverted: bool = False) -> None:
+            self,
+            pin_rx: Optional[int] = None,
+            pin_tx: Optional[int] = None,
+            rate: Optional[float] = None,
+            inverted: bool = False,
+        ) -> None:
             """Sets up the CAN configuration."""
             if pin_rx is not None:
                 self.pin_rx = pin_rx
@@ -748,17 +756,16 @@ class Protocols:
             """Returns the received CAN frames since the last call."""
             rx_buffer8 = (ctypes.c_char * 8)()
             frame_id, extended, remote, dlc, status = api.dwf_digital_can_rx(
-                self._device.handle,
-                rx_buffer8, len(rx_buffer8))
+                self._device.handle, rx_buffer8, len(rx_buffer8)
+            )
             return bytes(rx_buffer8)[:dlc], frame_id, extended, remote, status
 
         def write(self, frame_id: int, extended: int, remote: int, buffer: bytes) -> None:
             """Performs a CAN transmission."""
             tx_buffer8 = (ctypes.c_char * len(buffer)).from_buffer_copy(buffer)
             api.dwf_digital_can_tx(
-                self._device.handle,
-                frame_id, extended, remote,
-                len(tx_buffer8), tx_buffer8)
+                self._device.handle, frame_id, extended, remote, len(tx_buffer8), tx_buffer8
+            )
 
     def __init__(self, device):
         self._uart = self.Uart(device)

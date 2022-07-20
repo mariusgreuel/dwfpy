@@ -12,6 +12,7 @@ Exceptions for Digilent WaveForms.
 
 class WaveformsError(RuntimeError):
     '''Base class for Digilent WaveForms exceptions.'''
+
     def __init__(self, message: str, error: int = 0):
         super().__init__(message)
         self.error = error
@@ -19,11 +20,13 @@ class WaveformsError(RuntimeError):
 
 class DeviceNotFound(WaveformsError):
     """Device not found error"""
+
     def __init__(self, message):
         super().__init__(message)
 
 
 class DeviceNotOpenError(WaveformsError):
     """Device is not open error"""
+
     def __init__(self, message):
         super().__init__(message)

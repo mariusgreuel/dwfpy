@@ -27,19 +27,21 @@ from .digital_output import DigitalOutput
 from .protocols import Protocols
 
 
-class DeviceBase():
+class DeviceBase:
     """Base class for Digilent WaveForms devices."""
 
     class _EnumeratedIndex:
         def __init__(self, index):
             self.index = index
 
-    def __init__(self,
-                 configuration: Optional[Union[int, str]] = None,
-                 serial_number: Optional[str] = None,
-                 device_id: Optional[int] = None,
-                 device_type: Optional[int] = None,
-                 device_index: Optional[Union[int, _EnumeratedIndex]] = None):
+    def __init__(
+        self,
+        configuration: Optional[Union[int, str]] = None,
+        serial_number: Optional[str] = None,
+        device_id: Optional[int] = None,
+        device_type: Optional[int] = None,
+        device_index: Optional[Union[int, _EnumeratedIndex]] = None,
+    ):
         """
         :param configuration: Select the active configuration.
         :param serial_number: Filter devices by serial number.
@@ -64,7 +66,9 @@ class DeviceBase():
         self._auto_reset = True
 
         self._configuration = configuration
-        self._enum_serial_number = DeviceInfo.normalize_serial_number(serial_number) if serial_number else None
+        self._enum_serial_number = (
+            DeviceInfo.normalize_serial_number(serial_number) if serial_number else None
+        )
         self._enum_device_id = device_id
         self._enum_device_type = device_type
         self._enum_device_index = device_index
@@ -174,7 +178,8 @@ class DeviceBase():
 
     @property
     def auto_configure(self) -> int:
-        """Gets or sets a value indicating to automatically configure the device when parameters are changed."""
+        """Gets or sets a value indicating to automatically configure
+        the device when parameters are changed."""
         self._ensure_handle()
         return api.dwf_device_auto_configure_get(self._hdwf)
 
@@ -376,10 +381,14 @@ class DeviceBase():
                     return 0
             else:
                 raise WaveformsError(
-                    "Invalid configuration: Must be 'scope', 'pattern', 'logic', '1v8', or 'logic-1v8'.")
+                    "Invalid configuration: "
+                    "Must be 'scope', 'pattern', 'logic', '1v8', or 'logic-1v8'."
+                )
 
             raise WaveformsError(
-                f"The device '{self._device_info.name}' does not support the configuration '{self._configuration}'.")
+                f"The device '{self._device_info.name}' does not support "
+                "the configuration '{self._configuration}'."
+            )
 
         return self._configuration
 
@@ -472,7 +481,9 @@ class ElectronicsExplorer(DeviceBase):
             def current_limit(self, value: bool) -> None:
                 self._device.analog_io[1][2].value = value
 
-            def setup(self, voltage: float, current_limit: float = None, enabled: bool = True) -> None:
+            def setup(
+                self, voltage: float, current_limit: float = None, enabled: bool = True
+            ) -> None:
                 """Sets up the positive power supply.
 
                 Parameters
@@ -529,7 +540,9 @@ class ElectronicsExplorer(DeviceBase):
             def current_limit(self, value: bool) -> None:
                 self._device.analog_io[2][2].value = value
 
-            def setup(self, voltage: float, current_limit: float = None, enabled: bool = True) -> None:
+            def setup(
+                self, voltage: float, current_limit: float = None, enabled: bool = True
+            ) -> None:
                 """Sets up the negative power supply.
 
                 Parameters
@@ -699,16 +712,14 @@ class ElectronicsExplorer(DeviceBase):
             """Reads the voltage of voltmeter 4."""
             return self._device.analog_io[8][0].status
 
-    def __init__(self,
-                 configuration=None,
-                 serial_number=None,
-                 device_type=None,
-                 device_index=None):
-        super().__init__(configuration=configuration,
-                         serial_number=serial_number,
-                         device_id=DeviceId.ELECTRONICS_EXPLORER,
-                         device_type=device_type,
-                         device_index=device_index)
+    def __init__(self, configuration=None, serial_number=None, device_type=None, device_index=None):
+        super().__init__(
+            configuration=configuration,
+            serial_number=serial_number,
+            device_id=DeviceId.ELECTRONICS_EXPLORER,
+            device_type=device_type,
+            device_index=device_index,
+        )
         self._supplies = self.Supplies(self)
         self._voltmeters = self.Voltmeters(self)
 
@@ -820,16 +831,14 @@ class AnalogDiscovery(DeviceBase):
             """Gets the current taken by the supply regulators."""
             return self._device.analog_io[3][1].status
 
-    def __init__(self,
-                 configuration=None,
-                 serial_number=None,
-                 device_type=None,
-                 device_index=None):
-        super().__init__(configuration=configuration,
-                         serial_number=serial_number,
-                         device_id=DeviceId.ANALOG_DISCOVERY,
-                         device_type=device_type,
-                         device_index=device_index)
+    def __init__(self, configuration=None, serial_number=None, device_type=None, device_index=None):
+        super().__init__(
+            configuration=configuration,
+            serial_number=serial_number,
+            device_id=DeviceId.ANALOG_DISCOVERY,
+            device_type=device_type,
+            device_index=device_index,
+        )
         self._supplies = self.Supplies(self)
 
     @property
@@ -966,16 +975,14 @@ class AnalogDiscovery2(DeviceBase):
             """Gets the master enable status."""
             return self._device.analog_io.master_enable_status
 
-    def __init__(self,
-                 configuration=None,
-                 serial_number=None,
-                 device_type=None,
-                 device_index=None):
-        super().__init__(configuration=configuration,
-                         serial_number=serial_number,
-                         device_id=DeviceId.ANALOG_DISCOVERY2,
-                         device_type=device_type,
-                         device_index=device_index)
+    def __init__(self, configuration=None, serial_number=None, device_type=None, device_index=None):
+        super().__init__(
+            configuration=configuration,
+            serial_number=serial_number,
+            device_id=DeviceId.ANALOG_DISCOVERY2,
+            device_type=device_type,
+            device_index=device_index,
+        )
         self._supplies = self.Supplies(self)
 
     @property
@@ -1064,16 +1071,14 @@ class DigitalDiscovery(DeviceBase):
             """Gets the master enable status."""
             return self._device.analog_io.master_enable_status
 
-    def __init__(self,
-                 configuration=None,
-                 serial_number=None,
-                 device_type=None,
-                 device_index=None):
-        super().__init__(configuration=configuration,
-                         serial_number=serial_number,
-                         device_id=DeviceId.DIGITAL_DISCOVERY,
-                         device_type=device_type,
-                         device_index=device_index)
+    def __init__(self, configuration=None, serial_number=None, device_type=None, device_index=None):
+        super().__init__(
+            configuration=configuration,
+            serial_number=serial_number,
+            device_id=DeviceId.DIGITAL_DISCOVERY,
+            device_type=device_type,
+            device_index=device_index,
+        )
         self._supplies = self.Supplies(self)
 
     @property
@@ -1167,7 +1172,10 @@ class Device(DeviceBase):
     @staticmethod
     def enumerate(enum_filter=api.ENUMFILTER_ALL) -> tuple:
         """Enumerates all devices."""
-        return tuple(Device(device_index=Device._EnumeratedIndex(i)) for i in range(api.dwf_enum(enum_filter)))
+        return tuple(
+            Device(device_index=Device._EnumeratedIndex(i))
+            for i in range(api.dwf_enum(enum_filter))
+        )
 
     @staticmethod
     def close_all() -> None:

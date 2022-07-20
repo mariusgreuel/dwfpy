@@ -14,6 +14,7 @@ import enum
 
 class DeviceId(enum.IntEnum):
     """Device identifier."""
+
     ELECTRONICS_EXPLORER = 1
     ANALOG_DISCOVERY = 2
     ANALOG_DISCOVERY2 = 3
@@ -24,6 +25,7 @@ class DeviceId(enum.IntEnum):
 
 class DeviceType(enum.IntEnum):
     """Device filter type."""
+
     USB = 0x0000001
     NETWORK = 0x0000002
     AXI = 0x0000004
@@ -34,6 +36,7 @@ class DeviceType(enum.IntEnum):
 
 class GlobalParameter(enum.IntEnum):
     """Global parameter."""
+
     USB_POWER = 2  # 1 keep the USB power enabled even when AUX is connected, Analog Discovery 2
     LED_BRIGHTNESS = 3  # LED brightness 0 ... 100%, Digital Discovery
     ON_CLOSE = 4  # 0 continue, 1 stop, 2 shutdown
@@ -47,6 +50,7 @@ class GlobalParameter(enum.IntEnum):
 
 class Error(enum.IntEnum):
     """DWF API error codes."""
+
     NO_ERROR = 0
     UNKNOWN_ERROR = 1
     API_LOCK_TIMEOUT = 2
@@ -61,6 +65,7 @@ class Error(enum.IntEnum):
 
 class Status(enum.IntEnum):
     """Status of instrument state machine."""
+
     READY = 0
     ARMED = 1
     DONE = 2
@@ -73,6 +78,7 @@ class Status(enum.IntEnum):
 
 class TriggerSource(enum.IntEnum):
     """Trigger input source."""
+
     NONE = 0
     PC = 1
     DETECTOR_ANALOG_IN = 2
@@ -95,6 +101,7 @@ class TriggerSource(enum.IntEnum):
 
 class TriggerType(enum.IntEnum):
     """Trigger type."""
+
     EDGE = 0
     PULSE = 1
     TRANSITION = 2
@@ -103,6 +110,7 @@ class TriggerType(enum.IntEnum):
 
 class TriggerSlope(enum.IntEnum):
     """Trigger slope."""
+
     RISE = 0
     FALL = 1
     EITHER = 2
@@ -110,6 +118,7 @@ class TriggerSlope(enum.IntEnum):
 
 class TriggerLengthCondition(enum.IntEnum):
     """Trigger length condition."""
+
     LESS = 0
     TIMEOUT = 1
     MORE = 2
@@ -117,6 +126,7 @@ class TriggerLengthCondition(enum.IntEnum):
 
 class Function(enum.IntEnum):
     """Function type for analog output instruments."""
+
     DC = 0
     SINE = 1
     SQUARE = 2
@@ -135,6 +145,7 @@ class Function(enum.IntEnum):
 
 class ChannelNodeType(enum.IntEnum):
     """Channel node type."""
+
     ENABLE = 1
     VOLTAGE = 2
     CURRENT = 3
@@ -150,6 +161,7 @@ class ChannelNodeType(enum.IntEnum):
 
 class DmmMode(enum.IntEnum):
     """DMM mode."""
+
     RESISTANCE = 1
     CONTINUITY = 2
     DIODE = 3
@@ -164,12 +176,14 @@ class DmmMode(enum.IntEnum):
 
 class AnalogInputCoupling(enum.IntEnum):
     """Input coupling for analog input instruments."""
+
     DC = 0
     AC = 1
 
 
 class AnalogOutputNode(enum.IntEnum):
     """Analog node type of analog output instruments."""
+
     CARRIER = 0
     FM = 1
     AM = 2
@@ -177,12 +191,14 @@ class AnalogOutputNode(enum.IntEnum):
 
 class AnalogOutputMode(enum.IntEnum):
     """Generator mode of analog output instruments."""
+
     VOLTAGE = 0
     CURRENT = 1
 
 
 class AnalogOutputIdle(enum.IntEnum):
     """Idle output options of analog output instruments."""
+
     DISABLE = 0
     OFFSET = 1
     INITIAL = 2
@@ -190,6 +206,7 @@ class AnalogOutputIdle(enum.IntEnum):
 
 class DigitalInputClockSource(enum.IntEnum):
     """Clock source for digital input instruments."""
+
     INTERNAL = 0
     EXTERNAL = 1
     EXTERNAL2 = 2
@@ -197,12 +214,14 @@ class DigitalInputClockSource(enum.IntEnum):
 
 class DigitalInputSampleMode(enum.IntEnum):
     """Sample mode for digital input instruments."""
+
     SIMPLE = 0
     NOISE = 1
 
 
 class DigitalOutputMode(enum.IntEnum):
     """Output pin mode of a digital output channel."""
+
     PUSH_PULL = 0
     OPEN_DRAIN = 1
     OPEN_SOURCE = 2
@@ -211,6 +230,7 @@ class DigitalOutputMode(enum.IntEnum):
 
 class DigitalOutputType(enum.IntEnum):
     """Output type of a digital output channel."""
+
     PULSE = 0
     CUSTOM = 1
     RANDOM = 2
@@ -221,6 +241,7 @@ class DigitalOutputType(enum.IntEnum):
 
 class DigitalOutputIdle(enum.IntEnum):
     """Idle state of a digital output channel."""
+
     INIT = 0
     LOW = 1
     HIGH = 2
@@ -229,6 +250,7 @@ class DigitalOutputIdle(enum.IntEnum):
 
 class AnalogImpedance(enum.IntEnum):
     """Analog impedance measurement index."""
+
     IMPEDANCE = 0  # Ohms
     IMPEDANCE_PHASE = 1  # Radians
     RESISTANCE = 2  # Ohms
@@ -253,6 +275,7 @@ class AnalogImpedance(enum.IntEnum):
 
 class Window(enum.IntEnum):
     """FFT window function."""
+
     RECTANGULAR = 0
     TRIANGULAR = 1
     HAMMING = 2
@@ -265,6 +288,7 @@ class Window(enum.IntEnum):
 
 class AcquisitionMode(enum.IntEnum):
     """Acquisition mode for analog and digital instruments."""
+
     SINGLE = 0
     SCAN_SHIFT = 1
     SCAN_SCREEN = 2
@@ -276,6 +300,7 @@ class AcquisitionMode(enum.IntEnum):
 
 class FilterMode(enum.IntEnum):
     """Acquisition filter for analog input channels."""
+
     DECIMATE = 0
     AVERAGE = 1
     MIN_MAX = 2

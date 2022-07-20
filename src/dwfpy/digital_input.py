@@ -17,358 +17,379 @@ from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
     AcquisitionMode,
-    DigitalInputClockSource, DigitalInputSampleMode,
-    Status, TriggerSlope, TriggerSource)
+    DigitalInputClockSource,
+    DigitalInputSampleMode,
+    Status,
+    TriggerSlope,
+    TriggerSource,
+)
 from .helpers import Helpers
 from .digital_recorder import DigitalRecorder
+
+
+class DigitalInputClock:
+    """Represents the clock unit of a Digital Input device."""
+
+    def __init__(self, module):
+        self._device = module.device
+
+    @property
+    def frequency(self) -> float:
+        """Gets the internal clock frequency in Hz."""
+        return api.dwf_digital_in_internal_clock_info(self._device.handle)
+
+    @property
+    def source_info(self) -> Tuple[DigitalInputClockSource, ...]:
+        """Gets the supported clock sources."""
+        return Helpers.map_enum_values(
+            DigitalInputClockSource, api.dwf_digital_in_clock_source_info(self._device.handle)
+        )
+
+    @property
+    def source(self) -> DigitalInputClockSource:
+        """Gets or sets the clock source."""
+        return DigitalInputClockSource(api.dwf_digital_in_clock_source_get(self._device.handle))
+
+    @source.setter
+    def source(self, value: DigitalInputClockSource) -> None:
+        api.dwf_digital_in_clock_source_set(self._device.handle, value)
+
+    @property
+    def divider_max(self) -> int:
+        """Gets the maximum supported clock divider value."""
+        return api.dwf_digital_in_divider_info(self._device.handle)
+
+    @property
+    def divider(self) -> int:
+        """Gets or sets the configured clock divider value."""
+        return api.dwf_digital_in_divider_get(self._device.handle)
+
+    @divider.setter
+    def divider(self, value: int) -> None:
+        api.dwf_digital_in_divider_set(self._device.handle, value)
+
+
+class DigitalInputTrigger:
+    """Represents the trigger unit of a Digital Input device."""
+
+    def __init__(self, module):
+        self._device = module.device
+
+    @property
+    def source(self) -> TriggerSource:
+        """Gets or sets the current trigger source setting for the instrument."""
+        return TriggerSource(api.dwf_digital_in_trigger_source_get(self._device.handle))
+
+    @source.setter
+    def source(self, value: TriggerSource) -> None:
+        api.dwf_digital_in_trigger_source_set(self._device.handle, value)
+
+    @property
+    def slope(self) -> TriggerSlope:
+        """Gets or sets the trigger slope for the instrument."""
+        return TriggerSlope(api.dwf_digital_in_trigger_slope_get(self._device.handle))
+
+    @slope.setter
+    def slope(self, value: TriggerSlope) -> None:
+        api.dwf_digital_in_trigger_slope_set(self._device.handle, value)
+
+    @property
+    def position_max(self) -> int:
+        """Gets the maximum values of the trigger position in samples."""
+        return api.dwf_digital_in_trigger_position_info(self._device.handle)
+
+    @property
+    def position(self) -> int:
+        """Gets or sets the number of samples to acquire after trigger."""
+        return api.dwf_digital_in_trigger_position_get(self._device.handle)
+
+    @position.setter
+    def position(self, value: int) -> None:
+        api.dwf_digital_in_trigger_position_set(self._device.handle, value)
+
+    @property
+    def prefill(self) -> int:
+        """Gets or sets the number of samples to acquire
+        before arming in 'record' acquisition mode."""
+        return api.dwf_digital_in_trigger_prefill_get(self._device.handle)
+
+    @prefill.setter
+    def prefill(self, value: int) -> None:
+        api.dwf_digital_in_trigger_prefill_set(self._device.handle, value)
+
+    @property
+    def auto_timeout_min(self) -> float:
+        """Gets the minimum auto trigger timeout in seconds."""
+        return api.dwf_digital_in_trigger_auto_timeout_info(self._device.handle)[0]
+
+    @property
+    def auto_timeout_max(self) -> float:
+        """Gets the maximum auto trigger timeout in seconds."""
+        return api.dwf_digital_in_trigger_auto_timeout_info(self._device.handle)[1]
+
+    @property
+    def auto_timeout_steps(self) -> int:
+        """Gets the number of adjustable steps of the timeout."""
+        return int(api.dwf_digital_in_trigger_auto_timeout_info(self._device.handle)[2])
+
+    @property
+    def auto_timeout(self) -> float:
+        """Gets or sets the auto trigger timeout in seconds."""
+        return api.dwf_digital_in_trigger_auto_timeout_get(self._device.handle)
+
+    @auto_timeout.setter
+    def auto_timeout(self, value: float) -> None:
+        api.dwf_digital_in_trigger_auto_timeout_set(self._device.handle, value)
+
+    def get_trigger_mask_info(self) -> int:
+        """Gets the supported triggers as a bit-mask.
+        Returs (low_level, high_level, rising_edge, falling_edge)"""
+        return api.dwf_digital_in_trigger_info(self._device.handle)
+
+    def get_trigger_mask(self) -> Tuple[int, int, int, int]:
+        """Gets state and edge trigger condition as a bit-mask.
+        Returs (low_level, high_level, rising_edge, falling_edge)"""
+        return api.dwf_digital_in_trigger_get(self._device.handle)
+
+    def set_trigger_mask(
+        self,
+        low_level: int = 0,
+        high_level: int = 0,
+        rising_edge: int = 0,
+        falling_edge: int = 0,
+    ) -> None:
+        """Sets state and edge trigger conditions as a bit-mask."""
+        api.dwf_digital_in_trigger_set(
+            self._device.handle, low_level, high_level, rising_edge, falling_edge
+        )
+
+    def set_reset_mask(
+        self,
+        low_level: int = 0,
+        high_level: int = 0,
+        rising_edge: int = 0,
+        falling_edge: int = 0,
+    ) -> None:
+        """Configures the trigger reset condition as a bit-mask."""
+        api.dwf_digital_in_trigger_reset_set(
+            self._device.handle, low_level, high_level, rising_edge, falling_edge
+        )
+
+    def set_counter(self, count: int, restart: bool = False) -> None:
+        """Configures the trigger counter."""
+        api.dwf_digital_in_trigger_count_set(self._device.handle, count, restart)
+
+    def set_length(self, min_length: float, max_length: float, sync_mode: int) -> None:
+        """Configures the trigger timing."""
+        api.dwf_digital_in_trigger_length_set(
+            self._device.handle, min_length, max_length, sync_mode
+        )
+
+    def set_match(self, pin, mask: int, value: int, bit_stuffing: int) -> None:
+        """Configures the trigger deserializer."""
+        api.dwf_digital_in_trigger_match_set(self._device.handle, pin, mask, value, bit_stuffing)
+
+
+class DigitalInputChannelTrigger:
+    """Represents the trigger unit of a Digital Input channel."""
+
+    def __init__(self, channel):
+        self._module = channel.module
+        self._channel = channel
+
+    @property
+    def supports_low_level(self) -> bool:
+        """Returns True if the trigger detector supports
+        a low-level trigger for this channel."""
+        low, _, _, _ = self._module.trigger.get_trigger_mask_info()
+        return bool(low & self._mask)
+
+    @property
+    def supports_high_level(self) -> bool:
+        """Returns True if the trigger detector supports
+        a high-level trigger for this channel."""
+        _, high, _, _ = self._module.trigger.get_trigger_mask_info()
+        return bool(high & self._mask)
+
+    @property
+    def supports_rising_edge(self) -> bool:
+        """Returns True if the trigger detector supports
+        a edge-rise trigger for this channel."""
+        _, _, rise, _ = self._module.trigger.get_trigger_mask_info()
+        return bool(rise & self._mask)
+
+    @property
+    def supports_falling_edge(self) -> bool:
+        """Returns True if the trigger detector supports
+        a edge-fall trigger for this channel."""
+        _, _, _, fall = self._module.trigger.get_trigger_mask_info()
+        return bool(fall & self._mask)
+
+    @property
+    def low_level(self) -> bool:
+        """Gets or sets the low-level trigger for this channel."""
+        low, _, _, _ = self._module.trigger.get_trigger_mask()
+        return bool(low & self._mask)
+
+    @low_level.setter
+    def low_level(self, value: bool) -> None:
+        low, high, rise, fall = self._module.trigger.get_trigger_mask()
+        low = (low | self._mask) if value else (low & ~self._mask)
+        self._module.trigger.set_trigger_mask(low, high, rise, fall)
+
+    @property
+    def high_level(self) -> bool:
+        """Gets or sets the high-level trigger for this channel."""
+        _, high, _, _ = self._module.trigger.get_trigger_mask()
+        return bool(high & self._mask)
+
+    @high_level.setter
+    def high_level(self, value: bool) -> None:
+        low, high, rise, fall = self._module.trigger.get_trigger_mask()
+        high = (high | self._mask) if value else (high & ~self._mask)
+        self._module.trigger.set_trigger_mask(low, high, rise, fall)
+
+    @property
+    def rising_edge(self) -> bool:
+        """Gets or sets the edge-rise trigger for this channel."""
+        _, _, rise, _ = self._module.trigger.get_trigger_mask()
+        return bool(rise & self._mask)
+
+    @rising_edge.setter
+    def rising_edge(self, value: bool) -> None:
+        low, high, rise, fall = self._module.trigger.get_trigger_mask()
+        rise = (rise | self._mask) if value else (rise & ~self._mask)
+        self._module.trigger.set_trigger_mask(low, high, rise, fall)
+
+    @property
+    def falling_edge(self) -> bool:
+        """Gets or sets the edge-fall trigger for this channel."""
+        _, _, _, fall = self._module.trigger.get_trigger_mask()
+        return bool(fall & self._mask)
+
+    @falling_edge.setter
+    def falling_edge(self, value: bool) -> None:
+        low, high, rise, fall = self._module.trigger.get_trigger_mask()
+        fall = (fall | self._mask) if value else (fall & ~self._mask)
+        self._module.trigger.set_trigger_mask(low, high, rise, fall)
+
+    @property
+    def _mask(self) -> int:
+        return 1 << self._channel.index
+
+
+class DigitalInputChannel:
+    """Represents a Digital Input channel."""
+
+    def __init__(self, module, channel):
+        self._device = module.device
+        self._module = module
+        self._channel = channel
+        self._label = 'dio' + str(channel)
+        self._trigger = DigitalInputChannelTrigger(self)
+
+    @property
+    def device(self) -> 'fwd.Device':
+        """Gets the device."""
+        return self._device
+
+    @property
+    def module(self) -> 'DigitalInput':
+        """Gets the Digital Input module."""
+        return self._module
+
+    @property
+    def index(self) -> int:
+        """Gets the channel index."""
+        return self._channel
+
+    @property
+    def label(self) -> str:
+        """Gets or sets the channel label."""
+        return self._label
+
+    @label.setter
+    def label(self, value: str) -> None:
+        self._label = value
+
+    @property
+    def trigger(self) -> DigitalInputChannelTrigger:
+        """Gets the trigger unit."""
+        return self._trigger
+
+    def setup_trigger(self, condition: str) -> None:
+        """Sets up the trigger condition for this channel.
+
+        Parameters
+        ----------
+        condition : str
+            The trigger condition. Can be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.
+        """
+        low, high, rise, fall = self._module.trigger.get_trigger_mask()
+        self._module.trigger.set_trigger_mask(*self._calc_trigger(condition, low, high, rise, fall))
+
+    def setup_reset_trigger(self, condition: str) -> None:
+        """Sets up the trigger reset condition for this channel.
+
+        Parameters
+        ----------
+        condition : str
+            The trigger condition. Can be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.
+        """
+        self._module.trigger.set_reset_mask(*self._calc_trigger(condition, 0, 0, 0, 0))
+
+    def _calc_trigger(self, condition, low, high, rise, fall) -> Tuple[int, int, int, int]:
+        mask = 1 << self._channel
+
+        if condition == 'ignore':
+            low &= ~mask
+            high &= ~mask
+            rise &= ~mask
+            fall &= ~mask
+        elif condition == 'low':
+            low |= mask
+            high &= ~mask
+            rise &= ~mask
+            fall &= ~mask
+        elif condition == 'high':
+            low &= ~mask
+            high |= mask
+            rise &= ~mask
+            fall &= ~mask
+        elif condition == 'rise':
+            low &= ~mask
+            high &= ~mask
+            rise |= mask
+            fall &= ~mask
+        elif condition == 'fall':
+            low &= ~mask
+            high &= ~mask
+            rise &= ~mask
+            fall |= mask
+        elif condition == 'edge':
+            low &= ~mask
+            high &= ~mask
+            rise |= mask
+            fall |= mask
+        else:
+            raise ValueError(
+                "Trigger condition must be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'."
+            )
+
+        return low, high, rise, fall
 
 
 class DigitalInput:
     """Digital Input module (Logic Analyzer)."""
 
-    class Clock:
-        """Represents the clock unit of a Digital Input device."""
-
-        def __init__(self, module):
-            self._device = module.device
-
-        @property
-        def frequency(self) -> float:
-            """Gets the internal clock frequency in Hz."""
-            return api.dwf_digital_in_internal_clock_info(self._device.handle)
-
-        @property
-        def source_info(self) -> Tuple[DigitalInputClockSource, ...]:
-            """Gets the supported clock sources."""
-            return Helpers.map_enum_values(
-                DigitalInputClockSource, api.dwf_digital_in_clock_source_info(self._device.handle))
-
-        @property
-        def source(self) -> DigitalInputClockSource:
-            """Gets or sets the clock source."""
-            return DigitalInputClockSource(api.dwf_digital_in_clock_source_get(self._device.handle))
-
-        @source.setter
-        def source(self, value: DigitalInputClockSource) -> None:
-            api.dwf_digital_in_clock_source_set(self._device.handle, value)
-
-        @property
-        def divider_max(self) -> int:
-            """Gets the maximum supported clock divider value."""
-            return api.dwf_digital_in_divider_info(self._device.handle)
-
-        @property
-        def divider(self) -> int:
-            """Gets or sets the configured clock divider value."""
-            return api.dwf_digital_in_divider_get(self._device.handle)
-
-        @divider.setter
-        def divider(self, value: int) -> None:
-            api.dwf_digital_in_divider_set(self._device.handle, value)
-
-    class Trigger:
-        """Represents the trigger unit of a Digital Input device."""
-
-        def __init__(self, module):
-            self._device = module.device
-
-        @property
-        def source(self) -> TriggerSource:
-            """Gets or sets the current trigger source setting for the instrument."""
-            return TriggerSource(api.dwf_digital_in_trigger_source_get(self._device.handle))
-
-        @source.setter
-        def source(self, value: TriggerSource) -> None:
-            api.dwf_digital_in_trigger_source_set(self._device.handle, value)
-
-        @property
-        def slope(self) -> TriggerSlope:
-            """Gets or sets the trigger slope for the instrument."""
-            return TriggerSlope(api.dwf_digital_in_trigger_slope_get(self._device.handle))
-
-        @slope.setter
-        def slope(self, value: TriggerSlope) -> None:
-            api.dwf_digital_in_trigger_slope_set(self._device.handle, value)
-
-        @property
-        def position_max(self) -> int:
-            """Gets the maximum values of the trigger position in samples."""
-            return api.dwf_digital_in_trigger_position_info(self._device.handle)
-
-        @property
-        def position(self) -> int:
-            """Gets or sets the number of samples to acquire after trigger."""
-            return api.dwf_digital_in_trigger_position_get(self._device.handle)
-
-        @position.setter
-        def position(self, value: int) -> None:
-            api.dwf_digital_in_trigger_position_set(self._device.handle, value)
-
-        @property
-        def prefill(self) -> int:
-            """Gets or sets the number of samples to acquire
-            before arming in 'record' acquisition mode."""
-            return api.dwf_digital_in_trigger_prefill_get(self._device.handle)
-
-        @prefill.setter
-        def prefill(self, value: int) -> None:
-            api.dwf_digital_in_trigger_prefill_set(self._device.handle, value)
-
-        @property
-        def auto_timeout_min(self) -> float:
-            """Gets the minimum auto trigger timeout in seconds."""
-            return api.dwf_digital_in_trigger_auto_timeout_info(self._device.handle)[0]
-
-        @property
-        def auto_timeout_max(self) -> float:
-            """Gets the maximum auto trigger timeout in seconds."""
-            return api.dwf_digital_in_trigger_auto_timeout_info(self._device.handle)[1]
-
-        @property
-        def auto_timeout_steps(self) -> int:
-            """Gets the number of adjustable steps of the timeout."""
-            return int(api.dwf_digital_in_trigger_auto_timeout_info(self._device.handle)[2])
-
-        @property
-        def auto_timeout(self) -> float:
-            """Gets or sets the auto trigger timeout in seconds."""
-            return api.dwf_digital_in_trigger_auto_timeout_get(self._device.handle)
-
-        @auto_timeout.setter
-        def auto_timeout(self, value: float) -> None:
-            api.dwf_digital_in_trigger_auto_timeout_set(self._device.handle, value)
-
-        def get_trigger_mask_info(self) -> int:
-            """Gets the supported triggers as a bit-mask.
-            Returs (low_level, high_level, rising_edge, falling_edge)"""
-            return api.dwf_digital_in_trigger_info(self._device.handle)
-
-        def get_trigger_mask(self) -> Tuple[int, int, int, int]:
-            """Gets state and edge trigger condition as a bit-mask.
-            Returs (low_level, high_level, rising_edge, falling_edge)"""
-            return api.dwf_digital_in_trigger_get(self._device.handle)
-
-        def set_trigger_mask(
-                self,
-                low_level: int = 0,
-                high_level: int = 0,
-                rising_edge: int = 0,
-                falling_edge: int = 0) -> None:
-            """Sets state and edge trigger conditions as a bit-mask."""
-            api.dwf_digital_in_trigger_set(self._device.handle, low_level, high_level, rising_edge, falling_edge)
-
-        def set_reset_mask(
-                self,
-                low_level: int = 0,
-                high_level: int = 0,
-                rising_edge: int = 0,
-                falling_edge: int = 0) -> None:
-            """Configures the trigger reset condition as a bit-mask."""
-            api.dwf_digital_in_trigger_reset_set(self._device.handle, low_level, high_level, rising_edge, falling_edge)
-
-        def set_counter(self, count: int, restart: bool = False) -> None:
-            """Configures the trigger counter."""
-            api.dwf_digital_in_trigger_count_set(self._device.handle, count, restart)
-
-        def set_length(self, min_length: float, max_length: float, sync_mode: int) -> None:
-            """Configures the trigger timing."""
-            api.dwf_digital_in_trigger_length_set(self._device.handle, min_length, max_length, sync_mode)
-
-        def set_match(self, pin, mask: int, value: int, bit_stuffing: int) -> None:
-            """Configures the trigger deserializer."""
-            api.dwf_digital_in_trigger_match_set(self._device.handle, pin, mask, value, bit_stuffing)
-
-    class Channel:
-        """Represents a Digital Input channel."""
-
-        class Trigger:
-            """Represents the trigger unit of a Digital Input channel."""
-
-            def __init__(self, channel):
-                self._module = channel.module
-                self._channel = channel
-
-            @property
-            def supports_low_level(self) -> bool:
-                """Returns True if the trigger detector supports
-                a low-level trigger for this channel."""
-                low, _, _, _ = self._module.trigger.get_trigger_mask_info()
-                return bool(low & self._mask)
-
-            @property
-            def supports_high_level(self) -> bool:
-                """Returns True if the trigger detector supports
-                a high-level trigger for this channel."""
-                _, high, _, _ = self._module.trigger.get_trigger_mask_info()
-                return bool(high & self._mask)
-
-            @property
-            def supports_rising_edge(self) -> bool:
-                """Returns True if the trigger detector supports
-                a edge-rise trigger for this channel."""
-                _, _, rise, _ = self._module.trigger.get_trigger_mask_info()
-                return bool(rise & self._mask)
-
-            @property
-            def supports_falling_edge(self) -> bool:
-                """Returns True if the trigger detector supports
-                a edge-fall trigger for this channel."""
-                _, _, _, fall = self._module.trigger.get_trigger_mask_info()
-                return bool(fall & self._mask)
-
-            @property
-            def low_level(self) -> bool:
-                """Gets or sets the low-level trigger for this channel."""
-                low, _, _, _ = self._module.trigger.get_trigger_mask()
-                return bool(low & self._mask)
-
-            @low_level.setter
-            def low_level(self, value: bool) -> None:
-                low, high, rise, fall = self._module.trigger.get_trigger_mask()
-                low = (low | self._mask) if value else (low & ~self._mask)
-                self._module.trigger.set_trigger_mask(low, high, rise, fall)
-
-            @property
-            def high_level(self) -> bool:
-                """Gets or sets the high-level trigger for this channel."""
-                _, high, _, _ = self._module.trigger.get_trigger_mask()
-                return bool(high & self._mask)
-
-            @high_level.setter
-            def high_level(self, value: bool) -> None:
-                low, high, rise, fall = self._module.trigger.get_trigger_mask()
-                high = (high | self._mask) if value else (high & ~self._mask)
-                self._module.trigger.set_trigger_mask(low, high, rise, fall)
-
-            @property
-            def rising_edge(self) -> bool:
-                """Gets or sets the edge-rise trigger for this channel."""
-                _, _, rise, _ = self._module.trigger.get_trigger_mask()
-                return bool(rise & self._mask)
-
-            @rising_edge.setter
-            def rising_edge(self, value: bool) -> None:
-                low, high, rise, fall = self._module.trigger.get_trigger_mask()
-                rise = (rise | self._mask) if value else (rise & ~self._mask)
-                self._module.trigger.set_trigger_mask(low, high, rise, fall)
-
-            @property
-            def falling_edge(self) -> bool:
-                """Gets or sets the edge-fall trigger for this channel."""
-                _, _, _, fall = self._module.trigger.get_trigger_mask()
-                return bool(fall & self._mask)
-
-            @falling_edge.setter
-            def falling_edge(self, value: bool) -> None:
-                low, high, rise, fall = self._module.trigger.get_trigger_mask()
-                fall = (fall | self._mask) if value else (fall & ~self._mask)
-                self._module.trigger.set_trigger_mask(low, high, rise, fall)
-
-            @property
-            def _mask(self) -> int:
-                return 1 << self._channel.index
-
-        def __init__(self, module, channel):
-            self._device = module.device
-            self._module = module
-            self._channel = channel
-            self._label = 'dio' + str(channel)
-            self._trigger = self.Trigger(self)
-
-        @property
-        def device(self) -> 'fwd.Device':
-            """Gets the device."""
-            return self._device
-
-        @property
-        def module(self) -> 'DigitalInput':
-            """Gets the Digital Input module."""
-            return self._module
-
-        @property
-        def index(self) -> int:
-            """Gets the channel index."""
-            return self._channel
-
-        @property
-        def label(self) -> str:
-            """Gets or sets the channel label."""
-            return self._label
-
-        @label.setter
-        def label(self, value: str) -> None:
-            self._label = value
-
-        @property
-        def trigger(self) -> Trigger:
-            """Gets the trigger unit."""
-            return self._trigger
-
-        def setup_trigger(self, condition: str) -> None:
-            """Sets up the trigger condition for this channel.
-
-            Parameters
-            ----------
-            condition : str
-                The trigger condition. Can be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.
-            """
-            low, high, rise, fall = self._module.trigger.get_trigger_mask()
-            self._module.trigger.set_trigger_mask(*self._calc_trigger(condition, low, high, rise, fall))
-
-        def setup_reset_trigger(self, condition: str) -> None:
-            """Sets up the trigger reset condition for this channel.
-
-            Parameters
-            ----------
-            condition : str
-                The trigger condition. Can be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.
-            """
-            self._module.trigger.set_reset_mask(*self._calc_trigger(condition, 0, 0, 0, 0))
-
-        def _calc_trigger(self, condition, low, high, rise, fall) -> Tuple[int, int, int, int]:
-            mask = 1 << self._channel
-
-            if condition == 'ignore':
-                low &= ~mask
-                high &= ~mask
-                rise &= ~mask
-                fall &= ~mask
-            elif condition == 'low':
-                low |= mask
-                high &= ~mask
-                rise &= ~mask
-                fall &= ~mask
-            elif condition == 'high':
-                low &= ~mask
-                high |= mask
-                rise &= ~mask
-                fall &= ~mask
-            elif condition == 'rise':
-                low &= ~mask
-                high &= ~mask
-                rise |= mask
-                fall &= ~mask
-            elif condition == 'fall':
-                low &= ~mask
-                high &= ~mask
-                rise &= ~mask
-                fall |= mask
-            elif condition == 'edge':
-                low &= ~mask
-                high &= ~mask
-                rise |= mask
-                fall |= mask
-            else:
-                raise ValueError("Trigger condition must be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.")
-
-            return low, high, rise, fall
-
     def __init__(self, device):
         self._device = device
-        self._clock = self.Clock(self)
-        self._trigger = self.Trigger(self)
-        self._channels = tuple(self.Channel(self, i) for i in range(
-            api.dwf_digital_in_bits_info(self._device.handle)))
+        self._clock = DigitalInputClock(self)
+        self._trigger = DigitalInputTrigger(self)
+        self._channels = tuple(
+            DigitalInputChannel(self, i)
+            for i in range(api.dwf_digital_in_bits_info(self._device.handle))
+        )
         self._dio_first = False
 
     def __enter__(self):
@@ -384,12 +405,12 @@ class DigitalInput:
         return self._device
 
     @property
-    def clock(self) -> Clock:
+    def clock(self) -> DigitalInputClock:
         """Gets the clock unit."""
         return self._clock
 
     @property
-    def trigger(self) -> Trigger:
+    def trigger(self) -> DigitalInputTrigger:
         """Gets the trigger unit."""
         return self._trigger
 
@@ -398,7 +419,7 @@ class DigitalInput:
         """Gets a collection of Digital Input channels."""
         return self._channels
 
-    def __getitem__(self, key) -> Channel:
+    def __getitem__(self, key) -> DigitalInputChannel:
         if isinstance(key, int):
             return self._channels[key]
 
@@ -487,7 +508,8 @@ class DigitalInput:
     def sample_mode_info(self) -> Tuple[DigitalInputSampleMode, ...]:
         """Gets the supported sample modes."""
         return Helpers.map_enum_values(
-            DigitalInputSampleMode, api.dwf_digital_in_sample_mode_info(self._device.handle))
+            DigitalInputSampleMode, api.dwf_digital_in_sample_mode_info(self._device.handle)
+        )
 
     @property
     def sample_mode(self) -> DigitalInputSampleMode:
@@ -511,7 +533,8 @@ class DigitalInput:
     def acquisition_mode_info(self) -> Tuple[AcquisitionMode, ...]:
         """Gets the supported acquisition modes."""
         return Helpers.map_enum_values(
-            AcquisitionMode, api.dwf_digital_in_acquisition_mode_info(self._device.handle))
+            AcquisitionMode, api.dwf_digital_in_acquisition_mode_info(self._device.handle)
+        )
 
     @property
     def acquisition_mode(self) -> AcquisitionMode:
@@ -541,7 +564,11 @@ class DigitalInput:
 
     def get_data(self, first_sample: int = 0, sample_count: int = -1):
         """Gets the acquired data samples.
-        Before calling this function, call the 'read_status()' function to read the data from the device.
+
+        Notes
+        -----
+        Before calling this function, call the 'read_status()' function
+        to read the data from the device.
         """
         if sample_count < 0:
             sample_count = self.valid_samples
@@ -551,12 +578,17 @@ class DigitalInput:
             self._device.handle,
             samples.ctypes.data_as(ctypes.c_void_p),
             first_sample,
-            samples.size * samples.itemsize)
+            samples.size * samples.itemsize,
+        )
         return samples
 
     def get_noise(self, first_sample: int = 0, sample_count: int = -1):
         """Gets the acquired noise samples.
-        Before calling this function, call the 'read_status()' function to read the data from the device.
+
+        Notes
+        -----
+        Before calling this function, call the 'read_status()' function
+        to read the data from the device.
         """
         if sample_count < 0:
             sample_count = self.valid_samples
@@ -566,7 +598,8 @@ class DigitalInput:
             self._device.handle,
             samples.ctypes.data_as(ctypes.c_void_p),
             first_sample,
-            samples.size * samples.itemsize)
+            samples.size * samples.itemsize,
+        )
         return samples
 
     def _create_sample_buffer(self, size: int):
@@ -582,12 +615,13 @@ class DigitalInput:
         raise ValueError('sample_format must be 8, 16, or 32.')
 
     def setup_trigger(
-            self,
-            source: Optional[Union[str, TriggerSource]] = None,
-            slope: Optional[Union[str, TriggerSlope]] = None,
-            position: Optional[int] = None,
-            prefill: Optional[int] = None,
-            auto_timeout: Optional[float] = None) -> None:
+        self,
+        source: Optional[Union[str, TriggerSource]] = None,
+        slope: Optional[Union[str, TriggerSlope]] = None,
+        position: Optional[int] = None,
+        prefill: Optional[int] = None,
+        auto_timeout: Optional[float] = None,
+    ) -> None:
         """Sets up the trigger condition.
 
         Parameters
@@ -622,10 +656,7 @@ class DigitalInput:
         if auto_timeout is not None:
             self._trigger.auto_timeout = auto_timeout
 
-    def setup_edge_trigger(
-            self,
-            channel: int,
-            edge: str) -> None:
+    def setup_edge_trigger(self, channel: int, edge: str) -> None:
         """Sets up an edge trigger.
 
         Parameters
@@ -637,10 +668,7 @@ class DigitalInput:
         """
         self._setup_condition_trigger(channel, edge)
 
-    def setup_level_trigger(
-            self,
-            channel: int,
-            level: str) -> None:
+    def setup_level_trigger(self, channel: int, level: str) -> None:
         """Sets up a level trigger.
 
         Parameters
@@ -652,10 +680,7 @@ class DigitalInput:
         """
         self._setup_condition_trigger(channel, level)
 
-    def _setup_condition_trigger(
-            self,
-            channel: int,
-            condition: str) -> None:
+    def _setup_condition_trigger(self, channel: int, condition: str) -> None:
         self._trigger.source = TriggerSource.DETECTOR_DIGITAL_IN
         if condition == 'ignore':
             self.trigger.set_trigger_mask(low_level=0, high_level=0, rising_edge=0, falling_edge=0)
@@ -670,13 +695,11 @@ class DigitalInput:
         elif condition == 'edge':
             self.trigger.set_trigger_mask(rising_edge=1 << channel, falling_edge=1 << channel)
         else:
-            raise ValueError("Trigger condition must be 'ignore', 'low', 'high', 'rising', 'falling', or 'edge'.")
+            raise ValueError(
+                "Trigger condition must be 'ignore', 'low', 'high', 'rising', 'falling', or 'edge'."
+            )
 
-    def setup_glitch_trigger(
-            self,
-            channel: int,
-            polarity: str,
-            less_than: float) -> None:
+    def setup_glitch_trigger(self, channel: int, polarity: str, less_than: float) -> None:
         """Sets up a glitch trigger.
 
         Parameters
@@ -689,16 +712,10 @@ class DigitalInput:
             The maximum pulse width in seconds.
         """
         self._setup_pulse_trigger(
-            channel=channel,
-            polarity=polarity,
-            min_length=0,
-            max_length=less_than)
+            channel=channel, polarity=polarity, min_length=0, max_length=less_than
+        )
 
-    def setup_timeout_trigger(
-            self,
-            channel: int,
-            polarity: str,
-            more_than: float) -> None:
+    def setup_timeout_trigger(self, channel: int, polarity: str, more_than: float) -> None:
         """Sets up a timeout trigger.
 
         Parameters
@@ -711,16 +728,10 @@ class DigitalInput:
             The minimum pulse width in seconds.
         """
         self._setup_pulse_trigger(
-            channel=channel,
-            polarity=polarity,
-            min_length=more_than,
-            max_length=0)
+            channel=channel, polarity=polarity, min_length=more_than, max_length=0
+        )
 
-    def setup_more_trigger(
-            self,
-            channel: int,
-            polarity: str,
-            more_than: float) -> None:
+    def setup_more_trigger(self, channel: int, polarity: str, more_than: float) -> None:
         """Sets up a more trigger.
 
         Parameters
@@ -733,17 +744,12 @@ class DigitalInput:
             The minimum pulse width in seconds.
         """
         self._setup_pulse_trigger(
-            channel=channel,
-            polarity=polarity,
-            min_length=more_than,
-            max_length=-1)
+            channel=channel, polarity=polarity, min_length=more_than, max_length=-1
+        )
 
     def setup_length_trigger(
-            self,
-            channel: int,
-            polarity: str,
-            length: float,
-            hysteresis: float = 0.0) -> None:
+        self, channel: int, polarity: str, length: float, hysteresis: float = 0.0
+    ) -> None:
         """Sets up a length trigger.
 
         Parameters
@@ -758,10 +764,8 @@ class DigitalInput:
             The pulse width hysteresis in seconds.
         """
         self._setup_pulse_trigger(
-            channel=channel,
-            polarity=polarity,
-            min_length=length,
-            max_length=length + hysteresis)
+            channel=channel, polarity=polarity, min_length=length, max_length=length + hysteresis
+        )
 
     def _setup_pulse_trigger(self, channel, polarity, min_length, max_length) -> None:
         self._trigger.source = TriggerSource.DETECTOR_DIGITAL_IN
@@ -779,12 +783,13 @@ class DigitalInput:
         self._trigger.set_counter(1)
 
     def setup_counter_trigger(
-            self,
-            channel: int,
-            condition: str,
-            reset_channel: int,
-            reset_condition: str,
-            max_counter: int) -> None:
+        self,
+        channel: int,
+        condition: str,
+        reset_channel: int,
+        reset_condition: str,
+        max_counter: int,
+    ) -> None:
         """Sets up a counter trigger.
 
         Parameters
@@ -808,15 +813,16 @@ class DigitalInput:
         self._trigger.set_counter(max_counter)
 
     def setup_acquisition(
-            self,
-            mode: Optional[Union[str, AcquisitionMode]] = None,
-            sample_rate: Optional[float] = None,
-            sample_format: Optional[int] = None,
-            buffer_size: Optional[Union[int, float]] = None,
-            position: Optional[Union[int, float]] = None,
-            prefill: Optional[Union[int, float]] = None,
-            configure: bool = False,
-            start: bool = False) -> None:
+        self,
+        mode: Optional[Union[str, AcquisitionMode]] = None,
+        sample_rate: Optional[float] = None,
+        sample_format: Optional[int] = None,
+        buffer_size: Optional[Union[int, float]] = None,
+        position: Optional[Union[int, float]] = None,
+        prefill: Optional[Union[int, float]] = None,
+        configure: bool = False,
+        start: bool = False,
+    ) -> None:
         """Sets up a new data acquisition.
 
         Parameters
@@ -855,14 +861,15 @@ class DigitalInput:
             self.configure(reconfigure=configure, start=start)
 
     def single(
-            self,
-            sample_rate: Optional[float] = None,
-            sample_format: Optional[int] = None,
-            buffer_size: Optional[Union[int, float]] = None,
-            position: Optional[Union[int, float]] = None,
-            continuous: bool = True,
-            configure: bool = False,
-            start: bool = False) -> Optional[Tuple]:
+        self,
+        sample_rate: Optional[float] = None,
+        sample_format: Optional[int] = None,
+        buffer_size: Optional[Union[int, float]] = None,
+        position: Optional[Union[int, float]] = None,
+        continuous: bool = True,
+        configure: bool = False,
+        start: bool = False,
+    ) -> Optional[Tuple]:
         """Starts a single data acquisition.
 
         Parameters
@@ -895,7 +902,8 @@ class DigitalInput:
             buffer_size=buffer_size,
             position=position,
             configure=configure,
-            start=start)
+            start=start,
+        )
 
         if start:
             self.wait_for_status(Status.DONE, read_data=True)
@@ -904,15 +912,16 @@ class DigitalInput:
         return None
 
     def record(
-            self,
-            sample_rate: Optional[float] = None,
-            sample_format: Optional[int] = None,
-            sample_sensible: Optional[int] = None,
-            sample_count: Optional[Union[int, float]] = None,
-            prefill: Optional[Union[int, float]] = None,
-            callback: Optional[Callable[['DigitalRecorder'], bool]] = None,
-            configure: bool = False,
-            start: bool = False) -> DigitalRecorder:
+        self,
+        sample_rate: Optional[float] = None,
+        sample_format: Optional[int] = None,
+        sample_sensible: Optional[int] = None,
+        sample_count: Optional[Union[int, float]] = None,
+        prefill: Optional[Union[int, float]] = None,
+        callback: Optional[Callable[['DigitalRecorder'], bool]] = None,
+        configure: bool = False,
+        start: bool = False,
+    ) -> DigitalRecorder:
         """Starts a data recording.
 
         Parameters
@@ -948,7 +957,8 @@ class DigitalInput:
             sample_format=sample_format,
             position=sample_count,
             prefill=prefill,
-            configure=configure)
+            configure=configure,
+        )
 
         recorder = DigitalRecorder(self)
 
@@ -958,13 +968,14 @@ class DigitalInput:
         return recorder
 
     def stream(
-            self,
-            callback: Callable[[DigitalRecorder], bool],
-            sample_rate: Optional[float] = None,
-            sample_format: Optional[int] = None,
-            sample_sensible: Optional[int] = None,
-            configure: bool = False,
-            start: bool = False) -> DigitalRecorder:
+        self,
+        callback: Callable[[DigitalRecorder], bool],
+        sample_rate: Optional[float] = None,
+        sample_format: Optional[int] = None,
+        sample_sensible: Optional[int] = None,
+        configure: bool = False,
+        start: bool = False,
+    ) -> DigitalRecorder:
         """Streams data to a callback function.
 
         Parameters
@@ -997,7 +1008,8 @@ class DigitalInput:
             AcquisitionMode.RECORD,
             sample_rate=sample_rate,
             sample_format=sample_format,
-            configure=configure)
+            configure=configure,
+        )
 
         recorder = DigitalRecorder(self)
 

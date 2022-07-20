@@ -16,7 +16,7 @@ from .configuration import Configuration
 from .helpers import Helpers
 
 
-class DeviceInfo():
+class DeviceInfo:
     """Device information gathered during device enumeration."""
 
     def __init__(self, device_index=None):
@@ -80,7 +80,9 @@ class DeviceInfo():
         self._name = self.get_device_name(device_index)
         self._user_name = self.get_user_name(device_index)
         self._serial_number = self.get_serial_number(device_index)
-        self._configurations = tuple(Configuration(i) for i in range(api.dwf_enum_config(device_index)))
+        self._configurations = tuple(
+            Configuration(i) for i in range(api.dwf_enum_config(device_index))
+        )
         self._has_properties = True
 
     @staticmethod

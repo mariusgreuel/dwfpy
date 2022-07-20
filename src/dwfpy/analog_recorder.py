@@ -22,6 +22,7 @@ class AnalogRecorder:
 
     class ChannelData:
         """Represents the acquired data of a channel."""
+
         def __init__(self):
             self._data_samples = None
 
@@ -75,9 +76,7 @@ class AnalogRecorder:
         """Gets a collection of data channels."""
         return self._channels
 
-    def record(
-            self,
-            callback: Optional[Callable[['AnalogRecorder'], bool]] = None) -> None:
+    def record(self, callback: Optional[Callable[['AnalogRecorder'], bool]] = None) -> None:
         """Starts the recording and processes all samples until the recording is complete.
 
         Parameters
@@ -117,7 +116,8 @@ class AnalogRecorder:
         Notes
         -----
         This function must be called repeatedly by the user to process the recording data.
-        Failure to call this function in a timely manner will cause samples to get lost or corrupted.
+        Failure to call this function in a timely manner
+        will cause samples to get lost or corrupted.
         """
         if not self._is_setup:
             self._setup_recording()
@@ -145,7 +145,9 @@ class AnalogRecorder:
 
             self._data_buffers = []
             for channel in self._module.channels:
-                self._data_buffers.append((ctypes.c_double * self._buffer_size)() if channel.enabled else None)
+                self._data_buffers.append(
+                    (ctypes.c_double * self._buffer_size)() if channel.enabled else None
+                )
 
             self._is_setup = True
 
@@ -174,7 +176,8 @@ class AnalogRecorder:
                         i,
                         self._byref_double(data_buffer, self._buffer_index),
                         sample_index,
-                        chunk_size)
+                        chunk_size,
+                    )
 
             self._buffer_index += chunk_size
             self._buffer_index %= self._buffer_size
@@ -187,7 +190,9 @@ class AnalogRecorder:
         for i, data_buffer in enumerate(self._data_buffers):
             if data_buffer is not None:
                 # pylint: disable-next=protected-access
-                self._channels[i]._data_samples = self._normalize_ring_buffer(data_buffer, self._buffer_index)
+                self._channels[i]._data_samples = self._normalize_ring_buffer(
+                    data_buffer, self._buffer_index
+                )
 
         self._is_setup = False
 

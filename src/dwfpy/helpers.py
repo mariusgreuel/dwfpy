@@ -10,10 +10,17 @@ Internal helper functions.
 #
 
 from .constants import (
-    AcquisitionMode, AnalogInputCoupling,
-    DigitalOutputMode, DigitalOutputType, DigitalOutputIdle,
-    FilterMode, Function,
-    TriggerLengthCondition, TriggerSlope, TriggerSource)
+    AcquisitionMode,
+    AnalogInputCoupling,
+    DigitalOutputMode,
+    DigitalOutputType,
+    DigitalOutputIdle,
+    FilterMode,
+    Function,
+    TriggerLengthCondition,
+    TriggerSlope,
+    TriggerSource,
+)
 
 
 class Helpers:

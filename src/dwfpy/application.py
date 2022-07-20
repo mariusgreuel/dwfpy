@@ -101,7 +101,7 @@ class Application(_Singleton):
     @property
     def on_close_behavior(self) -> int:
         """Gets or sets a value indicating the device close behavior.
-            0 = Continue, 1 = Stop, 2 = Shutdown."""
+        0 = Continue, 1 = Stop, 2 = Shutdown."""
         return self.get_parameter(GlobalParameter.ON_CLOSE)
 
     @on_close_behavior.setter

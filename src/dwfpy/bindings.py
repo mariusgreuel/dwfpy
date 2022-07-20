@@ -11,10 +11,20 @@ Python bindings for Digilent WaveForms API.
 
 from ctypes import (
     cdll,
-    CFUNCTYPE, POINTER,
-    c_char, c_ubyte, c_short, c_ushort, c_int, c_uint, c_ulonglong, c_double,
-    c_void_p, c_char_p,
-    create_string_buffer)
+    CFUNCTYPE,
+    POINTER,
+    c_char,
+    c_ubyte,
+    c_short,
+    c_ushort,
+    c_int,
+    c_uint,
+    c_ulonglong,
+    c_double,
+    c_void_p,
+    c_char_p,
+    create_string_buffer,
+)
 import logging
 import sys
 
@@ -32,8 +42,11 @@ def _load_dwf_library():
         _logger.info('Loading library: %s', path)
         return cdll.LoadLibrary(path)
     except OSError as ex:
-        _logger.error('Failed to load Digilent WaveForms runtime components.'
-                      ' You may need to reinstall the WaveForms software: %s', ex)
+        _logger.error(
+            'Failed to load Digilent WaveForms runtime components.'
+            ' You may need to reinstall the WaveForms software: %s',
+            ex,
+        )
         return FileNotFoundError(f'Failed to load Digilent WaveForms runtime components: {ex}')
 
 

@@ -26,14 +26,40 @@ bindings
 #
 
 from dwfpy.constants import (
-    DeviceId, DeviceType, GlobalParameter, Error, Status,
-    TriggerSource, TriggerType, TriggerSlope, TriggerLengthCondition,
-    Function, ChannelNodeType, DmmMode,
-    AnalogInputCoupling, AnalogOutputNode, AnalogOutputMode, AnalogOutputIdle,
-    DigitalInputClockSource, DigitalInputSampleMode, DigitalOutputMode, DigitalOutputType, DigitalOutputIdle,
-    AnalogImpedance, Window, AcquisitionMode, FilterMode)
+    DeviceId,
+    DeviceType,
+    GlobalParameter,
+    Error,
+    Status,
+    TriggerSource,
+    TriggerType,
+    TriggerSlope,
+    TriggerLengthCondition,
+    Function,
+    ChannelNodeType,
+    DmmMode,
+    AnalogInputCoupling,
+    AnalogOutputNode,
+    AnalogOutputMode,
+    AnalogOutputIdle,
+    DigitalInputClockSource,
+    DigitalInputSampleMode,
+    DigitalOutputMode,
+    DigitalOutputType,
+    DigitalOutputIdle,
+    AnalogImpedance,
+    Window,
+    AcquisitionMode,
+    FilterMode,
+)
 from dwfpy.exceptions import WaveformsError, DeviceNotFound, DeviceNotOpenError
-from dwfpy.device import Device, ElectronicsExplorer, AnalogDiscovery, AnalogDiscovery2, DigitalDiscovery
+from dwfpy.device import (
+    Device,
+    ElectronicsExplorer,
+    AnalogDiscovery,
+    AnalogDiscovery2,
+    DigitalDiscovery,
+)
 from dwfpy.application import Application
 from dwfpy.analog_recorder import AnalogRecorder
 from dwfpy.digital_recorder import DigitalRecorder

@@ -19,6 +19,7 @@ from .constants import DigitalInputSampleMode, Status
 
 class DigitalRecorder:
     """Recorder for Digital Input data"""
+
     def __init__(self, module: 'fwd.DigitalInput'):
         self._module = module
 
@@ -73,9 +74,7 @@ class DigitalRecorder:
         """Gets the acquired noise samples."""
         return self._noise_samples
 
-    def record(
-            self,
-            callback: Optional[Callable[['DigitalRecorder'], bool]] = None) -> None:
+    def record(self, callback: Optional[Callable[['DigitalRecorder'], bool]] = None) -> None:
         """Starts the recording and processes all samples until the recording is complete.
 
         Parameters
@@ -115,7 +114,8 @@ class DigitalRecorder:
         Notes
         -----
         This function must be called repeatedly by the user to process the recording data.
-        Failure to call this function in a timely manner will cause samples to get lost or corrupted.
+        Failure to call this function in a timely manner
+        will cause samples to get lost or corrupted.
         """
         if not self._is_setup:
             self._setup_recording()
@@ -148,15 +148,21 @@ class DigitalRecorder:
             if self._module.sample_format <= 8:
                 self._sample_size = ctypes.sizeof(ctypes.c_uint8)
                 self._data_buffer = (ctypes.c_uint8 * self._buffer_size)()
-                self._noise_buffer = (ctypes.c_uint8 * self._buffer_size)() if self._acquire_noise else None
+                self._noise_buffer = (
+                    (ctypes.c_uint8 * self._buffer_size)() if self._acquire_noise else None
+                )
             elif self._module.sample_format <= 16:
                 self._sample_size = ctypes.sizeof(ctypes.c_uint16)
                 self._data_buffer = (ctypes.c_uint16 * self._buffer_size)()
-                self._noise_buffer = (ctypes.c_uint16 * self._buffer_size)() if self._acquire_noise else None
+                self._noise_buffer = (
+                    (ctypes.c_uint16 * self._buffer_size)() if self._acquire_noise else None
+                )
             elif self._module.sample_format <= 32:
                 self._sample_size = ctypes.sizeof(ctypes.c_uint32)
                 self._data_buffer = (ctypes.c_uint32 * self._buffer_size)()
-                self._noise_buffer = (ctypes.c_uint32 * self._buffer_size)() if self._acquire_noise else None
+                self._noise_buffer = (
+                    (ctypes.c_uint32 * self._buffer_size)() if self._acquire_noise else None
+                )
             else:
                 raise ValueError('sample_format must be 8, 16, or 32.')
 
@@ -185,14 +191,16 @@ class DigitalRecorder:
                     self._module.device.handle,
                     ctypes.byref(self._data_buffer, self._buffer_index * self._sample_size),
                     sample_index,
-                    chunk_size * self._sample_size)
+                    chunk_size * self._sample_size,
+                )
 
             if self._noise_buffer is not None:
                 api.dwf_digital_in_status_noise2(
                     self._module.device.handle,
                     ctypes.byref(self._noise_buffer, self._buffer_index * self._sample_size),
                     sample_index,
-                    chunk_size * self._sample_size)
+                    chunk_size * self._sample_size,
+                )
 
             self._buffer_index += chunk_size
             self._buffer_index %= self._buffer_size
@@ -207,7 +215,9 @@ class DigitalRecorder:
             self._data_buffer = None
 
         if self._noise_buffer is not None:
-            self._noise_samples = self._normalize_ring_buffer(self._noise_buffer, self._buffer_index)
+            self._noise_samples = self._normalize_ring_buffer(
+                self._noise_buffer, self._buffer_index
+            )
             self._noise_buffer = None
 
         self._is_setup = False
@@ -217,9 +227,7 @@ class DigitalRecorder:
         array = np.array(buffer)
         return array if index == 0 else np.concatenate([array[index:], array[:index]])
 
-    def stream(
-            self,
-            callback: Callable[['DigitalRecorder'], bool]) -> None:
+    def stream(self, callback: Callable[['DigitalRecorder'], bool]) -> None:
         """Starts the streaming.
 
         Parameters
