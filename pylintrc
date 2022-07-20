@@ -14,6 +14,3 @@ disable=
 	no-else-return,
 	duplicate-code,
 	cyclic-import
-
-[FORMAT]
-max-line-length=120
