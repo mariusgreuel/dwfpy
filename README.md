@@ -1,5 +1,8 @@
 # Python Bindings for Digilent WaveForms API
 
+![build](https://github.com/mariusgreuel/dwfpy/actions/workflows/build.yml/badge.svg)
+![docs](https://readthedocs.org/projects/dwfpy/badge/?version=latest)
+
 **DwfPy** is a Python package that allows you to access **Digilent WaveForms** devices via Python. It provides a low-level API with complete access to the Digilent WaveForms API, and also a simple but powerful high-level API, which allows you to configure WaveForms devices with a single statement.
 
 For instance, to output a 1kHz sine-wave on a **Analog Discovery 2**, you can simply write:
