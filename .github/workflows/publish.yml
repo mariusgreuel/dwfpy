@@ -1,0 +1,27 @@
+#
+# deploy.yml - GitHub deploy action for dwfpy
+# Copyright (C) 2022 Marius Greuel
+#
+# SPDX-License-Identifier: MIT
+#
+
+name: Deploy
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    uses: mariusgreuel/dwfpy/.github/workflows/build.yml@main
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish Package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}

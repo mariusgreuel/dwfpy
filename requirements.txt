@@ -1,0 +1,6 @@
+numpy
+pylint
+mypy
+black
+build
+twine

@@ -1,0 +1,35 @@
+#
+# build.yml - GitHub build action for dwfpy
+# Copyright (C) 2022 Marius Greuel
+#
+# SPDX-License-Identifier: MIT
+#
+
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+      - name: Check pylint, mypy, black
+        run: make check
+      - name: Build
+        run: make build
+      - name: Archive build artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist/
