@@ -22,7 +22,7 @@ copyright = '2022, Marius Greuel'
 author = 'Marius Greuel'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1'
+release = '1.1.1'
 
 
 # -- General configuration ---------------------------------------------------
