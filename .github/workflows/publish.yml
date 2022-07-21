@@ -1,11 +1,11 @@
 #
-# deploy.yml - GitHub deploy action for dwfpy
+# publish.yml - GitHub deploy action for dwfpy
 # Copyright (C) 2022 Marius Greuel
 #
 # SPDX-License-Identifier: MIT
 #
 
-name: Deploy
+name: Publish
 
 on:
   push:
@@ -13,13 +13,18 @@ on:
       - 'v*'
 
 jobs:
-  build:
-    uses: mariusgreuel/dwfpy/.github/workflows/build.yml@main
-
-  release:
-    needs: build
+  publish:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - name: Install Dependencies
+        run: pip install build twine
+      - name: Build Package
+        run: make build
       - name: Publish Package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
