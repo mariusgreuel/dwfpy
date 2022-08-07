@@ -27,7 +27,7 @@ class AnalogRecorder:
             self._data_samples = None
 
         @property
-        def data_samples(self) -> tuple:
+        def data_samples(self):
             """Gets the acquired data samples."""
             return self._data_samples
 

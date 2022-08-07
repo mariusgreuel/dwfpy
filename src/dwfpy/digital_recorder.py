@@ -36,8 +36,8 @@ class DigitalRecorder:
         self._total_samples = 0
         self._lost_samples = 0
         self._corrupted_samples = 0
-        self._data_samples: tuple = ()
-        self._noise_samples: tuple = ()
+        self._data_samples = None
+        self._noise_samples = None
 
     @property
     def status(self) -> Status:
@@ -65,12 +65,12 @@ class DigitalRecorder:
         return self._corrupted_samples
 
     @property
-    def data_samples(self) -> tuple:
+    def data_samples(self):
         """Gets the acquired data samples."""
         return self._data_samples
 
     @property
-    def noise_samples(self) -> tuple:
+    def noise_samples(self):
         """Gets the acquired noise samples."""
         return self._noise_samples
 
@@ -136,8 +136,8 @@ class DigitalRecorder:
         self._acquire_noise = self._module.sample_mode == DigitalInputSampleMode.NOISE
 
         self._requested_samples = 0
-        self._data_samples = ()
-        self._noise_samples = ()
+        self._data_samples = None
+        self._noise_samples = None
 
         self._buffer_size = self._module.trigger.prefill + self._module.trigger.position
         if self._buffer_size > 0:
@@ -256,8 +256,8 @@ class DigitalRecorder:
 
         self._requested_samples = 0
         self._buffer_size = 0
-        self._data_samples = ()
-        self._noise_samples = ()
+        self._data_samples = None
+        self._noise_samples = None
 
         self._is_setup = True
 
