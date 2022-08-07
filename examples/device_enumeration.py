@@ -25,4 +25,5 @@ for device_index, device in enumerate(devices):
             f' \tAnalogOut: {configuration.analog_out_channel_count} x {configuration.analog_out_buffer_size}'
             f' \tDigitalIn: {configuration.digital_in_channel_count} x {configuration.digital_in_buffer_size}'
             f' \tDigitalOut: {configuration.digital_out_channel_count} x {configuration.digital_out_buffer_size}'
-            f' \t {configuration.text_info}')
+            f' \t {configuration.text_info}'
+        )

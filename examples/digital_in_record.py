@@ -40,7 +40,8 @@ with dwf.Device() as device:
         sample_count=SAMPLE_COUNT // 2,
         prefill=SAMPLE_COUNT // 2,
         configure=True,
-        start=True)
+        start=True,
+    )
     print('done')
 
     if recorder.lost_samples > 0:
@@ -48,7 +49,9 @@ with dwf.Device() as device:
     if recorder.corrupted_samples > 0:
         print('Samples corrupted, reduce sample rate.')
 
-    print(f'Processed {recorder.total_samples} samples total, received {len(recorder.data_samples)} samples.')
+    print(
+        f'Processed {recorder.total_samples} samples total, received {len(recorder.data_samples)} samples.'
+    )
 
     samples = recorder.data_samples
 

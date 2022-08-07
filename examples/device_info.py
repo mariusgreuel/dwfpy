@@ -4,7 +4,6 @@ DWF Python Example
 This file is part of dwfpy: https://github.com/mariusgreuel/dwfpy
 """
 
-from ast import Attribute
 import dwfpy as dwf
 
 print(f'DWF Version: {dwf.Application.get_version()}')
@@ -25,8 +24,12 @@ for device_index, device in enumerate(devices):
             print(f'AnalogIn channels: {len(scope.channels)}')
             print(f'\tBuffer size: {scope.buffer_size_max}')
             print(f'\tADC bits: {scope[0].adc_bits}')
-            print(f'\tRange from {scope[0].range_min} to {scope[0].range_max} in {scope[0].range_steps} steps')
-            print(f'\tOffset from {scope[0].offset_min} to {scope[0].offset_max} in {scope[0].offset_steps} steps')
+            print(
+                f'\tRange from {scope[0].range_min} to {scope[0].range_max} in {scope[0].range_steps} steps'
+            )
+            print(
+                f'\tOffset from {scope[0].offset_min} to {scope[0].offset_max} in {scope[0].offset_steps} steps'
+            )
         except AttributeError:
             pass
 
@@ -65,9 +68,13 @@ for device_index, device in enumerate(devices):
                         if node.value_min == node.value_max:
                             print(f'\t\t\tConstant output: {node.value_min}')
                         else:
-                            print(f'\t\t\tNon settable range from {node.value_min} to {node.value_max}')
+                            print(
+                                f'\t\t\tNon settable range from {node.value_min} to {node.value_max}'
+                            )
                     elif node.value_steps > 1:
-                        print(f'\t\t\tSetting from {node.value_min} to {node.value_max} in {node.value_steps} steps')
+                        print(
+                            f'\t\t\tSetting from {node.value_min} to {node.value_max} in {node.value_steps} steps'
+                        )
 
                     if node.status_steps == 1:
                         if node.status_min == node.status_max:
@@ -75,7 +82,9 @@ for device_index, device in enumerate(devices):
                         else:
                             print(f'\t\t\tInput range from {node.status_min} to {node.status_max}')
                     elif node.status_steps > 1:
-                        print(f'\t\t\tReading from {node.status_min} to {node.status_max} in {node.status_steps} steps')
+                        print(
+                            f'\t\t\tReading from {node.status_min} to {node.status_max} in {node.status_steps} steps'
+                        )
         except AttributeError:
             pass
 

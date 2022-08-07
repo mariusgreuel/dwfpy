@@ -26,7 +26,8 @@ with dwf.Device() as device:
         buffer_size=SAMPLE_COUNT,
         position=SAMPLE_COUNT / 8,
         configure=True,
-        start=True)
+        start=True,
+    )
     print(f'Got {len(samples)} samples')
 
 plt.axvline(x=SAMPLE_COUNT - SAMPLE_COUNT // 8, color='red')

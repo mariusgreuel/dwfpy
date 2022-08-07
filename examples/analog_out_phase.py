@@ -7,9 +7,12 @@ This file is part of dwfpy: https://github.com/mariusgreuel/dwfpy
 import time
 import dwfpy as dwf
 
-FREQUENCY = [60.0, 60.0, 60.0, 90.0]
-AMPLITUDE = [1.0, 1.0, 1.5, 1.5]
-PHASE = [0.0, 30.0, 60.0, 90.0]
+PARAMETERS = (
+    (60.0, 1.0, 0.0),
+    (60.0, 1.0, 30.0),
+    (60.0, 1.5, 60.0),
+    (90.0, 1.5, 90.0),
+)
 
 print(f'DWF Version: {dwf.Application.get_version()}')
 
@@ -29,10 +32,13 @@ with dwf.Device() as device:
 
     # slave channel is controlled by the master channel
 
-    for i in range(len(FREQUENCY)):
-        print(f'Step {i+1}): {FREQUENCY[i]}Hz, {AMPLITUDE[i]}V, {PHASE[i]}* ')
-        wavegen[0].setup(frequency=FREQUENCY[i], amplitude=AMPLITUDE[i])
-        wavegen[1].setup(frequency=FREQUENCY[i], amplitude=AMPLITUDE[i], phase=PHASE[i])
+    for i, parameters in enumerate(PARAMETERS):
+        frequency = parameters[0]
+        amplitude = parameters[1]
+        phase = parameters[2]
+        print(f'Step {i+1}): {frequency}Hz, {amplitude}V, {phase}* ')
+        wavegen[0].setup(frequency=frequency, amplitude=amplitude)
+        wavegen[1].setup(frequency=frequency, amplitude=amplitude, phase=phase)
 
         if i == 0:
             wavegen[1].configure()

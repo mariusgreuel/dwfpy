@@ -25,7 +25,9 @@ with dwf.Device() as device:
     pattern.configure(start=True)
 
     print('Waiting for acquisition...')
-    samples = logic.single(sample_rate=100e6, sample_format=16, buffer_size=1000, configure=True, start=True)
+    samples = logic.single(
+        sample_rate=100e6, sample_format=16, buffer_size=1000, configure=True, start=True
+    )
     print('done')
 
 plt.plot(samples, drawstyle='steps-post')

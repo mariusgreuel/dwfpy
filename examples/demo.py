@@ -1,3 +1,9 @@
+"""
+DWF Python Example
+
+This file is part of dwfpy: https://github.com/mariusgreuel/dwfpy
+"""
+
 import dwfpy as dwf
 
 with dwf.AnalogDiscovery2() as device:

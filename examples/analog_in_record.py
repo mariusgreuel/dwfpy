@@ -22,7 +22,9 @@ with dwf.AnalogDiscovery2() as device:
 
     print("Starting oscilloscope...")
     scope[0].setup(range=5)
-    scope.setup_edge_trigger(mode='normal', channel=0, slope='rising', level=0, hysteresis=0.01, position=-0.25)
+    scope.setup_edge_trigger(
+        mode='normal', channel=0, slope='rising', level=0, hysteresis=0.01, position=-0.25
+    )
     recorder = scope.record(sample_rate=100e3, length=2, configure=True, start=True)
 
     if recorder.lost_samples > 0:
@@ -30,8 +32,10 @@ with dwf.AnalogDiscovery2() as device:
     if recorder.corrupted_samples > 0:
         print('Samples corrupted, reduce sample rate.')
 
-    print(f'Processed {recorder.total_samples} samples total, '
-          f'received {len(recorder.channels[0].data_samples)} samples.')
+    print(
+        f'Processed {recorder.total_samples} samples total, '
+        f'received {len(recorder.channels[0].data_samples)} samples.'
+    )
 
     channels = recorder.channels
 

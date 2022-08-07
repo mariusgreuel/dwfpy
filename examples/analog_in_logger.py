@@ -35,6 +35,6 @@ with dwf.Device() as device:
         for channel in scope.channels:
             samples = np.array(channel.get_data())
             dc = np.average(samples)
-            dcrms = np.sqrt(np.average(samples ** 2))
+            dcrms = np.sqrt(np.average(samples**2))
             acrms = np.sqrt(np.average((samples - dc) ** 2))
             print(f'CH{channel.index + 1}: DC:{dc:.3f}V DCRMS:{dcrms:.3f}V ACRMS:{acrms:.3f}V')

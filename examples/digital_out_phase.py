@@ -14,7 +14,9 @@ with dwf.Device() as device:
     pattern = device.digital_output
     channel1 = pattern[0]
 
-    print('Generating on 2 pins phase 180* with different initial low and high polarity, for 5 seconds...')
+    print(
+        'Generating on 2 pins phase 180* with different initial low and high polarity, for 5 seconds...'
+    )
     pattern[0].setup_clock(frequency=1e6)
     pattern[1].setup_clock(frequency=1e6, phase=180)
     pattern.configure(start=True)
