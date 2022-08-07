@@ -1,21 +1,5 @@
 """
 `dwfpy` is a package for accessing Digilent WaveForms devices.
-
-Example
--------
-
-import dwfpy as dwf
-
-with dwf.Device() as device:
-    print(f'Found device: {device.name} ({device.serial_number})')
-
-    # Generate sine wave
-    device.analog_output[0].setup(function='sine', frequency=1000, amplitude=1.41, offset=1.41, configure=True)
-
-Available subpackages
----------------------
-bindings
-    Provides access to the raw C bindings of the DWF API.
 """
 
 #
