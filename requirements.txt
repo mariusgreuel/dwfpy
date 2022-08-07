@@ -1,6 +1,19 @@
+# DwfPy dependencies
 numpy
+
+# Checkers
 pylint
 mypy
 black
+
+# Build
 build
 twine
+
+# Examples
+matplotlib
+
+# Documentation
+sphinx
+sphinx-rtd-theme
+sphinx-autodoc-typehints
