@@ -13,10 +13,34 @@ on:
       - 'v*'
 
 jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          tag_name: ${{github.ref}}
+          release_name: DwfPy Release ${{github.ref}}
+          body: |
+            This release is available via PyPI from https://pypi.org/project/dwfpy.
+
+            You can install the latest version of DwfPy by running
+
+            ```
+            pip install --upgrade dwfpy
+            ```
+          draft: false
+          prerelease: false
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -25,7 +49,7 @@ jobs:
         run: pip install build twine
       - name: Build Package
         run: make build
-      - name: Publish Package to PyPI
+      - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
