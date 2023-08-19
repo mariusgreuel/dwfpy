@@ -42,6 +42,7 @@ from dwfpy.device import (
     ElectronicsExplorer,
     AnalogDiscovery,
     AnalogDiscovery2,
+    AnalogDiscovery3,
     DigitalDiscovery,
 )
 from dwfpy.application import Application

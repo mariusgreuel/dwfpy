@@ -360,15 +360,36 @@ class DeviceBase:
 
     def _get_configuration(self):
         if isinstance(self._configuration, str):
-            if self._configuration == 'scope':
-                if self.id in (DeviceId.ANALOG_DISCOVERY, DeviceId.ANALOG_DISCOVERY2):
+            if self._configuration == 'generic':
+                return 0
+            elif self._configuration == 'scope':
+                if self.id in (
+                    DeviceId.ANALOG_DISCOVERY,
+                    DeviceId.ANALOG_DISCOVERY2,
+                    DeviceId.ANALOG_DISCOVERY3,
+                ):
                     return 1
-            if self._configuration == 'pattern':
-                if self.id in (DeviceId.ANALOG_DISCOVERY, DeviceId.ANALOG_DISCOVERY2):
+            elif self._configuration == 'wavegen':
+                if self.id in (
+                    DeviceId.ANALOG_DISCOVERY,
+                    DeviceId.ANALOG_DISCOVERY2,
+                    DeviceId.ANALOG_DISCOVERY3,
+                ):
                     return 2
             elif self._configuration == 'logic':
+                if self.id in (
+                    DeviceId.ANALOG_DISCOVERY,
+                    DeviceId.ANALOG_DISCOVERY2,
+                    DeviceId.ANALOG_DISCOVERY3,
+                ):
+                    return 3
+                elif self.id == DeviceId.DIGITAL_DISCOVERY:
+                    return 0
+            elif self._configuration == 'pattern':
                 if self.id in (DeviceId.ANALOG_DISCOVERY, DeviceId.ANALOG_DISCOVERY2):
                     return 3
+                elif self.id == DeviceId.ANALOG_DISCOVERY3:
+                    return 4
                 elif self.id == DeviceId.DIGITAL_DISCOVERY:
                     return 0
             elif self._configuration == '1v8':
@@ -382,7 +403,7 @@ class DeviceBase:
             else:
                 raise WaveformsError(
                     "Invalid configuration: "
-                    "Must be 'scope', 'pattern', 'logic', '1v8', or 'logic-1v8'."
+                    "Must be 'generic', 'scope', 'wavegen', 'logic', 'pattern', '1v8', or 'logic-1v8'."
                 )
 
             raise WaveformsError(
@@ -848,12 +869,12 @@ class AnalogDiscovery(DeviceBase):
 
     @property
     def usb_voltage(self) -> float:
-        """Gets the USB line voltage."""
+        """Gets the USB voltage."""
         return self.analog_io[2][0].status
 
     @property
     def usb_current(self) -> float:
-        """Gets the USB line current."""
+        """Gets the USB current."""
         return self.analog_io[2][1].status
 
     @property
@@ -992,12 +1013,12 @@ class AnalogDiscovery2(DeviceBase):
 
     @property
     def usb_voltage(self) -> float:
-        """Gets the USB line voltage."""
+        """Gets the USB voltage."""
         return self.analog_io[2][0].status
 
     @property
     def usb_current(self) -> float:
-        """Gets the USB line current."""
+        """Gets the USB current."""
         return self.analog_io[2][1].status
 
     @property
@@ -1014,6 +1035,175 @@ class AnalogDiscovery2(DeviceBase):
     def aux_current(self) -> float:
         """Gets the AUX line current."""
         return self.analog_io[3][1].status
+
+
+class AnalogDiscovery3(DeviceBase):
+    """Digilent Analog Discovery 3 device."""
+
+    class Supplies:
+        """The power supplies."""
+
+        class Positive:
+            """The positive power supply."""
+
+            def __init__(self, device):
+                self._device = device
+
+            @property
+            def enabled(self) -> bool:
+                """Enables or disables the positive power supply."""
+                return bool(self._device.analog_io[0][0].value)
+
+            @enabled.setter
+            def enabled(self, value: bool) -> None:
+                self._device.analog_io[0][0].value = value
+
+            @property
+            def voltage(self) -> float:
+                """Gets or sets the voltage of the positive power supply."""
+                return self._device.analog_io[0][1].value
+
+            @voltage.setter
+            def voltage(self, value: float) -> None:
+                self._device.analog_io[0][1].value = value
+
+            def setup(self, voltage: float, enabled: bool = True) -> None:
+                """Sets up the positive power supply.
+
+                Parameters
+                ----------
+                voltage : float
+                    The output voltage.
+                enabled : bool, optional
+                    If True, then the power supply is enabled (default True).
+                """
+                if voltage is not None:
+                    self.voltage = voltage
+                if enabled is not None:
+                    self.enabled = enabled
+
+        class Negative:
+            """The negative power supply."""
+
+            def __init__(self, device):
+                self._device = device
+
+            @property
+            def enabled(self) -> bool:
+                """Enables the negative power supply."""
+                return bool(self._device.analog_io[1][0].value)
+
+            @enabled.setter
+            def enabled(self, value: bool) -> None:
+                self._device.analog_io[1][0].value = value
+
+            @property
+            def voltage(self) -> float:
+                """Gets or sets the voltage of the negative power supply."""
+                return self._device.analog_io[1][1].value
+
+            @voltage.setter
+            def voltage(self, value: float) -> None:
+                self._device.analog_io[1][1].value = value
+
+            def setup(self, voltage: float, enabled: bool = True) -> None:
+                """Sets up the negative power supply.
+
+                Parameters
+                ----------
+                voltage : float
+                    The output voltage (must be a negative value).
+                enabled : bool, optional
+                    If True, then the power supply is enabled (default True).
+                """
+                if voltage is not None:
+                    self.voltage = voltage
+                if enabled is not None:
+                    self.enabled = enabled
+
+        def __init__(self, device):
+            self._device = device
+            self._positive = self.Positive(device)
+            self._negative = self.Negative(device)
+
+        @property
+        def positive(self) -> Positive:
+            """Gets the positive power supply."""
+            return self._positive
+
+        @property
+        def negative(self) -> Negative:
+            """Gets the negative power supply."""
+            return self._negative
+
+        @property
+        def master_enable(self) -> bool:
+            """Gets or sets the master enable switch."""
+            return self._device.analog_io.master_enable
+
+        @master_enable.setter
+        def master_enable(self, value: bool) -> None:
+            self._device.analog_io.master_enable = value
+
+        @property
+        def master_enable_status(self) -> bool:
+            """Gets the master enable status."""
+            return self._device.analog_io.master_enable_status
+
+    def __init__(self, configuration=None, serial_number=None, device_type=None, device_index=None):
+        super().__init__(
+            configuration=configuration,
+            serial_number=serial_number,
+            device_id=DeviceId.ANALOG_DISCOVERY3,
+            device_type=device_type,
+            device_index=device_index,
+        )
+        self._supplies = self.Supplies(self)
+
+    @property
+    def supplies(self) -> Supplies:
+        """Gets the power supplies."""
+        return self._supplies
+
+    @property
+    def pcb_temperature(self) -> float:
+        """Gets the temperature of the PCB."""
+        return self.analog_io[2][0].status
+
+    @property
+    def fpga_temperature(self) -> float:
+        """Gets the temperature of the FPGA."""
+        return self.analog_io[2][1].status
+
+    @property
+    def usb_voltage(self) -> float:
+        """Gets the USB voltage."""
+        return self.analog_io[2][2].status
+
+    @property
+    def usb_current(self) -> float:
+        """Gets the USB current."""
+        return self.analog_io[2][3].status
+
+    @property
+    def aux_voltage(self) -> float:
+        """Gets the AUX line voltage."""
+        return self.analog_io[3][4].status
+
+    @property
+    def aux_current(self) -> float:
+        """Gets the AUX line current."""
+        return self.analog_io[3][5].status
+
+    @property
+    def usb_cc1_voltage(self) -> float:
+        """Gets the USB CC1 voltage."""
+        return self.analog_io[2][6].status
+
+    @property
+    def usb_cc2_voltage(self) -> float:
+        """Gets the USB CC2 voltage."""
+        return self.analog_io[2][7].status
 
 
 class DigitalDiscovery(DeviceBase):
@@ -1157,12 +1347,12 @@ class DigitalDiscovery(DeviceBase):
 
     @property
     def usb_voltage(self) -> float:
-        """Gets the USB line voltage."""
+        """Gets the USB voltage."""
         return self.analog_io[2][0].status
 
     @property
     def usb_current(self) -> float:
-        """Gets the USB line current."""
+        """Gets the USB current."""
         return self.analog_io[2][1].status
 
 
