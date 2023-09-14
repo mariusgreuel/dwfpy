@@ -749,12 +749,12 @@ class Protocols:
                 self.rate = rate
             if inverted is not None:
                 self.inverted = inverted
-            api.dwf_digital_can_rx(self._device.handle, 0, None)
+            api.dwf_digital_can_rx(self._device.handle, ctypes.c_ubyte(0), 0)
             api.dwf_digital_can_tx(self._device.handle, -1, 0, 0, 0, None)
 
         def read(self) -> Tuple[bytes, int, int, int, int]:
             """Returns the received CAN frames since the last call."""
-            rx_buffer8 = (ctypes.c_char * 8)()
+            rx_buffer8 = (ctypes.c_ubyte * 8)()
             frame_id, extended, remote, dlc, status = api.dwf_digital_can_rx(
                 self._device.handle, rx_buffer8, len(rx_buffer8)
             )
@@ -762,7 +762,7 @@ class Protocols:
 
         def write(self, frame_id: int, extended: int, remote: int, buffer: bytes) -> None:
             """Performs a CAN transmission."""
-            tx_buffer8 = (ctypes.c_char * len(buffer)).from_buffer_copy(buffer)
+            tx_buffer8 = (ctypes.c_ubyte * len(buffer)).from_buffer_copy(buffer)
             api.dwf_digital_can_tx(
                 self._device.handle, frame_id, extended, remote, len(tx_buffer8), tx_buffer8
             )
