@@ -482,7 +482,7 @@ class ElectronicsExplorer(DeviceBase):
                 self._device.analog_io[1][2].value = value
 
             def setup(
-                self, voltage: float, current_limit: float = None, enabled: bool = True
+                self, voltage: float, current_limit: Optional[float] = None, enabled: bool = True
             ) -> None:
                 """Sets up the positive power supply.
 
@@ -541,7 +541,7 @@ class ElectronicsExplorer(DeviceBase):
                 self._device.analog_io[2][2].value = value
 
             def setup(
-                self, voltage: float, current_limit: float = None, enabled: bool = True
+                self, voltage: float, current_limit: Optional[float] = None, enabled: bool = True
             ) -> None:
                 """Sets up the negative power supply.
 

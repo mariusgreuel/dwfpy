@@ -19,6 +19,7 @@ disable = [
   "no-else-return",
   "duplicate-code",
   "cyclic-import",
+  "redefined-builtin",
 ]
 
 [[tool.mypy.overrides]]

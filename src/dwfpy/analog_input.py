@@ -531,7 +531,6 @@ class AnalogInputChannel:
         )
         return np.array((min_samples, max_samples)).T
 
-    # pylint: disable-next=redefined-builtin
     def setup(
         self,
         range: Optional[float] = None,
@@ -816,7 +815,6 @@ class AnalogInput:
         while self.read_status(read_data=read_data) != status:
             time.sleep(0.001)
 
-    # pylint: disable-next=redefined-builtin
     def setup_channel(
         self,
         channel: int,

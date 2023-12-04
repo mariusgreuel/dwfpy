@@ -313,8 +313,8 @@ class Protocols:
             self,
             pin_clock: int,
             pin_siso: int,
-            pin_select: int = None,
-            frequency: float = None,
+            pin_select: Optional[int] = None,
+            frequency: Optional[float] = None,
             mode: int = 0,
             msb_first: bool = True,
         ) -> None:
@@ -331,8 +331,8 @@ class Protocols:
             pin_clock: int,
             pin_dq0: int,
             pin_dq1: int,
-            pin_select: int = None,
-            frequency: float = None,
+            pin_select: Optional[int] = None,
+            frequency: Optional[float] = None,
             mode: int = 0,
             msb_first: bool = True,
         ) -> None:
@@ -354,8 +354,8 @@ class Protocols:
             pin_dq1: int,
             pin_dq2: int,
             pin_dq3: int,
-            pin_select: int = None,
-            frequency: float = None,
+            pin_select: Optional[int] = None,
+            frequency: Optional[float] = None,
             mode: int = 0,
             msb_first: bool = True,
         ) -> None:
