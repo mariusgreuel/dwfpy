@@ -19,14 +19,14 @@ class WaveformsError(RuntimeError):
 
 
 class DeviceNotFound(WaveformsError):
-    """Device not found error"""
+    """Device not found error."""
 
     def __init__(self, message):
         super().__init__(message)
 
 
 class DeviceNotOpenError(WaveformsError):
-    """Device is not open error"""
+    """Device is not open error."""
 
     def __init__(self, message):
         super().__init__(message)

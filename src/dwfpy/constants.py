@@ -20,7 +20,10 @@ class DeviceId(enum.IntEnum):
     ANALOG_DISCOVERY2 = 3
     DIGITAL_DISCOVERY = 4
     ADP3X50 = 6
+    ECLYPSE = 7
     ADP5250 = 8
+    DPS3340 = 9
+    ANALOG_DISCOVERY3 = 10
 
 
 class DeviceType(enum.IntEnum):

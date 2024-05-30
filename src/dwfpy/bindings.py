@@ -131,7 +131,10 @@ DEVID_DISCOVERY = 2
 DEVID_DISCOVERY2 = 3
 DEVID_DDISCOVERY = 4
 DEVID_ADP3X50 = 6
+DEVID_ECLYPSE = 7
 DEVID_ADP5250 = 8
+DEVID_DPS3340 = 9
+DEVID_DISCOVERY3 = 10
 
 DwfDevVer = c_int
 DEVVER_EEXPLORER_C = 2
@@ -197,6 +200,7 @@ DwfFilter = c_int
 FILTER_DECIMATE = 0
 FILTER_AVERAGE = 1
 FILTER_MINMAX = 2
+FILTER_AVERAGEFIT  = 3
 
 DwfTrigType = c_int
 TRIGTYPE_EDGE = 0
@@ -241,6 +245,22 @@ FUNC_CUSTOM_PATTERN = 28
 FUNC_PLAY_PATTERN = 29
 FUNC_CUSTOM = 30
 FUNC_PLAY = 31
+FUNC_ANALOG_IN1 = 64
+FUNC_ANALOG_IN2 = 65
+FUNC_ANALOG_IN3 = 66
+FUNC_ANALOG_IN4 = 67
+FUNC_ANALOG_IN5 = 68
+FUNC_ANALOG_IN6 = 69
+FUNC_ANALOG_IN7 = 70
+FUNC_ANALOG_IN8 = 71
+FUNC_ANALOG_IN9 = 72
+FUNC_ANALOG_IN10 = 73
+FUNC_ANALOG_IN11 = 74
+FUNC_ANALOG_IN12 = 75
+FUNC_ANALOG_IN13 = 76
+FUNC_ANALOG_IN14 = 77
+FUNC_ANALOG_IN15 = 78
+FUNC_ANALOG_IN16 = 79
 
 DwfAnalogIO = c_ubyte
 ANALOGIO_ENABLE = 1
@@ -254,6 +274,7 @@ ANALOGIO_MEASURE = 8
 ANALOGIO_TIME = 9
 ANALOGIO_FREQUENCY = 10
 ANALOGIO_RESISTANCE = 11
+ANALOGIO_SLEW = 12
 
 DwfDmm = c_int
 DMM_RESISTANCE = 1
@@ -342,6 +363,10 @@ PARAM_ANALOG_OUT = 7  # 0 disable / 1 enable
 PARAM_FREQUENCY = 8  # Hz
 PARAM_EXT_FREQ = 9  # Hz
 PARAM_CLOCK_MODE = 10  # 0 internal, 1 output, 2 input, 3 IO
+PARAM_TEMP_LIMIT = 11
+PARAM_FREQ_PHASE = 12
+PARAM_DIGITAL_VOLTAGE = 13
+PARAM_FREQ_PHASE_STEPS = 14
 
 DwfWindow = c_int
 WINDOW_RECTANGULAR = 0
@@ -350,12 +375,31 @@ WINDOW_HAMMING = 2
 WINDOW_HANN = 3
 WINDOW_COSINE = 4
 WINDOW_BLACKMAN_HARRIS = 5
-WINDOW_FLATTOP = 6
+WINDOW_FLAT_TOP = 6
 WINDOW_KAISER = 7
+WINDOW_BLACKMAN = 8
+WINDOW_FLAT_TOP_M = 9
 
 DwfAnalogCoupling = c_int
 ANALOG_COUPLING_DC = 0
 ANALOG_COUPLING_AC = 1
+
+DwfFiirMode = c_int
+FIIR_WINDOW = 0
+FIIR_FIR = 1
+FIIR_IIR_BUTTERWORTH = 2
+FIIR_IIR_CHEBYSHEV = 3
+
+DwfFiirType = c_int
+FIIR_LOW_PASS = 0
+FIIR_HIGH_PASS = 1
+FIIR_BAND_PASS = 2
+FIIR_BAND_STOP = 3
+
+DwfFiirInput = c_int
+FIIR_RAW = 0
+FIIR_DECIMATE = 1
+FIIR_AVERAGE = 2
 
 # pylint:disable=line-too-long
 
@@ -451,6 +495,12 @@ dwf_analog_in_buffer_size_info = _dwf_function('FDwfAnalogInBufferSizeInfo', (_I
 dwf_analog_in_buffer_size_set = _dwf_function('FDwfAnalogInBufferSizeSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'nSize'))
 dwf_analog_in_buffer_size_get = _dwf_function('FDwfAnalogInBufferSizeGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pnSize'))
 
+if _version >= (3, 20, 0):
+    dwf_analog_in_buffers_info = _dwf_function('FDwfAnalogInBuffersInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pMax'))
+    dwf_analog_in_buffers_set = _dwf_function('FDwfAnalogInBuffersSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'n'))
+    dwf_analog_in_buffers_get = _dwf_function('FDwfAnalogInBuffersGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pn'))
+    dwf_analog_in_buffers_status = _dwf_function('FDwfAnalogInBuffersStatus', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pn'))
+
 dwf_analog_in_noise_size_info = _dwf_function('FDwfAnalogInNoiseSizeInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pnSizeMax'))
 dwf_analog_in_noise_size_set = _dwf_function('FDwfAnalogInNoiseSizeSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'nSize'))
 dwf_analog_in_noise_size_get = _dwf_function('FDwfAnalogInNoiseSizeGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pnSize'))
@@ -462,6 +512,8 @@ dwf_analog_in_acquisition_mode_get = _dwf_function('FDwfAnalogInAcquisitionModeG
 # Channel configuration
 
 dwf_analog_in_channel_count = _dwf_function('FDwfAnalogInChannelCount', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pcChannel'))
+if _version >= (3, 20, 0):
+    dwf_analog_in_channel_counts = _dwf_function('FDwfAnalogInChannelCounts', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pcReal'), (_OUT, POINTER(c_int), 'pcFilter'), (_OUT, POINTER(c_int), 'pcTotal'))
 dwf_analog_in_channel_enable_set = _dwf_function('FDwfAnalogInChannelEnableSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, c_int, 'fEnable'))
 dwf_analog_in_channel_enable_get = _dwf_function('FDwfAnalogInChannelEnableGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_int), 'pfEnable'))
 dwf_analog_in_channel_filter_info = _dwf_function('FDwfAnalogInChannelFilterInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pfsfilter'))
@@ -485,6 +537,14 @@ if _version >= (3, 18, 30):
     dwf_analog_in_channel_coupling_info = _dwf_function('FDwfAnalogInChannelCouplingInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pfscoupling'))
     dwf_analog_in_channel_coupling_set = _dwf_function('FDwfAnalogInChannelCouplingSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfAnalogCoupling, 'coupling'))
     dwf_analog_in_channel_coupling_get = _dwf_function('FDwfAnalogInChannelCouplingGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(DwfAnalogCoupling), 'pcoupling'))
+
+# FIR and IIR filters
+
+if _version >= (3, 20, 0):
+    dwf_analog_in_channel_fiir_info = _dwf_function('FDwfAnalogInChannelFiirInfo', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_OUT, POINTER(c_int), 'cFIR'), (_OUT, POINTER(c_int), 'cIIR'))
+    dwf_analog_in_channel_fiir_set = _dwf_function('FDwfAnalogInChannelFiirSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfFiirInput, 'input'), (_IN, DwfFiirMode, 'fiir'), (_IN, DwfFiirType, 'pass'), (_IN, c_int, 'ord'), (_IN, c_double, 'hz1'), (_IN, c_double, 'hz2'), (_IN, c_double, 'ep'))
+    dwf_analog_in_channel_window_set = _dwf_function('FDwfAnalogInChannelWindowSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, DwfWindow, 'win'), (_IN, c_int, 'size'), (_IN, c_double, 'beta'))
+    dwf_analog_in_channel_custom_window_set = _dwf_function('FDwfAnalogInChannelCustomWindowSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, POINTER(c_double), 'rg'), (_IN, c_int, 'size'), (_IN, c_int, 'normalize'))
 
 # Trigger configuration
 
@@ -675,6 +735,13 @@ dwf_digital_io_output_enable_get = _dwf_function('FDwfDigitalIOOutputEnableGet',
 dwf_digital_io_output_info = _dwf_function('FDwfDigitalIOOutputInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'pfsOutputMask'))
 dwf_digital_io_output_set = _dwf_function('FDwfDigitalIOOutputSet', (_IN, HDWF, 'hdwf'), (_IN, c_uint, 'fsOutput'))
 dwf_digital_io_output_get = _dwf_function('FDwfDigitalIOOutputGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'pfsOutput'))
+if _version >= (3, 20, 0):
+    dwf_digital_io_pull_info = _dwf_function('FDwfDigitalIOPullInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'pfsUp'), (_OUT, POINTER(c_uint), 'pfsDown'))
+    dwf_digital_io_pull_set = _dwf_function('FDwfDigitalIOPullSet', (_IN, HDWF, 'hdwf'), (_IN, c_uint, 'pfsUp'), (_IN, c_uint, 'pfsDown'))
+    dwf_digital_io_pull_get = _dwf_function('FDwfDigitalIOPullGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'pfsUp'), (_OUT, POINTER(c_uint), 'pfsDown'))
+    dwf_digital_io_drive_info = _dwf_function('FDwfDigitalIODriveInfo', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'channel'), (_OUT, POINTER(c_double), 'ampMin'), (_OUT, POINTER(c_double), 'ampMax'), (_OUT, POINTER(c_double), 'ampSteps'), (_OUT, POINTER(c_double), 'pslewSteps'))
+    dwf_digital_io_drive_set = _dwf_function('FDwfDigitalIODriveSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'channel'), (_IN, c_double, 'amp'), (_IN, c_int, 'slew'))
+    dwf_digital_io_drive_get = _dwf_function('FDwfDigitalIODriveGet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'channel'), (_OUT, POINTER(c_double), 'pamp'), (_OUT, POINTER(c_int), 'pslew'))
 dwf_digital_io_input_info = _dwf_function('FDwfDigitalIOInputInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'pfsInputMask'))
 dwf_digital_io_input_status = _dwf_function('FDwfDigitalIOInputStatus', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'pfsInput'))
 dwf_digital_io_output_enable_info64 = _dwf_function('FDwfDigitalIOOutputEnableInfo64', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_ulonglong), 'pfsOutputEnableMask'))
@@ -699,8 +766,16 @@ dwf_digital_in_status_index_write = _dwf_function('FDwfDigitalInStatusIndexWrite
 dwf_digital_in_status_auto_triggered = _dwf_function('FDwfDigitalInStatusAutoTriggered', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pfAuto'))
 dwf_digital_in_status_data = _dwf_function('FDwfDigitalInStatusData', (_IN, HDWF, 'hdwf'), (_IN, c_void_p, 'rgData'), (_IN, c_int, 'countOfDataBytes'))
 dwf_digital_in_status_data2 = _dwf_function('FDwfDigitalInStatusData2', (_IN, HDWF, 'hdwf'), (_IN, c_void_p, 'rgData'), (_IN, c_int, 'idxSample'), (_IN, c_int, 'countOfDataBytes'))
+if _version >= (3, 20, 0):
+    dwf_digital_in_status_data3 = _dwf_function('FDwfDigitalInStatusData3', (_IN, HDWF, 'hdwf'), (_IN, c_void_p, 'rgData'), (_IN, c_int, 'idxSample'), (_IN, c_int, 'countOfDataBytes'), (_IN, c_int, 'bitShift'))
 dwf_digital_in_status_noise2 = _dwf_function('FDwfDigitalInStatusNoise2', (_IN, HDWF, 'hdwf'), (_IN, c_void_p, 'rgData'), (_IN, c_int, 'idxSample'), (_IN, c_int, 'countOfDataBytes'))
+if _version >= (3, 20, 0):
+    dwf_digital_in_status_noise3 = _dwf_function('FDwfDigitalInStatusNoise3', (_IN, HDWF, 'hdwf'), (_IN, c_void_p, 'rgData'), (_IN, c_int, 'idxSample'), (_IN, c_int, 'countOfDataBytes'), (_IN, c_int, 'bitShift'))
 dwf_digital_in_status_record = _dwf_function('FDwfDigitalInStatusRecord', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pcdDataAvailable'), (_OUT, POINTER(c_int), 'pcdDataLost'), (_OUT, POINTER(c_int), 'pcdDataCorrupt'))
+if _version >= (3, 20, 0):
+    dwf_digital_in_status_compress = _dwf_function('FDwfDigitalInStatusCompress', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pcdDataAvailable'), (_OUT, POINTER(c_int), 'pcdDataLost'), (_OUT, POINTER(c_int), 'pcdDataCorrupt'))
+    dwf_digital_in_status_compressed = _dwf_function('FDwfDigitalInStatusCompressed', (_IN, HDWF, 'hdwf'), (_IN, c_void_p, 'rgData'), (_IN, c_int, 'countOfBytes'))
+    dwf_digital_in_status_compressed2 = _dwf_function('FDwfDigitalInStatusCompressed2', (_IN, HDWF, 'hdwf'), (_IN, c_void_p, 'rgData'), (_IN, c_int, 'idxSample'), (_IN, c_int, 'countOfBytes'))
 if _version >= (3, 16, 3):
     dwf_digital_in_status_time = _dwf_function('FDwfDigitalInStatusTime', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'psecUtc'), (_OUT, POINTER(c_uint), 'ptick'), (_OUT, POINTER(c_uint), 'pticksPerSecond'))
 
@@ -731,6 +806,12 @@ dwf_digital_in_input_order_set = _dwf_function('FDwfDigitalInInputOrderSet', (_I
 dwf_digital_in_buffer_size_info = _dwf_function('FDwfDigitalInBufferSizeInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pnSizeMax'))
 dwf_digital_in_buffer_size_set = _dwf_function('FDwfDigitalInBufferSizeSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'nSize'))
 dwf_digital_in_buffer_size_get = _dwf_function('FDwfDigitalInBufferSizeGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pnSize'))
+
+if _version >= (3, 20, 0):
+    dwf_digital_in_buffers_info = _dwf_function('FDwfDigitalInBuffersInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pMax'))
+    dwf_digital_in_buffers_set = _dwf_function('FDwfDigitalInBuffersSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'n'))
+    dwf_digital_in_buffers_get = _dwf_function('FDwfDigitalInBuffersGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pn'))
+    dwf_digital_in_buffers_status = _dwf_function('FDwfDigitalInBuffersStatus', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pn'))
 
 dwf_digital_in_sample_mode_info = _dwf_function('FDwfDigitalInSampleModeInfo', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pfsDwfDigitalInSampleMode'))
 dwf_digital_in_sample_mode_set = _dwf_function('FDwfDigitalInSampleModeSet', (_IN, HDWF, 'hdwf'), (_IN, DwfDigitalInSampleMode, 'v'))
@@ -766,7 +847,14 @@ dwf_digital_in_trigger_info = _dwf_function('FDwfDigitalInTriggerInfo', (_IN, HD
 dwf_digital_in_trigger_set = _dwf_function('FDwfDigitalInTriggerSet', (_IN, HDWF, 'hdwf'), (_IN, c_uint, 'fsLevelLow'), (_IN, c_uint, 'fsLevelHigh'), (_IN, c_uint, 'fsEdgeRise'), (_IN, c_uint, 'fsEdgeFall'))
 dwf_digital_in_trigger_get = _dwf_function('FDwfDigitalInTriggerGet', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_uint), 'pfsLevelLow'), (_OUT, POINTER(c_uint), 'pfsLevelHigh'), (_OUT, POINTER(c_uint), 'pfsEdgeRise'), (_OUT, POINTER(c_uint), 'pfsEdgeFall'))
 
+if _version >= (3, 20, 0):
+    dwf_digital_in_trigger_info64 = _dwf_function('FDwfDigitalInTriggerInfo64', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_ulonglong), 'pfsLevelLow'), (_OUT, POINTER(c_ulonglong), 'pfsLevelHigh'), (_OUT, POINTER(c_ulonglong), 'pfsEdgeRise'), (_OUT, POINTER(c_ulonglong), 'pfsEdgeFall'))
+    dwf_digital_in_trigger_set64 = _dwf_function('FDwfDigitalInTriggerSet64', (_IN, HDWF, 'hdwf'), (_IN, c_ulonglong, 'fsLevelLow'), (_IN, c_ulonglong, 'fsLevelHigh'), (_IN, c_ulonglong, 'fsEdgeRise'), (_IN, c_ulonglong, 'fsEdgeFall'))
+    dwf_digital_in_trigger_get64 = _dwf_function('FDwfDigitalInTriggerGet64', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_ulonglong), 'pfsLevelLow'), (_OUT, POINTER(c_ulonglong), 'pfsLevelHigh'), (_OUT, POINTER(c_ulonglong), 'pfsEdgeRise'), (_OUT, POINTER(c_ulonglong), 'pfsEdgeFall'))
+
 dwf_digital_in_trigger_reset_set = _dwf_function('FDwfDigitalInTriggerResetSet', (_IN, HDWF, 'hdwf'), (_IN, c_uint, 'fsLevelLow'), (_IN, c_uint, 'fsLevelHigh'), (_IN, c_uint, 'fsEdgeRise'), (_IN, c_uint, 'fsEdgeFall'))
+if _version >= (3, 20, 0):
+    dwf_digital_in_trigger_reset_set64 = _dwf_function('FDwfDigitalInTriggerResetSet64', (_IN, HDWF, 'hdwf'), (_IN, c_ulonglong, 'fsLevelLow'), (_IN, c_ulonglong, 'fsLevelHigh'), (_IN, c_ulonglong, 'fsEdgeRise'), (_IN, c_ulonglong, 'fsEdgeFall'))
 dwf_digital_in_trigger_count_set = _dwf_function('FDwfDigitalInTriggerCountSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cCount'), (_IN, c_int, 'fRestart'))
 dwf_digital_in_trigger_length_set = _dwf_function('FDwfDigitalInTriggerLengthSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'secMin'), (_IN, c_double, 'secMax'), (_IN, c_int, 'idxSync'))
 dwf_digital_in_trigger_match_set = _dwf_function('FDwfDigitalInTriggerMatchSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'iPin'), (_IN, c_uint, 'fsMask'), (_IN, c_uint, 'fsValue'), (_IN, c_int, 'cBitStuffing'))
@@ -877,19 +965,35 @@ if _version >= (3, 14, 3):
     dwf_digital_spi_idle_set = _dwf_function('FDwfDigitalSpiIdleSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxDQ'), (_IN, DwfDigitalOutIdle, 'idle'))
 dwf_digital_spi_mode_set = _dwf_function('FDwfDigitalSpiModeSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'iMode'))
 dwf_digital_spi_order_set = _dwf_function('FDwfDigitalSpiOrderSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'fMSBFirst'))
+if _version >= (3, 20, 0):
+    dwf_digital_spi_delay_set = _dwf_function('FDwfDigitalSpiDelaySet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cStart'), (_IN, c_int, 'cCmd'), (_IN, c_int, 'cWord'), (_IN, c_int, 'cStop'))
+    dwf_digital_spi_select_set = _dwf_function('FDwfDigitalSpiSelectSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxSelect'), (_IN, c_int, 'fIdle'))
 
 dwf_digital_spi_select = _dwf_function('FDwfDigitalSpiSelect', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'), (_IN, c_int, 'level'))
-dwf_digital_spi_write_read = _dwf_function('FDwfDigitalSpiWriteRead', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ubyte), 'rgTX'), (_IN, c_int, 'cTX'), (_IN, POINTER(c_ubyte), 'rgRX'), (_IN, c_int, 'cRX'))
-dwf_digital_spi_write_read16 = _dwf_function('FDwfDigitalSpiWriteRead16', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ushort), 'rgTX'), (_IN, c_int, 'cTX'), (_IN, POINTER(c_ushort), 'rgRX'), (_IN, c_int, 'cRX'))
-dwf_digital_spi_write_read32 = _dwf_function('FDwfDigitalSpiWriteRead32', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_OUT, POINTER(c_uint), 'rgTX'), (_IN, c_int, 'cTX'), (_OUT, POINTER(c_uint), 'rgRX'), (_IN, c_int, 'cRX'))
-dwf_digital_spi_read = _dwf_function('FDwfDigitalSpiRead', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ubyte), 'rgRX'), (_IN, c_int, 'cRX'))
+dwf_digital_spi_write_read = _dwf_function('FDwfDigitalSpiWriteRead', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ubyte), 'rgTX'), (_IN, c_int, 'cTX'), (_OUT, POINTER(c_ubyte), 'rgRX'), (_IN, c_int, 'cRX'))
+dwf_digital_spi_write_read16 = _dwf_function('FDwfDigitalSpiWriteRead16', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ushort), 'rgTX'), (_IN, c_int, 'cTX'), (_OUT, POINTER(c_ushort), 'rgRX'), (_IN, c_int, 'cRX'))
+dwf_digital_spi_write_read32 = _dwf_function('FDwfDigitalSpiWriteRead32', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_uint), 'rgTX'), (_IN, c_int, 'cTX'), (_OUT, POINTER(c_uint), 'rgRX'), (_IN, c_int, 'cRX'))
+dwf_digital_spi_read = _dwf_function('FDwfDigitalSpiRead', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_OUT, POINTER(c_ubyte), 'rgRX'), (_IN, c_int, 'cRX'))
 dwf_digital_spi_read_one = _dwf_function('FDwfDigitalSpiReadOne', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_OUT, POINTER(c_uint), 'pRX'))
-dwf_digital_spi_read16 = _dwf_function('FDwfDigitalSpiRead16', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ushort), 'rgRX'), (_IN, c_int, 'cRX'))
+dwf_digital_spi_read16 = _dwf_function('FDwfDigitalSpiRead16', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_OUT, POINTER(c_ushort), 'rgRX'), (_IN, c_int, 'cRX'))
 dwf_digital_spi_read32 = _dwf_function('FDwfDigitalSpiRead32', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_OUT, POINTER(c_uint), 'rgRX'), (_IN, c_int, 'cRX'))
 dwf_digital_spi_write = _dwf_function('FDwfDigitalSpiWrite', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ubyte), 'rgTX'), (_IN, c_int, 'cTX'))
 dwf_digital_spi_write_one = _dwf_function('FDwfDigitalSpiWriteOne', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBits'), (_IN, c_uint, 'vTX'))
 dwf_digital_spi_write16 = _dwf_function('FDwfDigitalSpiWrite16', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ushort), 'rgTX'), (_IN, c_int, 'cTX'))
-dwf_digital_spi_write32 = _dwf_function('FDwfDigitalSpiWrite32', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_OUT, POINTER(c_uint), 'rgTX'), (_IN, c_int, 'cTX'))
+dwf_digital_spi_write32 = _dwf_function('FDwfDigitalSpiWrite32', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_uint), 'rgTX'), (_IN, c_int, 'cTX'))
+
+if _version >= (3, 20, 0):
+    dwf_digital_spi_cmd_write_read = _dwf_function('FDwfDigitalSpiCmdWriteRead', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ubyte), 'rgTX'), (_IN, c_int, 'cTX'), (_OUT, POINTER(c_ubyte), 'rgRX'), (_IN, c_int, 'cRX'))
+    dwf_digital_spi_cmd_write_read16 = _dwf_function('FDwfDigitalSpiCmdWriteRead16', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ushort), 'rgTX'), (_IN, c_int, 'cTX'), (_OUT, POINTER(c_ushort), 'rgRX'), (_IN, c_int, 'cRX'))
+    dwf_digital_spi_cmd_write_read32 = _dwf_function('FDwfDigitalSpiCmdWriteRead32', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_uint), 'rgTX'), (_IN, c_int, 'cTX'), (_OUT, POINTER(c_uint), 'rgRX'), (_IN, c_int, 'cRX'))
+    dwf_digital_spi_cmd_read = _dwf_function('FDwfDigitalSpiCmdRead', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_OUT, POINTER(c_ubyte), 'rgRX'), (_IN, c_int, 'cRX'))
+    dwf_digital_spi_cmd_read_one = _dwf_function('FDwfDigitalSpiCmdReadOne', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_OUT, POINTER(c_uint), 'pRX'))
+    dwf_digital_spi_cmd_read16 = _dwf_function('FDwfDigitalSpiCmdRead16', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_OUT, POINTER(c_ushort), 'rgRX'), (_IN, c_int, 'cRX'))
+    dwf_digital_spi_cmd_read32 = _dwf_function('FDwfDigitalSpiCmdRead32', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_OUT, POINTER(c_uint), 'rgRX'), (_IN, c_int, 'cRX'))
+    dwf_digital_spi_cmd_write = _dwf_function('FDwfDigitalSpiCmdWrite', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ubyte), 'rgTX'), (_IN, c_int, 'cTX'))
+    dwf_digital_spi_cmd_write_one = _dwf_function('FDwfDigitalSpiCmdWriteOne', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, c_uint, 'vTX'))
+    dwf_digital_spi_cmd_write16 = _dwf_function('FDwfDigitalSpiCmdWrite16', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_ushort), 'rgTX'), (_IN, c_int, 'cTX'))
+    dwf_digital_spi_cmd_write32 = _dwf_function('FDwfDigitalSpiCmdWrite32', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cBitCmd'), (_IN, c_uint, 'cmd'), (_IN, c_int, 'cDummy'), (_IN, c_int, 'cDQ'), (_IN, c_int, 'cBitPerWord'), (_IN, POINTER(c_uint), 'rgTX'), (_IN, c_int, 'cTX'))
 
 # I2C
 
@@ -924,6 +1028,22 @@ dwf_digital_can_rx_set = _dwf_function('FDwfDigitalCanRxSet', (_IN, HDWF, 'hdwf'
 dwf_digital_can_tx = _dwf_function('FDwfDigitalCanTx', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'vID'), (_IN, c_int, 'fExtended'), (_IN, c_int, 'fRemote'), (_IN, c_int, 'cDLC'), (_IN, POINTER(c_ubyte), 'rgTX'))
 dwf_digital_can_rx = _dwf_function('FDwfDigitalCanRx', (_IN, HDWF, 'hdwf'), (_OUT, POINTER(c_int), 'pvID'), (_OUT, POINTER(c_int), 'pfExtended'), (_OUT, POINTER(c_int), 'pfRemote'), (_OUT, POINTER(c_int), 'pcDLC'), (_IN, POINTER(c_ubyte), 'rgRX'), (_IN, c_int, 'cRX'), (_OUT, POINTER(c_int), 'pvStatus'))
 
+# SWD
+
+if _version >= (3, 20, 0):
+    dwf_digital_swd_reset = _dwf_function('FDwfDigitalSwdReset', (_IN, HDWF, 'hdwf'), )
+    dwf_digital_swd_rate_set = _dwf_function('FDwfDigitalSwdRateSet', (_IN, HDWF, 'hdwf'), (_IN, c_double, 'hz'))
+    dwf_digital_swd_ck_set = _dwf_function('FDwfDigitalSwdCkSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'))
+    dwf_digital_swd_io_set = _dwf_function('FDwfDigitalSwdIoSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'idxChannel'))
+    dwf_digital_swd_turn_set = _dwf_function('FDwfDigitalSwdTurnSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cTurn'))
+    dwf_digital_swd_trail_set = _dwf_function('FDwfDigitalSwdTrailSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cTrail'))
+    dwf_digital_swd_park_set = _dwf_function('FDwfDigitalSwdParkSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'fDrive'))
+    dwf_digital_swd_nak_set = _dwf_function('FDwfDigitalSwdNakSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'fContinue'))
+    dwf_digital_swd_io_idle_set = _dwf_function('FDwfDigitalSwdIoIdleSet', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'fHigh'))
+    dwf_digital_swd_clear = _dwf_function('FDwfDigitalSwdClear', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cReset'), (_IN, c_int, 'cTrail'))
+    dwf_digital_swd_write = _dwf_function('FDwfDigitalSwdWrite', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'APnDP'), (_IN, c_int, 'A32'), (_OUT, POINTER(c_int), 'pAck'), (_IN, c_uint, 'Write'))
+    dwf_digital_swd_read = _dwf_function('FDwfDigitalSwdRead', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'APnDP'), (_IN, c_int, 'A32'), (_OUT, POINTER(c_int), 'pAck'), (_OUT, POINTER(c_uint), 'pRead'), (_OUT, POINTER(c_int), 'pCrc'))
+
 # Impedance
 
 if _version >= (3, 9, 1):
@@ -956,3 +1076,5 @@ if _version >= (3, 18, 30):
     dwf_spectrum_window = _dwf_function('FDwfSpectrumWindow', (_IN, HDWF, 'hdwf'), (_IN, c_int, 'cdWin'), (_IN, DwfWindow, 'iWindow'), (_IN, c_double, 'vBeta'), (_OUT, POINTER(c_double), 'vNEBW'))
     dwf_spectrum_fft = _dwf_function('FDwfSpectrumFFT', (_IN, HDWF, 'hdwf'), (_IN, POINTER(c_double), 'rgdData'), (_IN, c_int, 'cdData'), (_IN, POINTER(c_double), 'rgdBin'), (_IN, POINTER(c_double), 'rgdPhase'), (_IN, c_int, 'cdBin'))
     dwf_spectrum_transform = _dwf_function('FDwfSpectrumTransform', (_IN, HDWF, 'hdwf'), (_IN, POINTER(c_double), 'rgdData'), (_IN, c_int, 'cdData'), (_IN, POINTER(c_double), 'rgdBin'), (_IN, POINTER(c_double), 'rgdPhase'), (_IN, c_int, 'cdBin'), (_IN, c_double, 'iFirst'), (_IN, c_double, 'iLast'))
+if _version >= (3, 20, 0):
+    dwf_spectrum_goertzel = _dwf_function('FDwfSpectrumGoertzel', (_IN, HDWF, 'hdwf'), (_IN, POINTER(c_double), 'rgdData'), (_IN, c_int, 'cdData'), (_IN, c_double, 'pos'), (_IN, POINTER(c_double), 'pMag'), (_IN, c_double, 'pRad'))
