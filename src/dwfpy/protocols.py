@@ -425,7 +425,7 @@ class Protocols:
                 api.dwf_digital_spi_read32(self._device.handle, dq_mode, bits_per_word, rx_buffer32, len(rx_buffer32))
                 return array.array("I", rx_buffer32)
             else:
-                raise ValueError("bits_per_word cannot be higher than 32.")
+                raise ValueError("bits_per_word cannot be higher than 32")
 
         def write(self, buffer: bytes, dq_mode: Optional[int] = None, bits_per_word: int = 8) -> None:
             """Performs a SPI write."""
@@ -442,7 +442,7 @@ class Protocols:
                 tx_buffer32 = (ctypes.c_uint * len(buffer)).from_buffer_copy(buffer)
                 api.dwf_digital_spi_write32(self._device.handle, dq_mode, bits_per_word, tx_buffer32, len(tx_buffer32))
             else:
-                raise ValueError("bits_per_word cannot be higher than 32.")
+                raise ValueError("bits_per_word cannot be higher than 32")
 
         def write_read(
             self,
@@ -495,7 +495,7 @@ class Protocols:
                 )
                 return array.array("I", rx_buffer32)
             else:
-                raise ValueError("bits_per_word cannot be higher than 32.")
+                raise ValueError("bits_per_word cannot be higher than 32")
 
         @staticmethod
         def _map_select_level(value) -> int:

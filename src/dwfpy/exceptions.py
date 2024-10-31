@@ -30,3 +30,10 @@ class DeviceNotOpenError(WaveformsError):
 
     def __init__(self, message):
         super().__init__(message)
+
+
+class FeatureNotSupportedError(WaveformsError):
+    """Feature is not supported error."""
+
+    def __init__(self, message):
+        super().__init__(message)

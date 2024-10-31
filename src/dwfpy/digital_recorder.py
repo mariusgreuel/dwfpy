@@ -158,7 +158,7 @@ class DigitalRecorder:
                 self._data_buffer = (ctypes.c_uint32 * self._buffer_size)()
                 self._noise_buffer = (ctypes.c_uint32 * self._buffer_size)() if self._acquire_noise else None
             else:
-                raise ValueError("sample_format must be 8, 16, or 32.")
+                raise ValueError("sample_format must be 8, 16, or 32")
 
             self._is_setup = True
 

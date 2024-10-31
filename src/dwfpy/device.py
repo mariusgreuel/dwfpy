@@ -13,7 +13,7 @@ import logging
 from typing import Optional, Tuple, Union
 from . import bindings as api
 from .constants import DeviceId, GlobalParameter, TriggerSlope, TriggerSource
-from .exceptions import WaveformsError, DeviceNotFound, DeviceNotOpenError
+from .exceptions import WaveformsError, DeviceNotFound, DeviceNotOpenError, FeatureNotSupportedError
 from .helpers import Helpers
 from .application import Application
 from .configuration import Configuration
@@ -210,17 +210,17 @@ class DeviceBase:
     def open(self) -> None:
         """Opens the device."""
         if self._hdwf is not None:
-            raise WaveformsError("Device is already open.")
+            raise WaveformsError("Device is already open")
 
         device_index = self._enum_get_device_index()
         if device_index is None:
-            raise DeviceNotFound("Device not found.")
+            raise DeviceNotFound("Device not found")
 
         if not self._device_info.has_properties:
             self._device_info.get_properties(device_index)
 
         if self._device_info.is_open:
-            raise WaveformsError("Device is already in use by another application.")
+            raise WaveformsError("Device is already in use by another application")
 
         if self._configuration is None:
             self._hdwf = api.dwf_device_open(device_index)
@@ -230,7 +230,7 @@ class DeviceBase:
             self._hdwf = api.dwf_device_config_open(device_index, configuration)
 
         if self._hdwf is None:
-            raise WaveformsError("Failed to open device.")
+            raise WaveformsError("Failed to open device")
 
         if api.dwf_analog_io_channel_count(self._hdwf) > 0:
             self._analog_io = AnalogIo(self)
@@ -342,7 +342,7 @@ class DeviceBase:
 
     def _ensure_handle(self) -> None:
         if self._hdwf is None:
-            raise DeviceNotOpenError("Device is not open.")
+            raise DeviceNotOpenError("Device is not open")
 
     def _ensure_device_info(self) -> None:
         if not self._device_info.has_properties:
@@ -352,7 +352,7 @@ class DeviceBase:
 
     def _ensure_module(self, module, description):
         if module is None and self._hdwf is not None:
-            raise AttributeError(f"The device does not support {description}.")
+            raise FeatureNotSupportedError(f"The device does have a '{description}' module")
 
         return module
 

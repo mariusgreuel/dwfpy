@@ -36,7 +36,7 @@ from dwfpy.constants import (
     AcquisitionMode,
     FilterMode,
 )
-from dwfpy.exceptions import WaveformsError, DeviceNotFound, DeviceNotOpenError
+from dwfpy.exceptions import WaveformsError, DeviceNotFound, DeviceNotOpenError, FeatureNotSupportedError
 from dwfpy.device import (
     Device,
     ElectronicsExplorer,

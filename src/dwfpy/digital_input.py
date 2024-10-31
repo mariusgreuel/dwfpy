@@ -366,7 +366,7 @@ class DigitalInputChannel:
             rise |= mask
             fall |= mask
         else:
-            raise ValueError("Trigger condition must be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.")
+            raise ValueError("Trigger condition must be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'")
 
         return low, high, rise, fall
 
@@ -599,7 +599,7 @@ class DigitalInput:
         if self.sample_format <= 32:
             return np.empty(size, dtype=np.uint32)
 
-        raise ValueError("sample_format must be 8, 16, or 32.")
+        raise ValueError("sample_format must be 8, 16, or 32")
 
     def setup_trigger(
         self,
@@ -682,7 +682,7 @@ class DigitalInput:
         elif condition == "edge":
             self.trigger.set_trigger_mask(rising_edge=1 << channel, falling_edge=1 << channel)
         else:
-            raise ValueError("Trigger condition must be 'ignore', 'low', 'high', 'rising', 'falling', or 'edge'.")
+            raise ValueError("Trigger condition must be 'ignore', 'low', 'high', 'rising', 'falling', or 'edge'")
 
     def setup_glitch_trigger(self, channel: int, polarity: str, less_than: float) -> None:
         """Sets up a glitch trigger.
@@ -752,7 +752,7 @@ class DigitalInput:
             self.trigger.set_trigger_mask(low_level=1 << channel)
             self.trigger.set_reset_mask(falling_edge=1 << channel)
         else:
-            raise ValueError("Trigger polarity must be 'positive' or 'negative'.")
+            raise ValueError("Trigger polarity must be 'positive' or 'negative'")
 
         self._trigger.set_length(min_length, max_length, 0)
         self._trigger.set_counter(1)

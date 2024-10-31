@@ -26,7 +26,7 @@ for device_index, device in enumerate(devices):
             print(f"\tADC bits: {scope[0].adc_bits}")
             print(f"\tRange from {scope[0].range_min} to {scope[0].range_max} in {scope[0].range_steps} steps")
             print(f"\tOffset from {scope[0].offset_min} to {scope[0].offset_max} in {scope[0].offset_steps} steps")
-        except AttributeError:
+        except dwf.FeatureNotSupportedError:
             pass
 
         try:
@@ -42,7 +42,7 @@ for device_index, device in enumerate(devices):
                     print(f"\t\t\tAmplitude from {node.amplitude_min} to {node.amplitude_max}")
                     print(f"\t\t\tOffset from {node.offset_min} to {node.offset_max}")
                     print(f"\t\t\tFrequency from {node.frequency_min} to {node.frequency_max}")
-        except AttributeError:
+        except dwf.FeatureNotSupportedError:
             pass
 
         try:
@@ -75,7 +75,7 @@ for device_index, device in enumerate(devices):
                             print(f"\t\t\tInput range from {node.status_min} to {node.status_max}")
                     elif node.status_steps > 1:
                         print(f"\t\t\tReading from {node.status_min} to {node.status_max} in {node.status_steps} steps")
-        except AttributeError:
+        except dwf.FeatureNotSupportedError:
             pass
 
         try:
@@ -83,7 +83,7 @@ for device_index, device in enumerate(devices):
             print()
             print(f"DigitalIn channels: {len(logic.channels)}")
             print(f"\tBuffer size: {logic.buffer_size_max}")
-        except AttributeError:
+        except dwf.FeatureNotSupportedError:
             pass
 
         try:
@@ -91,7 +91,7 @@ for device_index, device in enumerate(devices):
             print()
             print(f"DigitalOut channels: {len(pattern.channels)}")
             print(f"\tCustom size: {pattern[0].max_bits}")
-        except AttributeError:
+        except dwf.FeatureNotSupportedError:
             pass
 
         try:
@@ -101,5 +101,5 @@ for device_index, device in enumerate(devices):
             print(f"\tOE Mask: {hex(io.output_enable_mask)}")
             print(f"\tOutput : {hex(io.output_state_mask)}")
             print(f"\tInput  : {hex(io.input_state_mask)}")
-        except AttributeError:
+        except dwf.FeatureNotSupportedError:
             pass
