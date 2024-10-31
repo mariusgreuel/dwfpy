@@ -9,7 +9,8 @@ Analog Output module for Digilent WaveForms devices.
 # SPDX-License-Identifier: MIT
 #
 
-from typing import Optional, Tuple
+import ctypes
+from typing import Optional, Tuple, List
 from . import bindings as api
 from . import device as fwd  # pylint: disable=unused-import
 from .constants import (
@@ -200,9 +201,10 @@ class AnalogOutputChannelNode:
         Returns (samples_free, lost_samples, corrupted_samples)"""
         return api.dwf_analog_out_node_play_status(self._device.handle, self._channel, self._node)
 
-    def set_data_samples(self, samples) -> None:
+    def set_data_samples(self, samples: List[float]) -> None:
         """Sets the custom data or to prefill the buffer with play samples."""
-        api.dwf_analog_out_node_data_set(self._device.handle, self._channel, self._node, samples, len(samples))
+        data = (ctypes.c_double * len(samples))(*samples)
+        api.dwf_analog_out_node_data_set(self._device.handle, self._channel, self._node, data, len(data))
 
     def set_play_samples(self, samples) -> None:
         """Sets new data samples for play mode."""
@@ -243,6 +245,11 @@ class AnalogOutputChannel:
         return self._nodes
 
     def __getitem__(self, key) -> AnalogOutputChannelNode:
+        if isinstance(key, AnalogOutputNode):
+            for node in self._nodes:
+                if node.type == key:
+                    return node
+
         if isinstance(key, int):
             return self._nodes[key]
 
@@ -416,6 +423,7 @@ class AnalogOutputChannel:
         offset: Optional[float] = None,
         symmetry: Optional[float] = None,
         phase: Optional[float] = None,
+        data_samples: Optional[float] = None,
         enabled: bool = True,
         configure: bool = False,
         start: bool = False,
@@ -426,8 +434,8 @@ class AnalogOutputChannel:
         ----------
         function : str, optional
             The generator function.
-            Can be 'dc', 'sine', 'square', 'triangle', 'ramp-up',
-            'ramp-down', 'noise', 'pulse', 'trapezium', or 'sine-power'.
+            Can be 'dc', 'sine', 'square', 'triangle', 'ramp-up', 'ramp-down',
+            'noise', 'pulse', 'trapezium', 'sine-power', 'custom', 'play', 'custom-pattern', or 'play-pattern'.
         frequency : float, optional
             The waveform frequency in Hz.
         amplitude : float, optional
@@ -438,6 +446,8 @@ class AnalogOutputChannel:
             The waveform symmetry (or duty cycle) in percent.
         phase : float, optional
             The waveform phase in degree.
+        data_samples : float, optional
+            The waveform data samples normalized to +/-1.
         enabled : bool, optional
             If True, then the node is enabled (default True).
         configure : bool, optional
@@ -453,6 +463,7 @@ class AnalogOutputChannel:
             offset=offset,
             symmetry=symmetry,
             phase=phase,
+            data_samples=data_samples,
             enabled=enabled,
             configure=configure,
             start=start,
@@ -466,6 +477,7 @@ class AnalogOutputChannel:
         offset: Optional[float] = None,
         symmetry: Optional[float] = None,
         phase: Optional[float] = None,
+        data_samples: Optional[float] = None,
         enabled: bool = True,
         configure: bool = False,
         start: bool = False,
@@ -488,6 +500,8 @@ class AnalogOutputChannel:
             The waveform symmetry (or duty cycle) in percent.
         phase : float, optional
             The waveform phase in degree.
+        data_samples : float, optional
+            The waveform data samples normalized to +/-1.
         enabled : bool, optional
             If True, then the node is enabled (default True).
         configure : bool, optional
@@ -503,6 +517,7 @@ class AnalogOutputChannel:
             offset=offset,
             symmetry=symmetry,
             phase=phase,
+            data_samples=data_samples,
             enabled=enabled,
             configure=configure,
             start=start,
@@ -516,6 +531,7 @@ class AnalogOutputChannel:
         offset: Optional[float] = None,
         symmetry: Optional[float] = None,
         phase: Optional[float] = None,
+        data_samples: Optional[float] = None,
         enabled: bool = True,
         configure: bool = False,
         start: bool = False,
@@ -538,6 +554,8 @@ class AnalogOutputChannel:
             The waveform symmetry (or duty cycle) in percent.
         phase : float, optional
             The waveform phase in degree.
+        data_samples : float, optional
+            The waveform data samples normalized to +/-1.
         enabled : bool, optional
             If True, then the node is enabled (default True).
         configure : bool, optional
@@ -553,6 +571,7 @@ class AnalogOutputChannel:
             offset=offset,
             symmetry=symmetry,
             phase=phase,
+            data_samples=data_samples,
             enabled=enabled,
             configure=configure,
             start=start,
@@ -567,6 +586,7 @@ class AnalogOutputChannel:
         offset,
         symmetry,
         phase,
+        data_samples,
         enabled,
         configure,
         start,
@@ -584,6 +604,10 @@ class AnalogOutputChannel:
             node.symmetry = symmetry
         if phase is not None:
             node.phase = phase
+        if phase is not None:
+            node.phase = phase
+        if data_samples is not None:
+            node.set_data_samples(data_samples)
         if enabled is not None:
             node.enabled = enabled
         if configure or start:
