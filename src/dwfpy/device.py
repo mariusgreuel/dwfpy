@@ -12,7 +12,7 @@ Support for Digilent WaveForms devices.
 import logging
 from typing import Optional, Tuple, Union
 from . import bindings as api
-from .constants import DeviceId, GlobalParameter, TriggerSlope, TriggerSource
+from .constants import DeviceId, DeviceType, GlobalParameter, TriggerSlope, TriggerSource
 from .exceptions import WaveformsError, DeviceNotFound, DeviceNotOpenError, FeatureNotSupportedError
 from .helpers import Helpers
 from .application import Application
@@ -214,6 +214,10 @@ class DeviceBase:
 
         device_index = self._enum_get_device_index()
         if device_index is None:
+            devices = api.dwf_enum(api.ENUMFILTER_ALL)
+            if devices > 0:
+                raise DeviceNotFound(f"No devices match the filter {self._friendly_filter_spec()}")
+
             raise DeviceNotFound("Device not found")
 
         if not self._device_info.has_properties:
@@ -339,6 +343,49 @@ class DeviceBase:
                 return device_index
 
         return None
+
+    def _friendly_filter_spec(self):
+        spec = []
+        if self._enum_serial_number:
+            spec.append(f"Serial Number: {self._enum_serial_number}")
+        if self._enum_device_id:
+            spec.append(f"Device ID: {self._friendly_device_id(self._enum_device_id)}")
+        if self._enum_device_type:
+            spec.append(f"Device type: {self._friendly_device_type(self._enum_device_type)}")
+        if self._enum_device_index:
+            spec.append(f"Device index: {self._enum_device_index}")
+        return spec
+
+    def _friendly_device_id(self, device_id: int):
+        if device_id == DeviceId.ANALOG_DISCOVERY:
+            return "Analog Discovery"
+        elif device_id == DeviceId.ANALOG_DISCOVERY2:
+            return "Analog Discovery 2"
+        elif device_id == DeviceId.ANALOG_DISCOVERY3:
+            return "Analog Discovery 3"
+        elif device_id == DeviceId.DIGITAL_DISCOVERY:
+            return "Digital Discovery"
+        else:
+            return str(device_id)
+
+    def _friendly_device_type(self, device_type: int):
+        types = []
+        if device_type & DeviceType.USB:
+            types.append("USB")
+        if device_type & DeviceType.NETWORK:
+            types.append("NETWORK")
+        if device_type & DeviceType.AXI:
+            types.append("AXI")
+        if device_type & DeviceType.REMOTE:
+            types.append("REMOTE")
+        if device_type & DeviceType.SOUND_CARD:
+            types.append("SOUND_CARD")
+        if device_type & DeviceType.DEMO:
+            types.append("DEMO")
+        if len(types) > 0:
+            return "|".join(types)
+        else:
+            return str(device_type)
 
     def _ensure_handle(self) -> None:
         if self._hdwf is None:
