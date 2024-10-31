@@ -125,9 +125,7 @@ class AnalogInputTrigger:
     @property
     def type_info(self) -> Tuple[TriggerType, ...]:
         """Gets the supported output types."""
-        return Helpers.map_enum_values(
-            TriggerType, api.dwf_analog_in_trigger_type_info(self._device.handle)
-        )
+        return Helpers.map_enum_values(TriggerType, api.dwf_analog_in_trigger_type_info(self._device.handle))
 
     @property
     def type(self) -> TriggerType:
@@ -160,9 +158,7 @@ class AnalogInputTrigger:
     @property
     def filter_info(self) -> Tuple[FilterMode, ...]:
         """Gets the supported trigger filters."""
-        return Helpers.map_enum_values(
-            FilterMode, api.dwf_analog_in_trigger_filter_info(self._device.handle)
-        )
+        return Helpers.map_enum_values(FilterMode, api.dwf_analog_in_trigger_filter_info(self._device.handle))
 
     @property
     def filter(self) -> FilterMode:
@@ -224,9 +220,7 @@ class AnalogInputTrigger:
     @property
     def condition_info(self) -> Tuple[TriggerSlope, ...]:
         """Gets the supported trigger conditions."""
-        return Helpers.map_enum_values(
-            TriggerSlope, api.dwf_analog_in_trigger_condition_info(self._device.handle)
-        )
+        return Helpers.map_enum_values(TriggerSlope, api.dwf_analog_in_trigger_condition_info(self._device.handle))
 
     @property
     def condition(self) -> TriggerSlope:
@@ -272,9 +266,7 @@ class AnalogInputTrigger:
     @property
     def length_condition(self) -> TriggerLengthCondition:
         """Gets or sets the trigger length condition."""
-        return TriggerLengthCondition(
-            api.dwf_analog_in_trigger_length_condition_get(self._device.handle)
-        )
+        return TriggerLengthCondition(api.dwf_analog_in_trigger_length_condition_get(self._device.handle))
 
     @length_condition.setter
     def length_condition(self, value: TriggerLengthCondition) -> None:
@@ -315,15 +307,15 @@ class AnalogInputChannel:
         self._device = module.device
         self._module = module
         self._channel = channel
-        self._label = 'ch' + str(channel + 1)
+        self._label = "ch" + str(channel + 1)
 
     @property
-    def device(self) -> 'fwd.Device':
+    def device(self) -> "fwd.Device":
         """Gets the device."""
         return self._device
 
     @property
-    def module(self) -> 'AnalogInput':
+    def module(self) -> "AnalogInput":
         """Gets the Analog Input module."""
         return self._module
 
@@ -358,9 +350,7 @@ class AnalogInputChannel:
     @property
     def filter_info(self) -> Tuple[FilterMode, ...]:
         """Gets the supported acquisition filters."""
-        return Helpers.map_enum_values(
-            FilterMode, api.dwf_analog_in_channel_filter_info(self._device.handle)
-        )
+        return Helpers.map_enum_values(FilterMode, api.dwf_analog_in_channel_filter_info(self._device.handle))
 
     @property
     def filter(self) -> FilterMode:
@@ -463,9 +453,7 @@ class AnalogInputChannel:
     @property
     def coupling(self) -> AnalogInputCoupling:
         """Gets or sets the channel coupling."""
-        return AnalogInputCoupling(
-            api.dwf_analog_in_channel_coupling_get(self._device.handle, self._channel)
-        )
+        return AnalogInputCoupling(api.dwf_analog_in_channel_coupling_get(self._device.handle, self._channel))
 
     @coupling.setter
     def coupling(self, value: AnalogInputCoupling) -> None:
@@ -588,8 +576,7 @@ class AnalogInput:
         self._device = device
         self._trigger = AnalogInputTrigger(self)
         self._channels = tuple(
-            AnalogInputChannel(self, i)
-            for i in range(api.dwf_analog_in_channel_count(self._device.handle))
+            AnalogInputChannel(self, i) for i in range(api.dwf_analog_in_channel_count(self._device.handle))
         )
 
     def __enter__(self):
@@ -600,7 +587,7 @@ class AnalogInput:
         self.reset()
 
     @property
-    def device(self) -> 'fwd.Device':
+    def device(self) -> "fwd.Device":
         """Gets the device."""
         return self._device
 
@@ -781,9 +768,7 @@ class AnalogInput:
     @property
     def acquisition_mode_info(self) -> Tuple[AcquisitionMode, ...]:
         """Gets the supported acquisition modes."""
-        return Helpers.map_enum_values(
-            AcquisitionMode, api.dwf_analog_in_acquisition_mode_info(self._device.handle)
-        )
+        return Helpers.map_enum_values(AcquisitionMode, api.dwf_analog_in_acquisition_mode_info(self._device.handle))
 
     @property
     def acquisition_mode(self) -> AcquisitionMode:
@@ -1074,12 +1059,12 @@ class AnalogInput:
         if hold_off is not None:
             self.trigger.hold_off = hold_off
         if mode is not None:
-            if mode == 'normal':
+            if mode == "normal":
                 self.trigger.auto_timeout = 0
-            elif mode == 'auto':
+            elif mode == "auto":
                 self.trigger.auto_timeout = 1
             else:
-                raise WaveformsError('Invalid mode.')
+                raise WaveformsError("Invalid mode.")
 
     def setup_acquisition(
         self,
@@ -1214,7 +1199,7 @@ class AnalogInput:
         sample_rate: Optional[float] = None,
         length: Optional[float] = None,
         buffer_size: Optional[Union[int, float]] = None,
-        callback: Optional[Callable[['AnalogRecorder'], bool]] = None,
+        callback: Optional[Callable[["AnalogRecorder"], bool]] = None,
         configure: bool = False,
         start: bool = False,
     ) -> AnalogRecorder:

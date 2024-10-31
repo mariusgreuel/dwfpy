@@ -18,39 +18,19 @@ class Configuration:
     """Configuration set for Digilent WaveForms devices."""
 
     def __init__(self, index):
-        self._analog_in_channel_count = api.dwf_enum_config_info(
-            index, api.DECI_ANALOG_IN_CHANNEL_COUNT
-        )
-        self._analog_out_channel_count = api.dwf_enum_config_info(
-            index, api.DECI_ANALOG_OUT_CHANNEL_COUNT
-        )
-        self._analog_io_channel_count = api.dwf_enum_config_info(
-            index, api.DECI_ANALOG_IO_CHANNEL_COUNT
-        )
-        self._digital_in_channel_count = api.dwf_enum_config_info(
-            index, api.DECI_DIGITAL_IN_CHANNEL_COUNT
-        )
-        self._digital_out_channel_count = api.dwf_enum_config_info(
-            index, api.DECI_DIGITAL_OUT_CHANNEL_COUNT
-        )
-        self._digital_io_channel_count = api.dwf_enum_config_info(
-            index, api.DECI_DIGITAL_IO_CHANNEL_COUNT
-        )
-        self._analog_in_buffer_size = api.dwf_enum_config_info(
-            index, api.DECI_ANALOG_IN_BUFFER_SIZE
-        )
-        self._analog_out_buffer_size = api.dwf_enum_config_info(
-            index, api.DECI_ANALOG_OUT_BUFFER_SIZE
-        )
-        self._digital_in_buffer_size = api.dwf_enum_config_info(
-            index, api.DECI_DIGITAL_IN_BUFFER_SIZE
-        )
-        self._digital_out_buffer_size = api.dwf_enum_config_info(
-            index, api.DECI_DIGITAL_OUT_BUFFER_SIZE
-        )
+        self._analog_in_channel_count = api.dwf_enum_config_info(index, api.DECI_ANALOG_IN_CHANNEL_COUNT)
+        self._analog_out_channel_count = api.dwf_enum_config_info(index, api.DECI_ANALOG_OUT_CHANNEL_COUNT)
+        self._analog_io_channel_count = api.dwf_enum_config_info(index, api.DECI_ANALOG_IO_CHANNEL_COUNT)
+        self._digital_in_channel_count = api.dwf_enum_config_info(index, api.DECI_DIGITAL_IN_CHANNEL_COUNT)
+        self._digital_out_channel_count = api.dwf_enum_config_info(index, api.DECI_DIGITAL_OUT_CHANNEL_COUNT)
+        self._digital_io_channel_count = api.dwf_enum_config_info(index, api.DECI_DIGITAL_IO_CHANNEL_COUNT)
+        self._analog_in_buffer_size = api.dwf_enum_config_info(index, api.DECI_ANALOG_IN_BUFFER_SIZE)
+        self._analog_out_buffer_size = api.dwf_enum_config_info(index, api.DECI_ANALOG_OUT_BUFFER_SIZE)
+        self._digital_in_buffer_size = api.dwf_enum_config_info(index, api.DECI_DIGITAL_IN_BUFFER_SIZE)
+        self._digital_out_buffer_size = api.dwf_enum_config_info(index, api.DECI_DIGITAL_OUT_BUFFER_SIZE)
 
         text_info = Configuration._enum_config_info_str(index, api.DECI_TEXT_INFO)
-        self._text_info = text_info if len(text_info) > 1 else ''
+        self._text_info = text_info if len(text_info) > 1 else ""
 
     @property
     def analog_in_channel_count(self) -> int:

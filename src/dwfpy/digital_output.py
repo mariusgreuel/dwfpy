@@ -67,15 +67,15 @@ class DigitalOutputChannel:
         self._device = module.device
         self._module = module
         self._channel = channel
-        self._label = 'dio' + str(channel)
+        self._label = "dio" + str(channel)
 
     @property
-    def device(self) -> 'fwd.Device':
+    def device(self) -> "fwd.Device":
         """Gets the device."""
         return self._device
 
     @property
-    def module(self) -> 'DigitalOutput':
+    def module(self) -> "DigitalOutput":
         """Gets the Digital Output module."""
         return self._module
 
@@ -402,9 +402,9 @@ class DigitalOutputChannel:
             If True, then the instrument is started (default False).
         """
         if frequency <= 0:
-            raise ValueError('frequency must be a positive value.')
+            raise ValueError("frequency must be a positive value.")
         if duty_cycle < 0 or duty_cycle > 100:
-            raise ValueError('duty_cycle must be between 0 and 100.')
+            raise ValueError("duty_cycle must be between 0 and 100.")
 
         system_clock_frequency = self._module.clock_frequency
         divider = math.ceil(system_clock_frequency / frequency / self.counter_max)
@@ -427,9 +427,7 @@ class DigitalOutputChannel:
 
         max_delay = (self.divider_max - 1) / system_clock_frequency
         if delay > max_delay:
-            initial_counter = min(
-                1 + round((delay - max_delay) * clock_frequency), self.counter_max
-            )
+            initial_counter = min(1 + round((delay - max_delay) * clock_frequency), self.counter_max)
             delay -= initial_counter / clock_frequency
         else:
             initial_counter = 1
@@ -495,11 +493,11 @@ class DigitalOutputChannel:
         total = low + high
 
         if low < 0:
-            raise ValueError('low must be a non-negative value.')
+            raise ValueError("low must be a non-negative value.")
         if high < 0:
-            raise ValueError('high must be a non-negative value.')
+            raise ValueError("high must be a non-negative value.")
         if total <= 0:
-            raise ValueError('low + high must be a positive value.')
+            raise ValueError("low + high must be a positive value.")
 
         system_clock_frequency = self._module.clock_frequency
         divider = math.ceil(system_clock_frequency * max(low, high) / self.counter_max)
@@ -515,9 +513,7 @@ class DigitalOutputChannel:
 
         max_delay = (self.divider_max - 1) / system_clock_frequency
         if delay > max_delay:
-            initial_counter = min(
-                1 + round((delay - max_delay) * clock_frequency), self.counter_max
-            )
+            initial_counter = min(1 + round((delay - max_delay) * clock_frequency), self.counter_max)
             delay -= initial_counter / clock_frequency
         else:
             initial_counter = 1
@@ -575,7 +571,7 @@ class DigitalOutputChannel:
             If True, then the instrument is started (default False).
         """
         if frequency <= 0:
-            raise ValueError('frequency must be a positive value.')
+            raise ValueError("frequency must be a positive value.")
 
         divider = math.ceil(self._module.clock_frequency / frequency / self.counter_max)
         clock_frequency = self._module.clock_frequency / divider
@@ -633,7 +629,7 @@ class DigitalOutputChannel:
             If True, then the instrument is started (default False).
         """
         if frequency <= 0:
-            raise ValueError('frequency must be a positive value.')
+            raise ValueError("frequency must be a positive value.")
 
         divider = math.ceil(self._module.clock_frequency / frequency)
         clock_frequency = self._module.clock_frequency / divider
@@ -661,8 +657,7 @@ class DigitalOutput:
         self._device = device
         self._trigger = DigitalOutputTrigger(self)
         self._channels = tuple(
-            DigitalOutputChannel(self, i)
-            for i in range(api.dwf_digital_out_count(self._device.handle))
+            DigitalOutputChannel(self, i) for i in range(api.dwf_digital_out_count(self._device.handle))
         )
 
     def __enter__(self):
@@ -673,7 +668,7 @@ class DigitalOutput:
         self.reset()
 
     @property
-    def device(self) -> 'fwd.Device':
+    def device(self) -> "fwd.Device":
         """Gets the device."""
         return self._device
 

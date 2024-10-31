@@ -10,10 +10,10 @@ import dwfpy as dwf
 SAMPLE_RATE = 100e3
 SAMPLE_COUNT = 100e3
 
-print(f'DWF Version: {dwf.Application.get_version()}')
+print(f"DWF Version: {dwf.Application.get_version()}")
 
 with dwf.Device() as device:
-    print(f'Found device: {device.name} ({device.serial_number})')
+    print(f"Found device: {device.name} ({device.serial_number})")
 
     logic = device.digital_input
     pattern = device.digital_output
@@ -30,10 +30,10 @@ with dwf.Device() as device:
     logic.dio_first = True
 
     # trigger when all digital pins are low
-    logic.setup_trigger(source='detector-digital-in')
+    logic.setup_trigger(source="detector-digital-in")
     logic.trigger.set_trigger_mask(low_level=0xFFFF)
 
-    print('Recording...')
+    print("Recording...")
     recorder = logic.record(
         sample_rate=SAMPLE_RATE,
         sample_format=16,
@@ -42,19 +42,17 @@ with dwf.Device() as device:
         configure=True,
         start=True,
     )
-    print('done')
+    print("done")
 
     if recorder.lost_samples > 0:
-        print('Samples lost, reduce sample rate.')
+        print("Samples lost, reduce sample rate.")
     if recorder.corrupted_samples > 0:
-        print('Samples corrupted, reduce sample rate.')
+        print("Samples corrupted, reduce sample rate.")
 
-    print(
-        f'Processed {recorder.total_samples} samples total, received {len(recorder.data_samples)} samples.'
-    )
+    print(f"Processed {recorder.total_samples} samples total, received {len(recorder.data_samples)} samples.")
 
     samples = recorder.data_samples
 
-plt.axvline(x=SAMPLE_COUNT / 2, color='red')
-plt.plot(samples, drawstyle='steps-post')
+plt.axvline(x=SAMPLE_COUNT / 2, color="red")
+plt.plot(samples, drawstyle="steps-post")
 plt.show()

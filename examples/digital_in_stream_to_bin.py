@@ -6,14 +6,14 @@ This file is part of dwfpy: https://github.com/mariusgreuel/dwfpy
 
 import dwfpy as dwf
 
-print(f'DWF Version: {dwf.Application.get_version()}')
+print(f"DWF Version: {dwf.Application.get_version()}")
 
-FILENAME = 'temp_recording.bin'
+FILENAME = "temp_recording.bin"
 SAMPLE_RATE = 1e6
 SAMPLE_COUNT = 1e6
 
 with dwf.Device() as device:
-    print(f'Found device: {device.name} ({device.serial_number})')
+    print(f"Found device: {device.name} ({device.serial_number})")
 
     logic = device.digital_input
     pattern = device.digital_output
@@ -30,14 +30,14 @@ with dwf.Device() as device:
     logic.dio_first = True
 
     print(f"Creating '{FILENAME}'...")
-    with open(FILENAME, 'wb') as bin_file:
+    with open(FILENAME, "wb") as bin_file:
 
         def callback(recorder: dwf.DigitalRecorder) -> bool:
             """Recorder callback"""
             if recorder.lost_samples > 0:
-                raise RuntimeError('Samples lost, reduce sample rate.')
+                raise RuntimeError("Samples lost, reduce sample rate.")
             if recorder.corrupted_samples > 0:
-                raise RuntimeError('Samples corrupted, reduce sample rate.')
+                raise RuntimeError("Samples corrupted, reduce sample rate.")
 
             bin_file.write(recorder.data_samples)
 
@@ -45,15 +45,13 @@ with dwf.Device() as device:
                 return True
 
             print(
-                f'Status: {recorder.status}, '
-                f'lost={recorder.lost_samples}, '
-                f'corrupted={recorder.corrupted_samples}, '
-                f'total={recorder.total_samples}'
+                f"Status: {recorder.status}, "
+                f"lost={recorder.lost_samples}, "
+                f"corrupted={recorder.corrupted_samples}, "
+                f"total={recorder.total_samples}"
             )
 
             return False
 
-        print(f'Streaming data for {SAMPLE_COUNT / SAMPLE_RATE}s...')
-        logic.stream(
-            callback=callback, sample_rate=SAMPLE_RATE, sample_format=16, configure=True, start=True
-        )
+        print(f"Streaming data for {SAMPLE_COUNT / SAMPLE_RATE}s...")
+        logic.stream(callback=callback, sample_rate=SAMPLE_RATE, sample_format=16, configure=True, start=True)

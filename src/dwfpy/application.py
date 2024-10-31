@@ -30,7 +30,7 @@ class _Singleton:
 class Application(_Singleton):
     """WaveForms application."""
 
-    _logger = logging.getLogger('dwfpy')
+    _logger = logging.getLogger("dwfpy")
 
     def __init__(self):
         api.set_error_handler(Application._error_handler)
@@ -67,7 +67,7 @@ class Application(_Singleton):
         """Gets the last DWF API error message."""
         buffer = ctypes.create_string_buffer(512)
         api.dwf_get_last_error_msg(buffer)
-        return Helpers.c_char_to_string(buffer).rstrip('\n')
+        return Helpers.c_char_to_string(buffer).rstrip("\n")
 
     @staticmethod
     def get_parameter(parameter: GlobalParameter) -> int:

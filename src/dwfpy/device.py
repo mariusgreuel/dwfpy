@@ -66,9 +66,7 @@ class DeviceBase:
         self._auto_reset = True
 
         self._configuration = configuration
-        self._enum_serial_number = (
-            DeviceInfo.normalize_serial_number(serial_number) if serial_number else None
-        )
+        self._enum_serial_number = DeviceInfo.normalize_serial_number(serial_number) if serial_number else None
         self._enum_device_id = device_id
         self._enum_device_type = device_type
         self._enum_device_index = device_index
@@ -212,27 +210,27 @@ class DeviceBase:
     def open(self) -> None:
         """Opens the device."""
         if self._hdwf is not None:
-            raise WaveformsError('Device is already open.')
+            raise WaveformsError("Device is already open.")
 
         device_index = self._enum_get_device_index()
         if device_index is None:
-            raise DeviceNotFound('Device not found.')
+            raise DeviceNotFound("Device not found.")
 
         if not self._device_info.has_properties:
             self._device_info.get_properties(device_index)
 
         if self._device_info.is_open:
-            raise WaveformsError('Device is already in use by another application.')
+            raise WaveformsError("Device is already in use by another application.")
 
         if self._configuration is None:
             self._hdwf = api.dwf_device_open(device_index)
         else:
             configuration = self._get_configuration()
-            self._logger.info('Using configuration %s', configuration)
+            self._logger.info("Using configuration %s", configuration)
             self._hdwf = api.dwf_device_config_open(device_index, configuration)
 
         if self._hdwf is None:
-            raise WaveformsError('Failed to open device.')
+            raise WaveformsError("Failed to open device.")
 
         if api.dwf_analog_io_channel_count(self._hdwf) > 0:
             self._analog_io = AnalogIo(self)
@@ -304,14 +302,14 @@ class DeviceBase:
         else:
             enumfilter = api.ENUMFILTER_ALL
 
-        self._logger.info('Enumerating devices...')
+        self._logger.info("Enumerating devices...")
         device_count = api.dwf_enum(enumfilter)
-        self._logger.info('Found %s device(s)', device_count)
+        self._logger.info("Found %s device(s)", device_count)
 
         if self._logger.isEnabledFor(logging.INFO):
             for i in range(device_count):
                 info = DeviceInfo(i)
-                self._logger.info('> Device %s: %s (%s)', i + 1, info.name, info.serial_number)
+                self._logger.info("> Device %s: %s (%s)", i + 1, info.name, info.serial_number)
 
         device_index = self._filter_devices(device_count, skip_open_devices=True)
         if device_index is not None:
@@ -344,7 +342,7 @@ class DeviceBase:
 
     def _ensure_handle(self) -> None:
         if self._hdwf is None:
-            raise DeviceNotOpenError('Device is not open.')
+            raise DeviceNotOpenError("Device is not open.")
 
     def _ensure_device_info(self) -> None:
         if not self._device_info.has_properties:
@@ -354,29 +352,29 @@ class DeviceBase:
 
     def _ensure_module(self, module, description):
         if module is None and self._hdwf is not None:
-            raise AttributeError(f'The device does not support {description}.')
+            raise AttributeError(f"The device does not support {description}.")
 
         return module
 
     def _get_configuration(self):
         if isinstance(self._configuration, str):
-            if self._configuration == 'generic':
+            if self._configuration == "generic":
                 return 0
-            elif self._configuration == 'scope':
+            elif self._configuration == "scope":
                 if self.id in (
                     DeviceId.ANALOG_DISCOVERY,
                     DeviceId.ANALOG_DISCOVERY2,
                     DeviceId.ANALOG_DISCOVERY3,
                 ):
                     return 1
-            elif self._configuration == 'wavegen':
+            elif self._configuration == "wavegen":
                 if self.id in (
                     DeviceId.ANALOG_DISCOVERY,
                     DeviceId.ANALOG_DISCOVERY2,
                     DeviceId.ANALOG_DISCOVERY3,
                 ):
                     return 2
-            elif self._configuration == 'logic':
+            elif self._configuration == "logic":
                 if self.id in (
                     DeviceId.ANALOG_DISCOVERY,
                     DeviceId.ANALOG_DISCOVERY2,
@@ -385,17 +383,17 @@ class DeviceBase:
                     return 3
                 elif self.id == DeviceId.DIGITAL_DISCOVERY:
                     return 0
-            elif self._configuration == 'pattern':
+            elif self._configuration == "pattern":
                 if self.id in (DeviceId.ANALOG_DISCOVERY, DeviceId.ANALOG_DISCOVERY2):
                     return 3
                 elif self.id == DeviceId.ANALOG_DISCOVERY3:
                     return 4
                 elif self.id == DeviceId.DIGITAL_DISCOVERY:
                     return 0
-            elif self._configuration == '1v8':
+            elif self._configuration == "1v8":
                 if self.id in (DeviceId.ANALOG_DISCOVERY, DeviceId.ANALOG_DISCOVERY2):
                     return 4
-            elif self._configuration == 'logic-1v8':
+            elif self._configuration == "logic-1v8":
                 if self.id == DeviceId.ANALOG_DISCOVERY2:
                     return 6
                 elif self.id == DeviceId.DIGITAL_DISCOVERY:
@@ -407,8 +405,7 @@ class DeviceBase:
                 )
 
             raise WaveformsError(
-                f"The device '{self._device_info.name}' does not support "
-                "the configuration '{self._configuration}'."
+                f"The device '{self._device_info.name}' does not support " "the configuration '{self._configuration}'."
             )
 
         return self._configuration
@@ -502,9 +499,7 @@ class ElectronicsExplorer(DeviceBase):
             def current_limit(self, value: bool) -> None:
                 self._device.analog_io[1][2].value = value
 
-            def setup(
-                self, voltage: float, current_limit: Optional[float] = None, enabled: bool = True
-            ) -> None:
+            def setup(self, voltage: float, current_limit: Optional[float] = None, enabled: bool = True) -> None:
                 """Sets up the positive power supply.
 
                 Parameters
@@ -561,9 +556,7 @@ class ElectronicsExplorer(DeviceBase):
             def current_limit(self, value: bool) -> None:
                 self._device.analog_io[2][2].value = value
 
-            def setup(
-                self, voltage: float, current_limit: Optional[float] = None, enabled: bool = True
-            ) -> None:
+            def setup(self, voltage: float, current_limit: Optional[float] = None, enabled: bool = True) -> None:
                 """Sets up the negative power supply.
 
                 Parameters
@@ -1362,10 +1355,7 @@ class Device(DeviceBase):
     @staticmethod
     def enumerate(enum_filter=api.ENUMFILTER_ALL) -> tuple:
         """Enumerates all devices."""
-        return tuple(
-            Device(device_index=Device._EnumeratedIndex(i))
-            for i in range(api.dwf_enum(enum_filter))
-        )
+        return tuple(Device(device_index=Device._EnumeratedIndex(i)) for i in range(api.dwf_enum(enum_filter)))
 
     @staticmethod
     def close_all() -> None:

@@ -31,7 +31,7 @@ class AnalogRecorder:
             """Gets the acquired data samples."""
             return self._data_samples
 
-    def __init__(self, module: 'fwd.AnalogInput'):
+    def __init__(self, module: "fwd.AnalogInput"):
         self._module = module
 
         self._is_setup = False
@@ -76,7 +76,7 @@ class AnalogRecorder:
         """Gets a collection of data channels."""
         return self._channels
 
-    def record(self, callback: Optional[Callable[['AnalogRecorder'], bool]] = None) -> None:
+    def record(self, callback: Optional[Callable[["AnalogRecorder"], bool]] = None) -> None:
         """Starts the recording and processes all samples until the recording is complete.
 
         Parameters
@@ -145,9 +145,7 @@ class AnalogRecorder:
 
             self._data_buffers = []
             for channel in self._module.channels:
-                self._data_buffers.append(
-                    (ctypes.c_double * self._buffer_size)() if channel.enabled else None
-                )
+                self._data_buffers.append((ctypes.c_double * self._buffer_size)() if channel.enabled else None)
 
             self._is_setup = True
 
@@ -190,9 +188,7 @@ class AnalogRecorder:
         for i, data_buffer in enumerate(self._data_buffers):
             if data_buffer is not None:
                 # pylint: disable-next=protected-access
-                self._channels[i]._data_samples = self._normalize_ring_buffer(
-                    data_buffer, self._buffer_index
-                )
+                self._channels[i]._data_samples = self._normalize_ring_buffer(data_buffer, self._buffer_index)
 
         self._is_setup = False
 

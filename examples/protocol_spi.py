@@ -8,9 +8,9 @@ import time
 import dwfpy as dwf
 
 with dwf.Device() as device:
-    print(f'Found device: {device.name} ({device.serial_number})')
+    print(f"Found device: {device.name} ({device.serial_number})")
 
-    print('Configuring SPI...')
+    print("Configuring SPI...")
     spi = device.protocols.spi
     spi.setup(pin_select=0, pin_clock=1, pin_mosi=2, pin_miso=3, frequency=1e3)
     spi.set_idle(0, dwf.DigitalOutputIdle.ZET)  # 0 DQ0_MOSI_SISO = DwfDigitalOutIdleZet
@@ -32,8 +32,8 @@ with dwf.Device() as device:
     # write to MOSI and read from MISO
     rx = spi.write_read(buffer=tx, words_to_receive=10)
 
-    print(f'TX: {list(tx)}')
-    print(f'RX: {list(rx)}')
+    print(f"TX: {list(tx)}")
+    print(f"RX: {list(rx)}")
 
     # CS DIO-0 high
     spi.select(1)
@@ -49,4 +49,4 @@ with dwf.Device() as device:
 
     # read array of 8 bit (byte) length elements
     rx = spi.read(words_to_receive=10)
-    print(f'RX: {list(rx)}')
+    print(f"RX: {list(rx)}")

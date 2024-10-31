@@ -21,15 +21,15 @@ class DigitalIoChannel:
         self._device = module.device
         self._module = module
         self._channel = channel
-        self._label = 'ch' + str(channel + 1)
+        self._label = "ch" + str(channel + 1)
 
     @property
-    def device(self) -> 'fwd.Device':
+    def device(self) -> "fwd.Device":
         """Gets the device."""
         return self._device
 
     @property
-    def module(self) -> 'DigitalIo':
+    def module(self) -> "DigitalIo":
         """Gets the Digital IO module."""
         return self._module
 
@@ -127,8 +127,7 @@ class DigitalIo:
     def __init__(self, device):
         self._device = device
         self._channels = tuple(
-            DigitalIoChannel(self, i)
-            for i in range(api.dwf_digital_in_bits_info(self._device.handle))
+            DigitalIoChannel(self, i) for i in range(api.dwf_digital_in_bits_info(self._device.handle))
         )
 
     def __enter__(self):
@@ -139,7 +138,7 @@ class DigitalIo:
         self.reset()
 
     @property
-    def device(self) -> 'fwd.Device':
+    def device(self) -> "fwd.Device":
         """Gets the device."""
         return self._device
 

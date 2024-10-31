@@ -80,9 +80,7 @@ class DeviceInfo:
         self._name = self.get_device_name(device_index)
         self._user_name = self.get_user_name(device_index)
         self._serial_number = self.get_serial_number(device_index)
-        self._configurations = tuple(
-            Configuration(i) for i in range(api.dwf_enum_config(device_index))
-        )
+        self._configurations = tuple(Configuration(i) for i in range(api.dwf_enum_config(device_index)))
         self._has_properties = True
 
     @staticmethod
@@ -109,4 +107,4 @@ class DeviceInfo:
     @staticmethod
     def normalize_serial_number(serial_number: str) -> str:
         """Normalizes the serial number, i.e. strip the leading 'SN:' and convert to uppercase."""
-        return serial_number.upper().lstrip('SN:')
+        return serial_number.upper().lstrip("SN:")

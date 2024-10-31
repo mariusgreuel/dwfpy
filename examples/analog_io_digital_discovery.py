@@ -7,10 +7,10 @@ This file is part of dwfpy: https://github.com/mariusgreuel/dwfpy
 import time
 import dwfpy as dwf
 
-print(f'DWF Version: {dwf.Application.get_version()}')
+print(f"DWF Version: {dwf.Application.get_version()}")
 
 with dwf.DigitalDiscovery() as device:
-    print(f'Found device: {device.name} ({device.serial_number})')
+    print(f"Found device: {device.name} ({device.serial_number})")
 
     # set digital voltage between 1.2 and 3.3V
     device.supplies.digital.setup(voltage=1.8)
@@ -33,14 +33,14 @@ with dwf.DigitalDiscovery() as device:
     # slew rate for DIO lines: 0 quietio, 1 slow, 2 fast
     device.dio_slew = 0
 
-    print('Press Ctrl+C to stop')
+    print("Press Ctrl+C to stop")
     while True:
         time.sleep(1)
 
         device.analog_io.read_status()
 
-        print(f'USB:\t{device.usb_voltage:.3f}V\t{device.usb_current:.3f}A')
-        print(f'VIO:\t{device.vio_voltage:.3f}V\t{device.vio_current:.3f}A')
+        print(f"USB:\t{device.usb_voltage:.3f}V\t{device.usb_current:.3f}A")
+        print(f"VIO:\t{device.vio_voltage:.3f}V\t{device.vio_current:.3f}A")
 
         if not device.supplies.master_enable_status:
             print("Power supplies stopped, restarting...")

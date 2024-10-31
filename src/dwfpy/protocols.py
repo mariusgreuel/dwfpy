@@ -121,7 +121,7 @@ class Protocols:
             rate: int = 9600,
             data_bits: int = 8,
             stop_bits: int = 1,
-            parity: str = 'n',
+            parity: str = "n",
             inverted: bool = False,
         ) -> None:
             """Sets up the UART configuration."""
@@ -148,9 +148,7 @@ class Protocols:
             """Returns the received characters since the last call.
             Returns (rx_buffer, parity)."""
             rx_buffer8 = (ctypes.c_char * buffer_size)()
-            count, parity = api.dwf_digital_uart_rx(
-                self._device.handle, rx_buffer8, len(rx_buffer8)
-            )
+            count, parity = api.dwf_digital_uart_rx(self._device.handle, rx_buffer8, len(rx_buffer8))
             return bytes(rx_buffer8)[:count], parity
 
         def write(self, buffer: bytes) -> None:
@@ -161,12 +159,12 @@ class Protocols:
         @staticmethod
         def _map_parity(value) -> int:
             named_values = {
-                'n': 0,
-                'no': 0,
-                'o': 1,
-                'odd': 1,
-                'e': 2,
-                'even': 2,
+                "n": 0,
+                "no": 0,
+                "o": 1,
+                "odd": 1,
+                "e": 2,
+                "even": 2,
             }
             return Helpers.map_named_value(value, named_values)
 
@@ -392,9 +390,7 @@ class Protocols:
             """Control the SPI chip select."""
             if pin_select is None:
                 pin_select = self.pin_select
-            api.dwf_digital_spi_select(
-                self._device.handle, pin_select, self._map_select_level(level)
-            )
+            api.dwf_digital_spi_select(self._device.handle, pin_select, self._map_select_level(level))
 
         def read_one(self, dq_mode: Optional[int] = None, bits_per_word: int = 8) -> None:
             """Performs a SPI reception of up to 32 bits."""
@@ -402,9 +398,7 @@ class Protocols:
                 dq_mode = self._dq_mode
             return api.dwf_digital_spi_read_one(self._device.handle, dq_mode, bits_per_word)
 
-        def write_one(
-            self, data: int, dq_mode: Optional[int] = None, bits_per_word: int = 8
-        ) -> None:
+        def write_one(self, data: int, dq_mode: Optional[int] = None, bits_per_word: int = 8) -> None:
             """Performs a SPI transmit of up to 32 bits."""
             if dq_mode is None:
                 dq_mode = self._dq_mode
@@ -420,49 +414,35 @@ class Protocols:
 
             if bits_per_word <= 8:
                 rx_buffer8 = (ctypes.c_ubyte * words_to_receive)()
-                api.dwf_digital_spi_read(
-                    self._device.handle, dq_mode, bits_per_word, rx_buffer8, len(rx_buffer8)
-                )
+                api.dwf_digital_spi_read(self._device.handle, dq_mode, bits_per_word, rx_buffer8, len(rx_buffer8))
                 return bytes(rx_buffer8)
             elif bits_per_word <= 16:
                 rx_buffer16 = (ctypes.c_ushort * words_to_receive)()
-                api.dwf_digital_spi_read16(
-                    self._device.handle, dq_mode, bits_per_word, rx_buffer16, len(rx_buffer16)
-                )
-                return array.array('H', rx_buffer16)
+                api.dwf_digital_spi_read16(self._device.handle, dq_mode, bits_per_word, rx_buffer16, len(rx_buffer16))
+                return array.array("H", rx_buffer16)
             elif bits_per_word <= 32:
                 rx_buffer32 = (ctypes.c_uint * words_to_receive)()
-                api.dwf_digital_spi_read32(
-                    self._device.handle, dq_mode, bits_per_word, rx_buffer32, len(rx_buffer32)
-                )
-                return array.array('I', rx_buffer32)
+                api.dwf_digital_spi_read32(self._device.handle, dq_mode, bits_per_word, rx_buffer32, len(rx_buffer32))
+                return array.array("I", rx_buffer32)
             else:
-                raise ValueError('bits_per_word cannot be higher than 32.')
+                raise ValueError("bits_per_word cannot be higher than 32.")
 
-        def write(
-            self, buffer: bytes, dq_mode: Optional[int] = None, bits_per_word: int = 8
-        ) -> None:
+        def write(self, buffer: bytes, dq_mode: Optional[int] = None, bits_per_word: int = 8) -> None:
             """Performs a SPI write."""
             if dq_mode is None:
                 dq_mode = self._dq_mode
 
             if bits_per_word <= 8:
                 tx_buffer8 = (ctypes.c_ubyte * len(buffer)).from_buffer_copy(buffer)
-                api.dwf_digital_spi_write(
-                    self._device.handle, dq_mode, bits_per_word, tx_buffer8, len(tx_buffer8)
-                )
+                api.dwf_digital_spi_write(self._device.handle, dq_mode, bits_per_word, tx_buffer8, len(tx_buffer8))
             elif bits_per_word <= 16:
                 tx_buffer16 = (ctypes.c_ushort * len(buffer)).from_buffer_copy(buffer)
-                api.dwf_digital_spi_write16(
-                    self._device.handle, dq_mode, bits_per_word, tx_buffer16, len(tx_buffer16)
-                )
+                api.dwf_digital_spi_write16(self._device.handle, dq_mode, bits_per_word, tx_buffer16, len(tx_buffer16))
             elif bits_per_word <= 32:
                 tx_buffer32 = (ctypes.c_uint * len(buffer)).from_buffer_copy(buffer)
-                api.dwf_digital_spi_write32(
-                    self._device.handle, dq_mode, bits_per_word, tx_buffer32, len(tx_buffer32)
-                )
+                api.dwf_digital_spi_write32(self._device.handle, dq_mode, bits_per_word, tx_buffer32, len(tx_buffer32))
             else:
-                raise ValueError('bits_per_word cannot be higher than 32.')
+                raise ValueError("bits_per_word cannot be higher than 32.")
 
         def write_read(
             self,
@@ -500,7 +480,7 @@ class Protocols:
                     rx_buffer16,
                     len(rx_buffer16),
                 )
-                return array.array('H', rx_buffer16)
+                return array.array("H", rx_buffer16)
             elif bits_per_word <= 32:
                 tx_buffer32 = (ctypes.c_uint * len(buffer)).from_buffer_copy(buffer)
                 rx_buffer32 = (ctypes.c_uint * words_to_receive)()
@@ -513,19 +493,19 @@ class Protocols:
                     rx_buffer32,
                     len(rx_buffer32),
                 )
-                return array.array('I', rx_buffer32)
+                return array.array("I", rx_buffer32)
             else:
-                raise ValueError('bits_per_word cannot be higher than 32.')
+                raise ValueError("bits_per_word cannot be higher than 32.")
 
         @staticmethod
         def _map_select_level(value) -> int:
             named_values = {
-                'l': 0,
-                'low': 0,
-                'h': 1,
-                'high': 1,
-                'z': -1,
-                'release': -1,
+                "l": 0,
+                "low": 0,
+                "h": 1,
+                "high": 1,
+                "z": -1,
+                "release": -1,
             }
             return Helpers.map_named_value(value, named_values)
 
@@ -648,17 +628,13 @@ class Protocols:
             """Performs an I2C read.
             Returns (rx_buffer, nak_index)."""
             rx_buffer8 = (ctypes.c_ubyte * bytes_to_read)()
-            nak_index = api.dwf_digital_i2c_read(
-                self._device.handle, address, rx_buffer8, len(rx_buffer8)
-            )
+            nak_index = api.dwf_digital_i2c_read(self._device.handle, address, rx_buffer8, len(rx_buffer8))
             return bytes(rx_buffer8), nak_index
 
         def write(self, address: int, buffer: bytes) -> None:
             """Performs an I2C write."""
             tx_buffer8 = (ctypes.c_ubyte * len(buffer)).from_buffer_copy(buffer)
-            return api.dwf_digital_i2c_write(
-                self._device.handle, address, tx_buffer8, len(tx_buffer8)
-            )
+            return api.dwf_digital_i2c_write(self._device.handle, address, tx_buffer8, len(tx_buffer8))
 
         def write_read(self, address: int, buffer: bytes, bytes_to_read: int) -> Tuple[bytes, int]:
             """Performs an I2C write/read.
@@ -763,9 +739,7 @@ class Protocols:
         def write(self, frame_id: int, extended: int, remote: int, buffer: bytes) -> None:
             """Performs a CAN transmission."""
             tx_buffer8 = (ctypes.c_ubyte * len(buffer)).from_buffer_copy(buffer)
-            api.dwf_digital_can_tx(
-                self._device.handle, frame_id, extended, remote, len(tx_buffer8), tx_buffer8
-            )
+            api.dwf_digital_can_tx(self._device.handle, frame_id, extended, remote, len(tx_buffer8), tx_buffer8)
 
     def __init__(self, device):
         self._uart = self.Uart(device)

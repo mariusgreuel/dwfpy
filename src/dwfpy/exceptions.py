@@ -11,7 +11,7 @@ Exceptions for Digilent WaveForms.
 
 
 class WaveformsError(RuntimeError):
-    '''Base class for Digilent WaveForms exceptions.'''
+    """Base class for Digilent WaveForms exceptions."""
 
     def __init__(self, message: str, error: int = 0):
         super().__init__(message)

@@ -159,9 +159,7 @@ class DigitalInputTrigger:
         falling_edge: int = 0,
     ) -> None:
         """Sets state and edge trigger conditions as a bit-mask."""
-        api.dwf_digital_in_trigger_set(
-            self._device.handle, low_level, high_level, rising_edge, falling_edge
-        )
+        api.dwf_digital_in_trigger_set(self._device.handle, low_level, high_level, rising_edge, falling_edge)
 
     def set_reset_mask(
         self,
@@ -171,9 +169,7 @@ class DigitalInputTrigger:
         falling_edge: int = 0,
     ) -> None:
         """Configures the trigger reset condition as a bit-mask."""
-        api.dwf_digital_in_trigger_reset_set(
-            self._device.handle, low_level, high_level, rising_edge, falling_edge
-        )
+        api.dwf_digital_in_trigger_reset_set(self._device.handle, low_level, high_level, rising_edge, falling_edge)
 
     def set_counter(self, count: int, restart: bool = False) -> None:
         """Configures the trigger counter."""
@@ -181,9 +177,7 @@ class DigitalInputTrigger:
 
     def set_length(self, min_length: float, max_length: float, sync_mode: int) -> None:
         """Configures the trigger timing."""
-        api.dwf_digital_in_trigger_length_set(
-            self._device.handle, min_length, max_length, sync_mode
-        )
+        api.dwf_digital_in_trigger_length_set(self._device.handle, min_length, max_length, sync_mode)
 
     def set_match(self, pin, mask: int, value: int, bit_stuffing: int) -> None:
         """Configures the trigger deserializer."""
@@ -285,16 +279,16 @@ class DigitalInputChannel:
         self._device = module.device
         self._module = module
         self._channel = channel
-        self._label = 'dio' + str(channel)
+        self._label = "dio" + str(channel)
         self._trigger = DigitalInputChannelTrigger(self)
 
     @property
-    def device(self) -> 'fwd.Device':
+    def device(self) -> "fwd.Device":
         """Gets the device."""
         return self._device
 
     @property
-    def module(self) -> 'DigitalInput':
+    def module(self) -> "DigitalInput":
         """Gets the Digital Input module."""
         return self._module
 
@@ -341,40 +335,38 @@ class DigitalInputChannel:
     def _calc_trigger(self, condition, low, high, rise, fall) -> Tuple[int, int, int, int]:
         mask = 1 << self._channel
 
-        if condition == 'ignore':
+        if condition == "ignore":
             low &= ~mask
             high &= ~mask
             rise &= ~mask
             fall &= ~mask
-        elif condition == 'low':
+        elif condition == "low":
             low |= mask
             high &= ~mask
             rise &= ~mask
             fall &= ~mask
-        elif condition == 'high':
+        elif condition == "high":
             low &= ~mask
             high |= mask
             rise &= ~mask
             fall &= ~mask
-        elif condition == 'rise':
+        elif condition == "rise":
             low &= ~mask
             high &= ~mask
             rise |= mask
             fall &= ~mask
-        elif condition == 'fall':
+        elif condition == "fall":
             low &= ~mask
             high &= ~mask
             rise &= ~mask
             fall |= mask
-        elif condition == 'edge':
+        elif condition == "edge":
             low &= ~mask
             high &= ~mask
             rise |= mask
             fall |= mask
         else:
-            raise ValueError(
-                "Trigger condition must be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'."
-            )
+            raise ValueError("Trigger condition must be 'ignore', 'low', 'high', 'rise', 'fall', or 'edge'.")
 
         return low, high, rise, fall
 
@@ -387,8 +379,7 @@ class DigitalInput:
         self._clock = DigitalInputClock(self)
         self._trigger = DigitalInputTrigger(self)
         self._channels = tuple(
-            DigitalInputChannel(self, i)
-            for i in range(api.dwf_digital_in_bits_info(self._device.handle))
+            DigitalInputChannel(self, i) for i in range(api.dwf_digital_in_bits_info(self._device.handle))
         )
         self._dio_first = False
 
@@ -400,7 +391,7 @@ class DigitalInput:
         self.reset()
 
     @property
-    def device(self) -> 'fwd.Device':
+    def device(self) -> "fwd.Device":
         """Gets the device."""
         return self._device
 
@@ -507,9 +498,7 @@ class DigitalInput:
     @property
     def sample_mode_info(self) -> Tuple[DigitalInputSampleMode, ...]:
         """Gets the supported sample modes."""
-        return Helpers.map_enum_values(
-            DigitalInputSampleMode, api.dwf_digital_in_sample_mode_info(self._device.handle)
-        )
+        return Helpers.map_enum_values(DigitalInputSampleMode, api.dwf_digital_in_sample_mode_info(self._device.handle))
 
     @property
     def sample_mode(self) -> DigitalInputSampleMode:
@@ -532,9 +521,7 @@ class DigitalInput:
     @property
     def acquisition_mode_info(self) -> Tuple[AcquisitionMode, ...]:
         """Gets the supported acquisition modes."""
-        return Helpers.map_enum_values(
-            AcquisitionMode, api.dwf_digital_in_acquisition_mode_info(self._device.handle)
-        )
+        return Helpers.map_enum_values(AcquisitionMode, api.dwf_digital_in_acquisition_mode_info(self._device.handle))
 
     @property
     def acquisition_mode(self) -> AcquisitionMode:
@@ -612,7 +599,7 @@ class DigitalInput:
         if self.sample_format <= 32:
             return np.empty(size, dtype=np.uint32)
 
-        raise ValueError('sample_format must be 8, 16, or 32.')
+        raise ValueError("sample_format must be 8, 16, or 32.")
 
     def setup_trigger(
         self,
@@ -682,22 +669,20 @@ class DigitalInput:
 
     def _setup_condition_trigger(self, channel: int, condition: str) -> None:
         self._trigger.source = TriggerSource.DETECTOR_DIGITAL_IN
-        if condition == 'ignore':
+        if condition == "ignore":
             self.trigger.set_trigger_mask(low_level=0, high_level=0, rising_edge=0, falling_edge=0)
-        elif condition == 'low':
+        elif condition == "low":
             self.trigger.set_trigger_mask(low_level=1 << channel)
-        elif condition == 'high':
+        elif condition == "high":
             self.trigger.set_trigger_mask(high_level=1 << channel)
-        elif condition in ('rise', 'rising'):
+        elif condition in ("rise", "rising"):
             self.trigger.set_trigger_mask(rising_edge=1 << channel)
-        elif condition in ('fall', 'falling'):
+        elif condition in ("fall", "falling"):
             self.trigger.set_trigger_mask(falling_edge=1 << channel)
-        elif condition == 'edge':
+        elif condition == "edge":
             self.trigger.set_trigger_mask(rising_edge=1 << channel, falling_edge=1 << channel)
         else:
-            raise ValueError(
-                "Trigger condition must be 'ignore', 'low', 'high', 'rising', 'falling', or 'edge'."
-            )
+            raise ValueError("Trigger condition must be 'ignore', 'low', 'high', 'rising', 'falling', or 'edge'.")
 
     def setup_glitch_trigger(self, channel: int, polarity: str, less_than: float) -> None:
         """Sets up a glitch trigger.
@@ -711,9 +696,7 @@ class DigitalInput:
         less_than : float
             The maximum pulse width in seconds.
         """
-        self._setup_pulse_trigger(
-            channel=channel, polarity=polarity, min_length=0, max_length=less_than
-        )
+        self._setup_pulse_trigger(channel=channel, polarity=polarity, min_length=0, max_length=less_than)
 
     def setup_timeout_trigger(self, channel: int, polarity: str, more_than: float) -> None:
         """Sets up a timeout trigger.
@@ -727,9 +710,7 @@ class DigitalInput:
         more_than : float
             The minimum pulse width in seconds.
         """
-        self._setup_pulse_trigger(
-            channel=channel, polarity=polarity, min_length=more_than, max_length=0
-        )
+        self._setup_pulse_trigger(channel=channel, polarity=polarity, min_length=more_than, max_length=0)
 
     def setup_more_trigger(self, channel: int, polarity: str, more_than: float) -> None:
         """Sets up a more trigger.
@@ -743,13 +724,9 @@ class DigitalInput:
         more_than : float
             The minimum pulse width in seconds.
         """
-        self._setup_pulse_trigger(
-            channel=channel, polarity=polarity, min_length=more_than, max_length=-1
-        )
+        self._setup_pulse_trigger(channel=channel, polarity=polarity, min_length=more_than, max_length=-1)
 
-    def setup_length_trigger(
-        self, channel: int, polarity: str, length: float, hysteresis: float = 0.0
-    ) -> None:
+    def setup_length_trigger(self, channel: int, polarity: str, length: float, hysteresis: float = 0.0) -> None:
         """Sets up a length trigger.
 
         Parameters
@@ -763,17 +740,15 @@ class DigitalInput:
         hysteresis : float, optional
             The pulse width hysteresis in seconds.
         """
-        self._setup_pulse_trigger(
-            channel=channel, polarity=polarity, min_length=length, max_length=length + hysteresis
-        )
+        self._setup_pulse_trigger(channel=channel, polarity=polarity, min_length=length, max_length=length + hysteresis)
 
     def _setup_pulse_trigger(self, channel, polarity, min_length, max_length) -> None:
         self._trigger.source = TriggerSource.DETECTOR_DIGITAL_IN
 
-        if polarity in ('pos', 'positive'):
+        if polarity in ("pos", "positive"):
             self.trigger.set_trigger_mask(high_level=1 << channel)
             self.trigger.set_reset_mask(rising_edge=1 << channel)
-        elif polarity in ('neg', 'negative'):
+        elif polarity in ("neg", "negative"):
             self.trigger.set_trigger_mask(low_level=1 << channel)
             self.trigger.set_reset_mask(falling_edge=1 << channel)
         else:
@@ -918,7 +893,7 @@ class DigitalInput:
         sample_sensible: Optional[int] = None,
         sample_count: Optional[Union[int, float]] = None,
         prefill: Optional[Union[int, float]] = None,
-        callback: Optional[Callable[['DigitalRecorder'], bool]] = None,
+        callback: Optional[Callable[["DigitalRecorder"], bool]] = None,
         configure: bool = False,
         start: bool = False,
     ) -> DigitalRecorder:

@@ -14,18 +14,18 @@ PARAMETERS = (
     (90.0, 1.5, 90.0),
 )
 
-print(f'DWF Version: {dwf.Application.get_version()}')
+print(f"DWF Version: {dwf.Application.get_version()}")
 
 with dwf.Device() as device:
-    print(f'Found device: {device.name} ({device.serial_number})')
+    print(f"Found device: {device.name} ({device.serial_number})")
 
     device.auto_configure = False
 
     wavegen = device.analog_output
 
     # enable two channels
-    wavegen[0].setup(function='sine')
-    wavegen[1].setup(function='sine')
+    wavegen[0].setup(function="sine")
+    wavegen[1].setup(function="sine")
 
     # for second channel set master the first channel
     wavegen[1].master = 0
@@ -36,7 +36,7 @@ with dwf.Device() as device:
         frequency = parameters[0]
         amplitude = parameters[1]
         phase = parameters[2]
-        print(f'Step {i+1}): {frequency}Hz, {amplitude}V, {phase}* ')
+        print(f"Step {i+1}): {frequency}Hz, {amplitude}V, {phase}* ")
         wavegen[0].setup(frequency=frequency, amplitude=amplitude)
         wavegen[1].setup(frequency=frequency, amplitude=amplitude, phase=phase)
 
@@ -49,4 +49,4 @@ with dwf.Device() as device:
 
         time.sleep(5)
 
-    print('done')
+    print("done")

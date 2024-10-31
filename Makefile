@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-BLACK_OPTIONS = --line-length 100 --skip-string-normalization
+BLACK_OPTIONS = --line-length 120
 
 .PHONY: all
 all: format check

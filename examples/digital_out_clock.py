@@ -6,10 +6,10 @@ This file is part of dwfpy: https://github.com/mariusgreuel/dwfpy
 
 import dwfpy as dwf
 
-print(f'DWF Version: {dwf.Application.get_version()}')
+print(f"DWF Version: {dwf.Application.get_version()}")
 
 with dwf.Device() as device:
-    print(f'Found device: {device.name} ({device.serial_number})')
+    print(f"Found device: {device.name} ({device.serial_number})")
 
     device.auto_configure = False
 
@@ -21,4 +21,4 @@ with dwf.Device() as device:
     # DIO-1 low
     device.digital_io[1].setup(state=False, configure=True)
 
-    input('Press Enter key to exit.')
+    input("Press Enter key to exit.")

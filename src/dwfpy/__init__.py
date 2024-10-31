@@ -49,4 +49,4 @@ from dwfpy.application import Application
 from dwfpy.analog_recorder import AnalogRecorder
 from dwfpy.digital_recorder import DigitalRecorder
 
-__version__ = '1.0'
+__version__ = "1.0"

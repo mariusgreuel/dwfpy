@@ -7,10 +7,10 @@ This file is part of dwfpy: https://github.com/mariusgreuel/dwfpy
 import matplotlib.pyplot as plt
 import dwfpy as dwf
 
-print(f'DWF Version: {dwf.Application.get_version()}')
+print(f"DWF Version: {dwf.Application.get_version()}")
 
 with dwf.Device() as device:
-    print(f'Found device: {device.name} ({device.serial_number})')
+    print(f"Found device: {device.name} ({device.serial_number})")
 
     logic = device.digital_input
     pattern = device.digital_output
@@ -24,11 +24,9 @@ with dwf.Device() as device:
 
     pattern.configure(start=True)
 
-    print('Waiting for acquisition...')
-    samples = logic.single(
-        sample_rate=100e6, sample_format=16, buffer_size=1000, configure=True, start=True
-    )
-    print('done')
+    print("Waiting for acquisition...")
+    samples = logic.single(sample_rate=100e6, sample_format=16, buffer_size=1000, configure=True, start=True)
+    print("done")
 
-plt.plot(samples, drawstyle='steps-post')
+plt.plot(samples, drawstyle="steps-post")
 plt.show()

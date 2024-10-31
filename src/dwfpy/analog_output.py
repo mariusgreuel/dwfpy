@@ -34,9 +34,7 @@ class AnalogOutputChannelTrigger:
     @property
     def source(self) -> TriggerSource:
         """Gets or sets the current trigger source setting for the instrument."""
-        return TriggerSource(
-            api.dwf_analog_out_trigger_source_get(self._device.handle, self._channel)
-        )
+        return TriggerSource(api.dwf_analog_out_trigger_source_get(self._device.handle, self._channel))
 
     @source.setter
     def source(self, value: TriggerSource) -> None:
@@ -45,9 +43,7 @@ class AnalogOutputChannelTrigger:
     @property
     def slope(self) -> TriggerSlope:
         """Gets or sets the trigger slope for the instrument."""
-        return TriggerSlope(
-            api.dwf_analog_out_trigger_slope_get(self._device.handle, self._channel)
-        )
+        return TriggerSlope(api.dwf_analog_out_trigger_slope_get(self._device.handle, self._channel))
 
     @slope.setter
     def slope(self, value: TriggerSlope) -> None:
@@ -70,9 +66,7 @@ class AnalogOutputChannelNode:
     @property
     def enabled(self) -> bool:
         """Enables the node."""
-        return bool(
-            api.dwf_analog_out_node_enable_get(self._device.handle, self._channel, self._node)
-        )
+        return bool(api.dwf_analog_out_node_enable_get(self._device.handle, self._channel, self._node))
 
     @enabled.setter
     def enabled(self, value: bool) -> None:
@@ -89,9 +83,7 @@ class AnalogOutputChannelNode:
     @property
     def function(self) -> Function:
         """Gets or sets the generator function."""
-        return Function(
-            api.dwf_analog_out_node_function_get(self._device.handle, self._channel, self._node)
-        )
+        return Function(api.dwf_analog_out_node_function_get(self._device.handle, self._channel, self._node))
 
     @function.setter
     def function(self, value: Function) -> None:
@@ -100,16 +92,12 @@ class AnalogOutputChannelNode:
     @property
     def frequency_min(self) -> float:
         """Gets the minimum frequency."""
-        return api.dwf_analog_out_node_frequency_info(
-            self._device.handle, self._channel, self._node
-        )[0]
+        return api.dwf_analog_out_node_frequency_info(self._device.handle, self._channel, self._node)[0]
 
     @property
     def frequency_max(self) -> float:
         """Gets the maximum frequency."""
-        return api.dwf_analog_out_node_frequency_info(
-            self._device.handle, self._channel, self._node
-        )[1]
+        return api.dwf_analog_out_node_frequency_info(self._device.handle, self._channel, self._node)[1]
 
     @property
     def frequency(self) -> float:
@@ -123,16 +111,12 @@ class AnalogOutputChannelNode:
     @property
     def amplitude_min(self) -> float:
         """Gets the minimum amplitude."""
-        return api.dwf_analog_out_node_amplitude_info(
-            self._device.handle, self._channel, self._node
-        )[0]
+        return api.dwf_analog_out_node_amplitude_info(self._device.handle, self._channel, self._node)[0]
 
     @property
     def amplitude_max(self) -> float:
         """Gets the maximum amplitude."""
-        return api.dwf_analog_out_node_amplitude_info(
-            self._device.handle, self._channel, self._node
-        )[1]
+        return api.dwf_analog_out_node_amplitude_info(self._device.handle, self._channel, self._node)[1]
 
     @property
     def amplitude(self) -> float:
@@ -146,16 +130,12 @@ class AnalogOutputChannelNode:
     @property
     def offset_min(self) -> float:
         """Gets the minimum offset."""
-        return api.dwf_analog_out_node_offset_info(self._device.handle, self._channel, self._node)[
-            0
-        ]
+        return api.dwf_analog_out_node_offset_info(self._device.handle, self._channel, self._node)[0]
 
     @property
     def offset_max(self) -> float:
         """Gets the maximum offset."""
-        return api.dwf_analog_out_node_offset_info(self._device.handle, self._channel, self._node)[
-            1
-        ]
+        return api.dwf_analog_out_node_offset_info(self._device.handle, self._channel, self._node)[1]
 
     @property
     def offset(self) -> float:
@@ -169,16 +149,12 @@ class AnalogOutputChannelNode:
     @property
     def symmetry_min(self) -> float:
         """Gets the minimum symmetry percentage."""
-        return api.dwf_analog_out_node_symmetry_info(
-            self._device.handle, self._channel, self._node
-        )[0]
+        return api.dwf_analog_out_node_symmetry_info(self._device.handle, self._channel, self._node)[0]
 
     @property
     def symmetry_max(self) -> float:
         """Gets the maximum symmetry percentage."""
-        return api.dwf_analog_out_node_symmetry_info(
-            self._device.handle, self._channel, self._node
-        )[1]
+        return api.dwf_analog_out_node_symmetry_info(self._device.handle, self._channel, self._node)[1]
 
     @property
     def symmetry(self) -> float:
@@ -211,16 +187,12 @@ class AnalogOutputChannelNode:
     @property
     def data_samples_min(self) -> int:
         """Gets the minimum number of samples allowed for custom data generation."""
-        return int(
-            api.dwf_analog_out_node_data_info(self._device.handle, self._channel, self._node)[0]
-        )
+        return int(api.dwf_analog_out_node_data_info(self._device.handle, self._channel, self._node)[0])
 
     @property
     def data_samples_max(self) -> int:
         """Gets the maximum number of samples allowed for custom data generation."""
-        return int(
-            api.dwf_analog_out_node_data_info(self._device.handle, self._channel, self._node)[1]
-        )
+        return int(api.dwf_analog_out_node_data_info(self._device.handle, self._channel, self._node)[1])
 
     @property
     def play_status(self) -> Tuple[int, int, int]:
@@ -230,15 +202,11 @@ class AnalogOutputChannelNode:
 
     def set_data_samples(self, samples) -> None:
         """Sets the custom data or to prefill the buffer with play samples."""
-        api.dwf_analog_out_node_data_set(
-            self._device.handle, self._channel, self._node, samples, len(samples)
-        )
+        api.dwf_analog_out_node_data_set(self._device.handle, self._channel, self._node, samples, len(samples))
 
     def set_play_samples(self, samples) -> None:
         """Sets new data samples for play mode."""
-        api.dwf_analog_out_node_play_data(
-            self._device.handle, self._channel, self._node, samples, len(samples)
-        )
+        api.dwf_analog_out_node_play_data(self._device.handle, self._channel, self._node, samples, len(samples))
 
 
 class AnalogOutputChannel:
@@ -248,23 +216,19 @@ class AnalogOutputChannel:
         self._device = module.device
         self._module = module
         self._channel = channel
-        self._label = 'ch' + str(channel + 1)
+        self._label = "ch" + str(channel + 1)
         self._trigger = AnalogOutputChannelTrigger(self)
 
         nodes = api.dwf_analog_out_node_info(self._device.handle, self._channel)
-        self._nodes = tuple(
-            AnalogOutputChannelNode(self, v)
-            for v in AnalogOutputNode
-            if (nodes & (1 << v.value)) != 0
-        )
+        self._nodes = tuple(AnalogOutputChannelNode(self, v) for v in AnalogOutputNode if (nodes & (1 << v.value)) != 0)
 
     @property
-    def device(self) -> 'fwd.Device':
+    def device(self) -> "fwd.Device":
         """Gets the device."""
         return self._device
 
     @property
-    def module(self) -> 'AnalogOutput':
+    def module(self) -> "AnalogOutput":
         """Gets the Analog Output module."""
         return self._module
 
@@ -632,8 +596,7 @@ class AnalogOutput:
     def __init__(self, device):
         self._device = device
         self._channels = tuple(
-            AnalogOutputChannel(self, i)
-            for i in range(api.dwf_analog_out_count(self._device.handle))
+            AnalogOutputChannel(self, i) for i in range(api.dwf_analog_out_count(self._device.handle))
         )
 
     def __enter__(self):
@@ -645,7 +608,7 @@ class AnalogOutput:
             channel.reset()
 
     @property
-    def device(self) -> 'fwd.Device':
+    def device(self) -> "fwd.Device":
         """Gets the device."""
         return self._device
 
