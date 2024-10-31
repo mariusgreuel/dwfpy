@@ -8,11 +8,13 @@ import dwfpy as dwf
 
 print(f"DWF Version: {dwf.Application.get_version()}")
 
-with dwf.AnalogDiscovery2() as device:
+with dwf.Device() as device:
     print(f"Found device: {device.name} ({device.serial_number})")
 
     scope = device.analog_input
     wavegen = device.analog_output
+
+    input("Connect waveform generator to oscilloscope:\n- W1 to 1+\n- GND to 1-\nPress Enter to continue...")
 
     print("Generating square wave...")
     wavegen[0].setup("square", frequency=11, amplitude=1, offset=1, start=True)

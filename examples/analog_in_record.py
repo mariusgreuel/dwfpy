@@ -9,21 +9,21 @@ import dwfpy as dwf
 
 print(f"DWF Version: {dwf.Application.get_version()}")
 
-with dwf.AnalogDiscovery2() as device:
+with dwf.Device() as device:
     print(f"Found device: {device.name} ({device.serial_number})")
 
     scope = device.analog_input
     wavegen = device.analog_output
 
-    print('Connect Waveform Generator output 1 to Oscilloscope input 1: W1 to 1+, GND to 1-')
+    input("Connect waveform generator to oscilloscope:\n- W1 to 1+\n- GND to 1-\nPress Enter to continue...")
 
     print("Generating sine wave...")
-    wavegen[0].setup("sine", frequency=1, amplitude=2, start=True)
+    wavegen[0].setup("sine", frequency=1e3, amplitude=2, start=True)
 
     print("Starting oscilloscope...")
     scope[0].setup(range=5)
-    scope.setup_edge_trigger(mode="normal", channel=0, slope="rising", level=0, hysteresis=0.01, position=-0.25)
-    recorder = scope.record(sample_rate=100e3, length=2, configure=True, start=True)
+    scope.setup_edge_trigger(mode="normal", channel=0, slope="rising", level=0, hysteresis=0.01)
+    recorder = scope.record(sample_rate=1e6, length=2e-3, configure=True, start=True)
 
     if recorder.lost_samples > 0:
         print("Samples lost, reduce sample rate.")
