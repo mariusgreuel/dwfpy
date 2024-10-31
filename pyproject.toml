@@ -8,18 +8,19 @@ build-backend = "setuptools.build_meta"
 [tool.pylint.messages_control]
 max-line-length = 120
 disable = [
-  "too-many-arguments",
-  "too-many-locals",
-  "too-many-instance-attributes",
-  "too-many-public-methods",
-  "too-many-lines",
-  "too-many-branches",
-  "too-many-return-statements",
-  "too-few-public-methods",
-  "no-else-return",
-  "duplicate-code",
   "cyclic-import",
+  "duplicate-code",
+  "no-else-return",
   "redefined-builtin",
+  "too-few-public-methods",
+  "too-many-arguments",
+  "too-many-branches",
+  "too-many-instance-attributes",
+  "too-many-lines",
+  "too-many-locals",
+  "too-many-positional-arguments",
+  "too-many-public-methods",
+  "too-many-return-statements",
 ]
 
 [[tool.mypy.overrides]]

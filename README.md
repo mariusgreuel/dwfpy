@@ -22,7 +22,7 @@ with dwf.AnalogDiscovery2() as device:
 - Low-level API with complete access to the Digilent Waveforms API.
 - Powerful high-level API that supports one-line configuration statements.
 - Supports all sub-modules, such as oscilloscope, arbitrary waveform generator, logic analyzer, pattern generator, digital I/O, and power supplies.
-- Works with all WaveForms devices, such as the **Analog Discovery 2** or the **Digital Discovery**.
+- Works with all WaveForms devices, such as the **Analog Discovery 2**, the **Analog Discovery 3**, or the **Digital Discovery**.
 
 ## Installing DwfPy
 
@@ -32,7 +32,7 @@ You can install the [DwfPy package](https://pypi.org/project/dwfpy/) from PyPI u
 pip install dwfpy
 ```
 
-In order to use the **DwfPy** package, you need **Python 3.6** or higher.
+In order to use the **DwfPy** package, you need **Python 3.8** or higher.
 
 As **DwfPy** builds on top of the WaveForms API, you need to install the [WaveForms software][WaveForms-Software], which includes the required runtime components to access the WaveForms devices.
 

@@ -2,6 +2,7 @@
 __pycache__/
 *.egg-info/
 dist/
+.mypy_cache/
 
 # Visual Studio
 .vs/
