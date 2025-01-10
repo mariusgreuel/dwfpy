@@ -66,3 +66,23 @@ To start the channel immediately, pass the parameter ``start=True``.
        wavegen = device.analog_output
        wavegen[0].setup(function='sine', frequency=1e3, amplitude=1.0)
        wavegen[0].setup_fm(function='sine', frequency=10, amplitude=10, start=True)
+
+Generating a Custom Waveform
+----------------------------
+
+You can use the :py:meth:`setup() <dwfpy.analog_output.AnalogOutput.Channel.setup>` function to create a custom waveform.
+Use the function 'custom' and the parameter ``data_samples`` to pass the samples to be generated.
+
+.. code-block::
+
+   import dwfpy as dwf
+
+   with dwf.Device() as device:
+       wavegen = device.analog_output
+
+       # Create 256 samples of a sine waveform from 0 to 2*pi/4 (90 degrees).
+       waveform = [math.sin(i * 2 * math.pi / 256 / 4) for i in range(0, 256)]
+       wavegen[0].setup("custom", frequency=1e3, amplitude=1, data_samples=waveform, start=True)
+
+For a complete example, see
+`examples/analog_out_custom.py <https://github.com/mariusgreuel/dwfpy/blob/main/examples/analog_out_custom.py>`_.
