@@ -76,6 +76,7 @@ class Status(enum.IntEnum):
     TRIGGERED = 3
     CONFIG = 4
     PREFILL = 5
+    NOTDONE = 6
     WAIT = 7
 
 
