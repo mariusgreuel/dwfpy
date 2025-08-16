@@ -202,6 +202,6 @@ class AnalogRecorder:
         array = np.array(buffer)
         total_samples = min(self._total_samples, len(array))
         if index >= total_samples:
-            return array[index-total_samples:index]
+            return array[index - total_samples : index]
         else:
-            return np.concatenate([array[index-total_samples:], array[:index]])
+            return np.concatenate([array[index - total_samples :], array[:index]])
