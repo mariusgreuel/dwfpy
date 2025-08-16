@@ -142,6 +142,7 @@ class AnalogRecorder:
             self._requested_samples = self._buffer_size
 
             self._buffer_index = 0
+            self._total_samples = 0
 
             self._data_buffers = []
             for channel in self._module.channels:
@@ -197,7 +198,10 @@ class AnalogRecorder:
         pointer = ctypes.byref(c_buffer, index * ctypes.sizeof(ctypes.c_double))
         return ctypes.cast(pointer, ctypes.POINTER(ctypes.c_double))
 
-    @staticmethod
-    def _normalize_ring_buffer(buffer: ctypes.Array, index: int):
+    def _normalize_ring_buffer(self, buffer: ctypes.Array, index: int):
         array = np.array(buffer)
-        return array if index == 0 else np.concatenate([array[index:], array[:index]])
+        total_samples = min(self._total_samples, len(array))
+        if index >= total_samples:
+            return array[index - total_samples : index]
+        else:
+            return np.concatenate([array[index - total_samples :], array[:index]])
