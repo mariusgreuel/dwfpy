@@ -41,6 +41,7 @@ class DeviceBase:
         device_id: Optional[int] = None,
         device_type: Optional[int] = None,
         device_index: Optional[Union[int, _EnumeratedIndex]] = None,
+        device_string: Optional[str] = None,
     ):
         """
         :param configuration: Select the active configuration.
@@ -48,6 +49,7 @@ class DeviceBase:
         :param device_id: Filter devices by device ID.
         :param device_type: Filter devices by device type.
         :param device_index: Filter devices by device index.
+        :param device_string: Connection string for direct device connection (e.g. "ip:192.168.1.100").
         """
         super().__init__()
 
@@ -70,6 +72,7 @@ class DeviceBase:
         self._enum_device_id = device_id
         self._enum_device_type = device_type
         self._enum_device_index = device_index
+        self._device_string = device_string
 
         if isinstance(device_index, self._EnumeratedIndex):
             self._device_info.get_properties(device_index.index)
@@ -212,26 +215,46 @@ class DeviceBase:
         if self._hdwf is not None:
             raise WaveformsError("Device is already open")
 
-        device_index = self._enum_get_device_index()
-        if device_index is None:
-            devices = api.dwf_enum(api.ENUMFILTER_ALL)
-            if devices > 0:
-                raise DeviceNotFound(f"No devices match the filter {self._friendly_filter_spec()}")
-
-            raise DeviceNotFound("Device not found")
-
-        if not self._device_info.has_properties:
-            self._device_info.get_properties(device_index)
-
-        if self._device_info.is_open:
-            raise WaveformsError("Device is already in use by another application")
-
-        if self._configuration is None:
-            self._hdwf = api.dwf_device_open(device_index)
+        # If device_string is provided, use direct connection
+        if self._device_string:
+            if hasattr(api, "dwf_device_open_ex"):
+                # Use dwf_device_open_ex for direct connection
+                device_string_bytes = (
+                    self._device_string.encode("utf-8") if isinstance(self._device_string, str) else self._device_string
+                )
+                try:
+                    self._hdwf = api.dwf_device_open_ex(device_string_bytes)
+                    if self._hdwf == 0:
+                        raise DeviceNotFound(f"Failed to open device with connection string: {self._device_string}")
+                    self._logger.info("Opened device via connection string: %s", self._device_string)
+                except SystemError as exc:
+                    raise DeviceNotFound(
+                        f"Failed to open device with connection string: {self._device_string}"
+                    ) from exc
+            else:
+                raise WaveformsError("dwf_device_open_ex not available in this version of DWF")
         else:
-            configuration = self._get_configuration()
-            self._logger.info("Using configuration %s", configuration)
-            self._hdwf = api.dwf_device_config_open(device_index, configuration)
+            # Normal enumeration-based opening
+            device_index = self._enum_get_device_index()
+            if device_index is None:
+                devices = api.dwf_enum(api.ENUMFILTER_ALL)
+                if devices > 0:
+                    raise DeviceNotFound(f"No devices match the filter {self._friendly_filter_spec()}")
+
+                raise DeviceNotFound("Device not found")
+
+            if not self._device_info.has_properties:
+                self._device_info.get_properties(device_index)
+
+            if self._device_info.is_open:
+                raise WaveformsError("Device is already in use by another application")
+
+            if self._configuration is None:
+                self._hdwf = api.dwf_device_open(device_index)
+            else:
+                configuration = self._get_configuration()
+                self._logger.info("Using configuration %s", configuration)
+                self._hdwf = api.dwf_device_config_open(device_index, configuration)
 
         if self._hdwf is None:
             raise WaveformsError("Failed to open device")
