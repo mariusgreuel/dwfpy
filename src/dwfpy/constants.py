@@ -160,6 +160,7 @@ class ChannelNodeType(enum.IntEnum):
     TIME = 9
     FREQUENCY = 10
     RESISTANCE = 11
+    SLEW = 12
 
 
 class DmmMode(enum.IntEnum):

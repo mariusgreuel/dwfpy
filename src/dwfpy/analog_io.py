@@ -20,22 +20,38 @@ from .helpers import Helpers
 class AnalogIoChannelNode:
     """Represents an Analog IO channel node."""
 
-    def __init__(self, channel, node):
+    def __init__(self, channel, index):
         self._device = channel.device
         self._channel = channel
-        self._node = node
+        self._index = index
+
+    def __str__(self):
+        match self.type:
+            case ChannelNodeType.VOLTAGE | ChannelNodeType.CURRENT | ChannelNodeType.POWER:
+                return f"{self.status:.3f}{self.unit}"
+            case ChannelNodeType.TEMPERATURE:
+                return f"{self.status:.1f}{self.unit}"
+            case _:
+                return f"{self.status}{self.unit}"
+
+    def __repr__(self):
+        return (
+            f"'{self._channel.name}.{self.name}' ({self.type.name}), "
+            + f"Value [{self.value_min}..{self.value_max}/{self.value_steps}], "
+            + f"Status [{self.status_min}..{self.status_max}/{self.status_steps}]"
+        )
 
     @property
     def index(self) -> int:
         """Gets the node index."""
-        return self._node
+        return self._index
 
     @property
     def name(self) -> str:
         """Gets the node name."""
         name = ctypes.create_string_buffer(32)
         units = ctypes.create_string_buffer(16)
-        api.dwf_analog_io_channel_node_name(self._device.handle, self._channel.index, self._node, name, units)
+        api.dwf_analog_io_channel_node_name(self._device.handle, self._channel.index, self._index, name, units)
         return Helpers.c_char_to_string(name)
 
     @property
@@ -43,72 +59,71 @@ class AnalogIoChannelNode:
         """Gets the unit of the node value."""
         name = ctypes.create_string_buffer(32)
         units = ctypes.create_string_buffer(16)
-        api.dwf_analog_io_channel_node_name(self._device.handle, self._channel.index, self._node, name, units)
+        api.dwf_analog_io_channel_node_name(self._device.handle, self._channel.index, self._index, name, units)
         return Helpers.c_char_to_string(units)
 
     @property
-    def node_info(self) -> Tuple[ChannelNodeType, ...]:
-        """Gets the supported channel node types."""
-        return Helpers.map_enum_values(
-            ChannelNodeType,
-            api.dwf_analog_io_channel_node_info(self._device.handle, self._channel.index, self._node),
+    def type(self) -> ChannelNodeType:
+        """Gets the node type."""
+        return ChannelNodeType(
+            api.dwf_analog_io_channel_node_info(self._device.handle, self._channel.index, self._index)
         )
 
     @property
     def value_min(self) -> float:
-        """Gets the minimum node value."""
-        return api.dwf_analog_io_channel_node_set_info(self._device.handle, self._channel.index, self._node)[0]
+        """Gets the minimum settable value."""
+        return api.dwf_analog_io_channel_node_set_info(self._device.handle, self._channel.index, self._index)[0]
 
     @property
     def value_max(self) -> float:
-        """Gets the maximum node value."""
-        return api.dwf_analog_io_channel_node_set_info(self._device.handle, self._channel.index, self._node)[1]
+        """Gets the maximum settable value."""
+        return api.dwf_analog_io_channel_node_set_info(self._device.handle, self._channel.index, self._index)[1]
 
     @property
     def value_steps(self) -> int:
-        """Gets the number of node value steps."""
-        return api.dwf_analog_io_channel_node_set_info(self._device.handle, self._channel.index, self._node)[2]
+        """Gets the number of steps between minimum and maximum settable values."""
+        return api.dwf_analog_io_channel_node_set_info(self._device.handle, self._channel.index, self._index)[2]
 
     @property
     def value(self) -> float:
         """Gets or sets the node value."""
-        return api.dwf_analog_io_channel_node_get(self._device.handle, self._channel.index, self._node)
+        return api.dwf_analog_io_channel_node_get(self._device.handle, self._channel.index, self._index)
 
     @value.setter
     def value(self, value: float) -> None:
-        api.dwf_analog_io_channel_node_set(self._device.handle, self._channel.index, self._node, value)
+        api.dwf_analog_io_channel_node_set(self._device.handle, self._channel.index, self._index, value)
 
     @property
     def status_min(self) -> float:
-        """Gets the minimum node value."""
-        return api.dwf_analog_io_channel_node_status_info(self._device.handle, self._channel.index, self._node)[0]
+        """Gets the minimum reading value."""
+        return api.dwf_analog_io_channel_node_status_info(self._device.handle, self._channel.index, self._index)[0]
 
     @property
     def status_max(self) -> float:
-        """Gets the maximum node value."""
-        return api.dwf_analog_io_channel_node_status_info(self._device.handle, self._channel.index, self._node)[1]
+        """Gets the maximum reading value."""
+        return api.dwf_analog_io_channel_node_status_info(self._device.handle, self._channel.index, self._index)[1]
 
     @property
     def status_steps(self) -> int:
-        """Gets the number of node value steps."""
-        return api.dwf_analog_io_channel_node_status_info(self._device.handle, self._channel.index, self._node)[2]
+        """Gets the number of steps between minimum and maximum reading values."""
+        return api.dwf_analog_io_channel_node_status_info(self._device.handle, self._channel.index, self._index)[2]
 
     @property
     def status(self) -> float:
         """Gets the actual node value."""
-        return api.dwf_analog_io_channel_node_status(self._device.handle, self._channel.index, self._node)
+        return api.dwf_analog_io_channel_node_status(self._device.handle, self._channel.index, self._index)
 
 
 class AnalogIoChannel:
     """Represents an Analog IO channel."""
 
-    def __init__(self, module, channel):
+    def __init__(self, module, index):
         self._device = module.device
         self._module = module
-        self._channel = channel
+        self._index = index
         self._nodes = tuple(
             AnalogIoChannelNode(self, i)
-            for i in range(api.dwf_analog_io_channel_info(self._device.handle, self._channel))
+            for i in range(api.dwf_analog_io_channel_info(self._device.handle, self._index))
         )
 
     @property
@@ -124,7 +139,7 @@ class AnalogIoChannel:
     @property
     def index(self) -> int:
         """Gets the channel index."""
-        return self._channel
+        return self._index
 
     @property
     def nodes(self) -> Tuple[AnalogIoChannelNode, ...]:
@@ -147,7 +162,7 @@ class AnalogIoChannel:
         """Gets the channel name."""
         name = ctypes.create_string_buffer(32)
         label = ctypes.create_string_buffer(16)
-        api.dwf_analog_io_channel_name(self._device.handle, self._channel, name, label)
+        api.dwf_analog_io_channel_name(self._device.handle, self._index, name, label)
         return Helpers.c_char_to_string(name)
 
     @property
@@ -155,7 +170,7 @@ class AnalogIoChannel:
         """Gets the channel label."""
         name = ctypes.create_string_buffer(32)
         label = ctypes.create_string_buffer(16)
-        api.dwf_analog_io_channel_name(self._device.handle, self._channel, name, label)
+        api.dwf_analog_io_channel_name(self._device.handle, self._index, name, label)
         return Helpers.c_char_to_string(label)
 
 
